@@ -16,43 +16,43 @@
 pub const XDR_FILES_SHA256: [(&str, &str); 10] = [
     (
         "xdr/next/Stellar-SCP.x",
-        "8f32b04d008f8bc33b8843d075e69837231a673691ee41d8b821ca229a6e802a",
+        "2b855c7f79b8e50cf15ca1e1aa89fb16bbb38117de0b1c969c80e675ae1ca4bb",
     ),
     (
         "xdr/next/Stellar-contract-env-meta.x",
-        "928a30de814ee589bc1d2aadd8dd81c39f71b7e6f430f56974505ccb1f49654b",
+        "8d30dbf039e41e149725b34f2c809fc034c0879adac9d85fc49b8371f9a0444f",
     ),
     (
         "xdr/next/Stellar-contract-spec.x",
-        "1c4304a077e12a94a793efa90e18099011f11b385a8aa2272c65e334cee989df",
+        "e5d4d95c6765b96e12e08ce6333fb37ad11f353a55dfabb1ae20e2dd83780846",
     ),
     (
         "xdr/next/Stellar-contract.x",
-        "69e8f476cb30ceda3a0981b7f9367a4e4f1a29393336a78ae4cc1e9e7f5e750c",
+        "4aa5c7748f494989ea712a1041ded5bb27af32d115ae0f5c302821f83768cd56",
     ),
     (
         "xdr/next/Stellar-internal.x",
-        "368706dd6e2efafd16a8f63daf3374845b791d097b15c502aa7653a412b68b68",
+        "467d954846f88e50e690b64a0ef2dc138b92b03d24bdd66559df16f76535b288",
     ),
     (
         "xdr/next/Stellar-ledger-entries.x",
-        "bc3ef59ed74e6f990ce14dd051a000a6dd793fc6a5deb4a83c7fef1035ff1bc6",
+        "d42cf06cc88d6ed58af07359af2e938adba8628fee8f1e3f5e7e45f5969660ac",
     ),
     (
         "xdr/next/Stellar-ledger.x",
-        "b19c10a07c9775594723ad12927259dd4bbd9ed9dfd0e70078662ec2e90e130d",
+        "d5fc8a5f97fef517ef030b8f1d0beeaa9f133503a512dae8d58f41f86338a9f7",
     ),
     (
         "xdr/next/Stellar-overlay.x",
-        "3093b425866f34b32702d80d5298f9f2dc00736b0fdaac7efa653490a39fb231",
+        "56d0a34446e90f047e7d9d862c881d710abac37ac6ccabc37de7b2d23b77056f",
     ),
     (
         "xdr/next/Stellar-transaction.x",
-        "bdac432e08265df6a13dc4c6135090ca6dcaa8eeedd61a0533ba52b4c9baf201",
+        "9bdece937ef2be7c4d48981474843461905fe6bd010570f459dad26e97622a89",
     ),
     (
         "xdr/next/Stellar-types.x",
-        "7b3e5470c4bcf7c19f9cc8f8bf81a494b540fc2157476329cf19863afab2343b",
+        "92991a74191509be836e0507081b8624f38bde51994d5c4554b0347c0c68ac6c",
     ),
 ];
 
@@ -6130,7 +6130,7 @@ impl WriteXdr for ScVal {
 //        SCO_U128 = 4,
 //        SCO_I128 = 5,
 //        SCO_BYTES = 6,
-//        SCO_CONTRACT_CODE = 7,
+//        SCO_CONTRACT_EXECUTABLE = 7,
 //        SCO_ACCOUNT_ID = 8
 //
 //        // TODO: add more
@@ -6153,7 +6153,7 @@ pub enum ScObjectType {
     U128 = 4,
     I128 = 5,
     Bytes = 6,
-    ContractCode = 7,
+    ContractExecutable = 7,
     AccountId = 8,
 }
 
@@ -6166,7 +6166,7 @@ impl ScObjectType {
         ScObjectType::U128,
         ScObjectType::I128,
         ScObjectType::Bytes,
-        ScObjectType::ContractCode,
+        ScObjectType::ContractExecutable,
         ScObjectType::AccountId,
     ];
     pub const VARIANTS_STR: [&'static str; 9] = [
@@ -6177,7 +6177,7 @@ impl ScObjectType {
         "U128",
         "I128",
         "Bytes",
-        "ContractCode",
+        "ContractExecutable",
         "AccountId",
     ];
 
@@ -6191,7 +6191,7 @@ impl ScObjectType {
             Self::U128 => "U128",
             Self::I128 => "I128",
             Self::Bytes => "Bytes",
-            Self::ContractCode => "ContractCode",
+            Self::ContractExecutable => "ContractExecutable",
             Self::AccountId => "AccountId",
         }
     }
@@ -6235,7 +6235,7 @@ impl TryFrom<i32> for ScObjectType {
             4 => ScObjectType::U128,
             5 => ScObjectType::I128,
             6 => ScObjectType::Bytes,
-            7 => ScObjectType::ContractCode,
+            7 => ScObjectType::ContractExecutable,
             8 => ScObjectType::AccountId,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
@@ -6513,12 +6513,12 @@ impl AsRef<[ScMapEntry]> for ScMap {
     }
 }
 
-// ScContractCodeType is an XDR Enum defines as:
+// ScContractExecutableType is an XDR Enum defines as:
 //
-//   enum SCContractCodeType
+//   enum SCContractExecutableType
 //    {
-//        SCCONTRACT_CODE_WASM_REF = 0,
-//        SCCONTRACT_CODE_TOKEN = 1
+//        SCCONTRACT_EXECUTABLE_WASM = 0,
+//        SCCONTRACT_EXECUTABLE_ASSET = 1
 //    };
 //
 // enum
@@ -6530,58 +6530,60 @@ impl AsRef<[ScMapEntry]> for ScMap {
     serde(rename_all = "snake_case")
 )]
 #[repr(i32)]
-pub enum ScContractCodeType {
-    WasmRef = 0,
-    Token = 1,
+pub enum ScContractExecutableType {
+    Wasm = 0,
+    Asset = 1,
 }
 
-impl ScContractCodeType {
-    pub const VARIANTS: [ScContractCodeType; 2] =
-        [ScContractCodeType::WasmRef, ScContractCodeType::Token];
-    pub const VARIANTS_STR: [&'static str; 2] = ["WasmRef", "Token"];
+impl ScContractExecutableType {
+    pub const VARIANTS: [ScContractExecutableType; 2] = [
+        ScContractExecutableType::Wasm,
+        ScContractExecutableType::Asset,
+    ];
+    pub const VARIANTS_STR: [&'static str; 2] = ["Wasm", "Asset"];
 
     #[must_use]
     pub const fn name(&self) -> &'static str {
         match self {
-            Self::WasmRef => "WasmRef",
-            Self::Token => "Token",
+            Self::Wasm => "Wasm",
+            Self::Asset => "Asset",
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [ScContractCodeType; 2] {
+    pub const fn variants() -> [ScContractExecutableType; 2] {
         Self::VARIANTS
     }
 }
 
-impl Name for ScContractCodeType {
+impl Name for ScContractExecutableType {
     #[must_use]
     fn name(&self) -> &'static str {
         Self::name(self)
     }
 }
 
-impl Variants<ScContractCodeType> for ScContractCodeType {
-    fn variants() -> slice::Iter<'static, ScContractCodeType> {
+impl Variants<ScContractExecutableType> for ScContractExecutableType {
+    fn variants() -> slice::Iter<'static, ScContractExecutableType> {
         Self::VARIANTS.iter()
     }
 }
 
-impl Enum for ScContractCodeType {}
+impl Enum for ScContractExecutableType {}
 
-impl fmt::Display for ScContractCodeType {
+impl fmt::Display for ScContractExecutableType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.name())
     }
 }
 
-impl TryFrom<i32> for ScContractCodeType {
+impl TryFrom<i32> for ScContractExecutableType {
     type Error = Error;
 
     fn try_from(i: i32) -> Result<Self> {
         let e = match i {
-            0 => ScContractCodeType::WasmRef,
-            1 => ScContractCodeType::Token,
+            0 => ScContractExecutableType::Wasm,
+            1 => ScContractExecutableType::Asset,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -6589,14 +6591,14 @@ impl TryFrom<i32> for ScContractCodeType {
     }
 }
 
-impl From<ScContractCodeType> for i32 {
+impl From<ScContractExecutableType> for i32 {
     #[must_use]
-    fn from(e: ScContractCodeType) -> Self {
+    fn from(e: ScContractExecutableType) -> Self {
         e as Self
     }
 }
 
-impl ReadXdr for ScContractCodeType {
+impl ReadXdr for ScContractExecutableType {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
         let e = i32::read_xdr(r)?;
@@ -6605,7 +6607,7 @@ impl ReadXdr for ScContractCodeType {
     }
 }
 
-impl WriteXdr for ScContractCodeType {
+impl WriteXdr for ScContractExecutableType {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         let i: i32 = (*self).into();
@@ -6613,17 +6615,17 @@ impl WriteXdr for ScContractCodeType {
     }
 }
 
-// ScContractCode is an XDR Union defines as:
+// ScContractExecutable is an XDR Union defines as:
 //
-//   union SCContractCode switch (SCContractCodeType type)
+//   union SCContractExecutable switch (SCContractExecutableType type)
 //    {
-//    case SCCONTRACT_CODE_WASM_REF:
-//        Hash wasm_id;
-//    case SCCONTRACT_CODE_TOKEN:
+//    case SCCONTRACT_EXECUTABLE_WASM:
+//        Hash wasm_hash;
+//    case SCCONTRACT_EXECUTABLE_ASSET:
 //        void;
 //    };
 //
-// union with discriminant ScContractCodeType
+// union with discriminant ScContractExecutableType
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 #[cfg_attr(
@@ -6632,69 +6634,71 @@ impl WriteXdr for ScContractCodeType {
     serde(rename_all = "snake_case")
 )]
 #[allow(clippy::large_enum_variant)]
-pub enum ScContractCode {
-    WasmRef(Hash),
-    Token,
+pub enum ScContractExecutable {
+    Wasm(Hash),
+    Asset,
 }
 
-impl ScContractCode {
-    pub const VARIANTS: [ScContractCodeType; 2] =
-        [ScContractCodeType::WasmRef, ScContractCodeType::Token];
-    pub const VARIANTS_STR: [&'static str; 2] = ["WasmRef", "Token"];
+impl ScContractExecutable {
+    pub const VARIANTS: [ScContractExecutableType; 2] = [
+        ScContractExecutableType::Wasm,
+        ScContractExecutableType::Asset,
+    ];
+    pub const VARIANTS_STR: [&'static str; 2] = ["Wasm", "Asset"];
 
     #[must_use]
     pub const fn name(&self) -> &'static str {
         match self {
-            Self::WasmRef(_) => "WasmRef",
-            Self::Token => "Token",
+            Self::Wasm(_) => "Wasm",
+            Self::Asset => "Asset",
         }
     }
 
     #[must_use]
-    pub const fn discriminant(&self) -> ScContractCodeType {
+    pub const fn discriminant(&self) -> ScContractExecutableType {
         #[allow(clippy::match_same_arms)]
         match self {
-            Self::WasmRef(_) => ScContractCodeType::WasmRef,
-            Self::Token => ScContractCodeType::Token,
+            Self::Wasm(_) => ScContractExecutableType::Wasm,
+            Self::Asset => ScContractExecutableType::Asset,
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [ScContractCodeType; 2] {
+    pub const fn variants() -> [ScContractExecutableType; 2] {
         Self::VARIANTS
     }
 }
 
-impl Name for ScContractCode {
+impl Name for ScContractExecutable {
     #[must_use]
     fn name(&self) -> &'static str {
         Self::name(self)
     }
 }
 
-impl Discriminant<ScContractCodeType> for ScContractCode {
+impl Discriminant<ScContractExecutableType> for ScContractExecutable {
     #[must_use]
-    fn discriminant(&self) -> ScContractCodeType {
+    fn discriminant(&self) -> ScContractExecutableType {
         Self::discriminant(self)
     }
 }
 
-impl Variants<ScContractCodeType> for ScContractCode {
-    fn variants() -> slice::Iter<'static, ScContractCodeType> {
+impl Variants<ScContractExecutableType> for ScContractExecutable {
+    fn variants() -> slice::Iter<'static, ScContractExecutableType> {
         Self::VARIANTS.iter()
     }
 }
 
-impl Union<ScContractCodeType> for ScContractCode {}
+impl Union<ScContractExecutableType> for ScContractExecutable {}
 
-impl ReadXdr for ScContractCode {
+impl ReadXdr for ScContractExecutable {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        let dv: ScContractCodeType = <ScContractCodeType as ReadXdr>::read_xdr(r)?;
+        let dv: ScContractExecutableType = <ScContractExecutableType as ReadXdr>::read_xdr(r)?;
         #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
         let v = match dv {
-            ScContractCodeType::WasmRef => Self::WasmRef(Hash::read_xdr(r)?),
-            ScContractCodeType::Token => Self::Token,
+            ScContractExecutableType::Wasm => Self::Wasm(Hash::read_xdr(r)?),
+            ScContractExecutableType::Asset => Self::Asset,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -6702,14 +6706,14 @@ impl ReadXdr for ScContractCode {
     }
 }
 
-impl WriteXdr for ScContractCode {
+impl WriteXdr for ScContractExecutable {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         self.discriminant().write_xdr(w)?;
         #[allow(clippy::match_same_arms)]
         match self {
-            Self::WasmRef(v) => v.write_xdr(w)?,
-            Self::Token => ().write_xdr(w)?,
+            Self::Wasm(v) => v.write_xdr(w)?,
+            Self::Asset => ().write_xdr(w)?,
         };
         Ok(())
     }
@@ -6774,8 +6778,8 @@ impl WriteXdr for Int128Parts {
 //        Int128Parts i128;
 //    case SCO_BYTES:
 //        opaque bin<SCVAL_LIMIT>;
-//    case SCO_CONTRACT_CODE:
-//        SCContractCode contractCode;
+//    case SCO_CONTRACT_EXECUTABLE:
+//        SCContractExecutable contractExecutable;
 //    case SCO_ACCOUNT_ID:
 //        AccountID accountID;
 //    };
@@ -6797,7 +6801,7 @@ pub enum ScObject {
     U128(Int128Parts),
     I128(Int128Parts),
     Bytes(BytesM<256000>),
-    ContractCode(ScContractCode),
+    ContractExecutable(ScContractExecutable),
     AccountId(AccountId),
 }
 
@@ -6810,7 +6814,7 @@ impl ScObject {
         ScObjectType::U128,
         ScObjectType::I128,
         ScObjectType::Bytes,
-        ScObjectType::ContractCode,
+        ScObjectType::ContractExecutable,
         ScObjectType::AccountId,
     ];
     pub const VARIANTS_STR: [&'static str; 9] = [
@@ -6821,7 +6825,7 @@ impl ScObject {
         "U128",
         "I128",
         "Bytes",
-        "ContractCode",
+        "ContractExecutable",
         "AccountId",
     ];
 
@@ -6835,7 +6839,7 @@ impl ScObject {
             Self::U128(_) => "U128",
             Self::I128(_) => "I128",
             Self::Bytes(_) => "Bytes",
-            Self::ContractCode(_) => "ContractCode",
+            Self::ContractExecutable(_) => "ContractExecutable",
             Self::AccountId(_) => "AccountId",
         }
     }
@@ -6851,7 +6855,7 @@ impl ScObject {
             Self::U128(_) => ScObjectType::U128,
             Self::I128(_) => ScObjectType::I128,
             Self::Bytes(_) => ScObjectType::Bytes,
-            Self::ContractCode(_) => ScObjectType::ContractCode,
+            Self::ContractExecutable(_) => ScObjectType::ContractExecutable,
             Self::AccountId(_) => ScObjectType::AccountId,
         }
     }
@@ -6897,7 +6901,9 @@ impl ReadXdr for ScObject {
             ScObjectType::U128 => Self::U128(Int128Parts::read_xdr(r)?),
             ScObjectType::I128 => Self::I128(Int128Parts::read_xdr(r)?),
             ScObjectType::Bytes => Self::Bytes(BytesM::<256000>::read_xdr(r)?),
-            ScObjectType::ContractCode => Self::ContractCode(ScContractCode::read_xdr(r)?),
+            ScObjectType::ContractExecutable => {
+                Self::ContractExecutable(ScContractExecutable::read_xdr(r)?)
+            }
             ScObjectType::AccountId => Self::AccountId(AccountId::read_xdr(r)?),
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
@@ -6919,7 +6925,7 @@ impl WriteXdr for ScObject {
             Self::U128(v) => v.write_xdr(w)?,
             Self::I128(v) => v.write_xdr(w)?,
             Self::Bytes(v) => v.write_xdr(w)?,
-            Self::ContractCode(v) => v.write_xdr(w)?,
+            Self::ContractExecutable(v) => v.write_xdr(w)?,
             Self::AccountId(v) => v.write_xdr(w)?,
         };
         Ok(())
@@ -13578,7 +13584,7 @@ impl WriteXdr for LedgerKey {
 //        ENVELOPE_TYPE_CONTRACT_ID_FROM_CONTRACT = 9,
 //        ENVELOPE_TYPE_CONTRACT_ID_FROM_ASSET = 10,
 //        ENVELOPE_TYPE_CONTRACT_ID_FROM_SOURCE_ACCOUNT = 11,
-//        ENVELOPE_TYPE_CREATE_CONTRACT_ARGS = 12
+//        ENVELOPE_TYPE_INSTANTIATE_CONTRACT_ARGS = 12
 //    };
 //
 // enum
@@ -13603,7 +13609,7 @@ pub enum EnvelopeType {
     ContractIdFromContract = 9,
     ContractIdFromAsset = 10,
     ContractIdFromSourceAccount = 11,
-    CreateContractArgs = 12,
+    InstantiateContractArgs = 12,
 }
 
 impl EnvelopeType {
@@ -13620,7 +13626,7 @@ impl EnvelopeType {
         EnvelopeType::ContractIdFromContract,
         EnvelopeType::ContractIdFromAsset,
         EnvelopeType::ContractIdFromSourceAccount,
-        EnvelopeType::CreateContractArgs,
+        EnvelopeType::InstantiateContractArgs,
     ];
     pub const VARIANTS_STR: [&'static str; 13] = [
         "TxV0",
@@ -13635,7 +13641,7 @@ impl EnvelopeType {
         "ContractIdFromContract",
         "ContractIdFromAsset",
         "ContractIdFromSourceAccount",
-        "CreateContractArgs",
+        "InstantiateContractArgs",
     ];
 
     #[must_use]
@@ -13653,7 +13659,7 @@ impl EnvelopeType {
             Self::ContractIdFromContract => "ContractIdFromContract",
             Self::ContractIdFromAsset => "ContractIdFromAsset",
             Self::ContractIdFromSourceAccount => "ContractIdFromSourceAccount",
-            Self::CreateContractArgs => "CreateContractArgs",
+            Self::InstantiateContractArgs => "InstantiateContractArgs",
         }
     }
 
@@ -13701,7 +13707,7 @@ impl TryFrom<i32> for EnvelopeType {
             9 => EnvelopeType::ContractIdFromContract,
             10 => EnvelopeType::ContractIdFromAsset,
             11 => EnvelopeType::ContractIdFromSourceAccount,
-            12 => EnvelopeType::CreateContractArgs,
+            12 => EnvelopeType::InstantiateContractArgs,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -20710,7 +20716,7 @@ impl WriteXdr for LedgerFootprint {
 //        SET_TRUST_LINE_FLAGS = 21,
 //        LIQUIDITY_POOL_DEPOSIT = 22,
 //        LIQUIDITY_POOL_WITHDRAW = 23,
-//        INVOKE_HOST_FUNCTION = 24
+//        SMART_CONTRACT = 24
 //    };
 //
 // enum
@@ -20747,7 +20753,7 @@ pub enum OperationType {
     SetTrustLineFlags = 21,
     LiquidityPoolDeposit = 22,
     LiquidityPoolWithdraw = 23,
-    InvokeHostFunction = 24,
+    SmartContract = 24,
 }
 
 impl OperationType {
@@ -20776,7 +20782,7 @@ impl OperationType {
         OperationType::SetTrustLineFlags,
         OperationType::LiquidityPoolDeposit,
         OperationType::LiquidityPoolWithdraw,
-        OperationType::InvokeHostFunction,
+        OperationType::SmartContract,
     ];
     pub const VARIANTS_STR: [&'static str; 25] = [
         "CreateAccount",
@@ -20803,7 +20809,7 @@ impl OperationType {
         "SetTrustLineFlags",
         "LiquidityPoolDeposit",
         "LiquidityPoolWithdraw",
-        "InvokeHostFunction",
+        "SmartContract",
     ];
 
     #[must_use]
@@ -20833,7 +20839,7 @@ impl OperationType {
             Self::SetTrustLineFlags => "SetTrustLineFlags",
             Self::LiquidityPoolDeposit => "LiquidityPoolDeposit",
             Self::LiquidityPoolWithdraw => "LiquidityPoolWithdraw",
-            Self::InvokeHostFunction => "InvokeHostFunction",
+            Self::SmartContract => "SmartContract",
         }
     }
 
@@ -20893,7 +20899,7 @@ impl TryFrom<i32> for OperationType {
             21 => OperationType::SetTrustLineFlags,
             22 => OperationType::LiquidityPoolDeposit,
             23 => OperationType::LiquidityPoolWithdraw,
-            24 => OperationType::InvokeHostFunction,
+            24 => OperationType::SmartContract,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -22231,13 +22237,13 @@ impl WriteXdr for LiquidityPoolWithdrawOp {
     }
 }
 
-// HostFunctionType is an XDR Enum defines as:
+// SmartContractOperationType is an XDR Enum defines as:
 //
-//   enum HostFunctionType
+//   enum SmartContractOperationType
 //    {
-//        HOST_FUNCTION_TYPE_INVOKE_CONTRACT = 0,
-//        HOST_FUNCTION_TYPE_CREATE_CONTRACT = 1,
-//        HOST_FUNCTION_TYPE_INSTALL_CONTRACT_CODE = 2
+//        SMART_CONTRACT_OPERATION_CALL_CONTRACT = 0,
+//        SMART_CONTRACT_OPERATION_INSTANTIATE_CONTRACT = 1,
+//        SMART_CONTRACT_OPERATION_UPLOAD_WASM = 2
 //    };
 //
 // enum
@@ -22249,65 +22255,65 @@ impl WriteXdr for LiquidityPoolWithdrawOp {
     serde(rename_all = "snake_case")
 )]
 #[repr(i32)]
-pub enum HostFunctionType {
-    InvokeContract = 0,
-    CreateContract = 1,
-    InstallContractCode = 2,
+pub enum SmartContractOperationType {
+    CallContract = 0,
+    InstantiateContract = 1,
+    UploadWasm = 2,
 }
 
-impl HostFunctionType {
-    pub const VARIANTS: [HostFunctionType; 3] = [
-        HostFunctionType::InvokeContract,
-        HostFunctionType::CreateContract,
-        HostFunctionType::InstallContractCode,
+impl SmartContractOperationType {
+    pub const VARIANTS: [SmartContractOperationType; 3] = [
+        SmartContractOperationType::CallContract,
+        SmartContractOperationType::InstantiateContract,
+        SmartContractOperationType::UploadWasm,
     ];
     pub const VARIANTS_STR: [&'static str; 3] =
-        ["InvokeContract", "CreateContract", "InstallContractCode"];
+        ["CallContract", "InstantiateContract", "UploadWasm"];
 
     #[must_use]
     pub const fn name(&self) -> &'static str {
         match self {
-            Self::InvokeContract => "InvokeContract",
-            Self::CreateContract => "CreateContract",
-            Self::InstallContractCode => "InstallContractCode",
+            Self::CallContract => "CallContract",
+            Self::InstantiateContract => "InstantiateContract",
+            Self::UploadWasm => "UploadWasm",
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [HostFunctionType; 3] {
+    pub const fn variants() -> [SmartContractOperationType; 3] {
         Self::VARIANTS
     }
 }
 
-impl Name for HostFunctionType {
+impl Name for SmartContractOperationType {
     #[must_use]
     fn name(&self) -> &'static str {
         Self::name(self)
     }
 }
 
-impl Variants<HostFunctionType> for HostFunctionType {
-    fn variants() -> slice::Iter<'static, HostFunctionType> {
+impl Variants<SmartContractOperationType> for SmartContractOperationType {
+    fn variants() -> slice::Iter<'static, SmartContractOperationType> {
         Self::VARIANTS.iter()
     }
 }
 
-impl Enum for HostFunctionType {}
+impl Enum for SmartContractOperationType {}
 
-impl fmt::Display for HostFunctionType {
+impl fmt::Display for SmartContractOperationType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.name())
     }
 }
 
-impl TryFrom<i32> for HostFunctionType {
+impl TryFrom<i32> for SmartContractOperationType {
     type Error = Error;
 
     fn try_from(i: i32) -> Result<Self> {
         let e = match i {
-            0 => HostFunctionType::InvokeContract,
-            1 => HostFunctionType::CreateContract,
-            2 => HostFunctionType::InstallContractCode,
+            0 => SmartContractOperationType::CallContract,
+            1 => SmartContractOperationType::InstantiateContract,
+            2 => SmartContractOperationType::UploadWasm,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -22315,14 +22321,14 @@ impl TryFrom<i32> for HostFunctionType {
     }
 }
 
-impl From<HostFunctionType> for i32 {
+impl From<SmartContractOperationType> for i32 {
     #[must_use]
-    fn from(e: HostFunctionType) -> Self {
+    fn from(e: SmartContractOperationType) -> Self {
         e as Self
     }
 }
 
-impl ReadXdr for HostFunctionType {
+impl ReadXdr for SmartContractOperationType {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
         let e = i32::read_xdr(r)?;
@@ -22331,7 +22337,7 @@ impl ReadXdr for HostFunctionType {
     }
 }
 
-impl WriteXdr for HostFunctionType {
+impl WriteXdr for SmartContractOperationType {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         let i: i32 = (*self).into();
@@ -22548,41 +22554,6 @@ impl WriteXdr for ContractIdPublicKeyType {
     }
 }
 
-// InstallContractCodeArgs is an XDR Struct defines as:
-//
-//   struct InstallContractCodeArgs
-//    {
-//        opaque code<SCVAL_LIMIT>;
-//    };
-//
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-#[cfg_attr(
-    all(feature = "serde", feature = "alloc"),
-    derive(serde::Serialize, serde::Deserialize),
-    serde(rename_all = "snake_case")
-)]
-pub struct InstallContractCodeArgs {
-    pub code: BytesM<256000>,
-}
-
-impl ReadXdr for InstallContractCodeArgs {
-    #[cfg(feature = "std")]
-    fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        Ok(Self {
-            code: BytesM::<256000>::read_xdr(r)?,
-        })
-    }
-}
-
-impl WriteXdr for InstallContractCodeArgs {
-    #[cfg(feature = "std")]
-    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
-        self.code.write_xdr(w)?;
-        Ok(())
-    }
-}
-
 // ContractIdFromEd25519PublicKey is an XDR NestedStruct defines as:
 //
 //   struct
@@ -22745,12 +22716,12 @@ impl WriteXdr for ContractId {
     }
 }
 
-// CreateContractArgs is an XDR Struct defines as:
+// InstantiateContractArgs is an XDR Struct defines as:
 //
-//   struct CreateContractArgs
+//   struct InstantiateContractArgs
 //    {
 //        ContractID contractID;
-//        SCContractCode source;
+//        SCContractExecutable executable;
 //    };
 //
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -22760,43 +22731,43 @@ impl WriteXdr for ContractId {
     derive(serde::Serialize, serde::Deserialize),
     serde(rename_all = "snake_case")
 )]
-pub struct CreateContractArgs {
+pub struct InstantiateContractArgs {
     pub contract_id: ContractId,
-    pub source: ScContractCode,
+    pub executable: ScContractExecutable,
 }
 
-impl ReadXdr for CreateContractArgs {
+impl ReadXdr for InstantiateContractArgs {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
         Ok(Self {
             contract_id: ContractId::read_xdr(r)?,
-            source: ScContractCode::read_xdr(r)?,
+            executable: ScContractExecutable::read_xdr(r)?,
         })
     }
 }
 
-impl WriteXdr for CreateContractArgs {
+impl WriteXdr for InstantiateContractArgs {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         self.contract_id.write_xdr(w)?;
-        self.source.write_xdr(w)?;
+        self.executable.write_xdr(w)?;
         Ok(())
     }
 }
 
-// HostFunction is an XDR Union defines as:
+// SmartContractOperation is an XDR Union defines as:
 //
-//   union HostFunction switch (HostFunctionType type)
+//   union SmartContractOperation switch (SmartContractOperationType type)
 //    {
-//    case HOST_FUNCTION_TYPE_INVOKE_CONTRACT:
-//        SCVec invokeArgs;
-//    case HOST_FUNCTION_TYPE_CREATE_CONTRACT:
-//        CreateContractArgs createContractArgs;
-//    case HOST_FUNCTION_TYPE_INSTALL_CONTRACT_CODE:
-//        InstallContractCodeArgs installContractCodeArgs;
+//    case SMART_CONTRACT_OPERATION_CALL_CONTRACT:
+//        SCVec callArgs;
+//    case SMART_CONTRACT_OPERATION_INSTANTIATE_CONTRACT:
+//        InstantiateContractArgs instantiateContractArgs;
+//    case SMART_CONTRACT_OPERATION_UPLOAD_WASM:
+//        opaque wasm<SCVAL_LIMIT>;
 //    };
 //
-// union with discriminant HostFunctionType
+// union with discriminant SmartContractOperationType
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 #[cfg_attr(
@@ -22805,80 +22776,80 @@ impl WriteXdr for CreateContractArgs {
     serde(rename_all = "snake_case")
 )]
 #[allow(clippy::large_enum_variant)]
-pub enum HostFunction {
-    InvokeContract(ScVec),
-    CreateContract(CreateContractArgs),
-    InstallContractCode(InstallContractCodeArgs),
+pub enum SmartContractOperation {
+    CallContract(ScVec),
+    InstantiateContract(InstantiateContractArgs),
+    UploadWasm(BytesM<256000>),
 }
 
-impl HostFunction {
-    pub const VARIANTS: [HostFunctionType; 3] = [
-        HostFunctionType::InvokeContract,
-        HostFunctionType::CreateContract,
-        HostFunctionType::InstallContractCode,
+impl SmartContractOperation {
+    pub const VARIANTS: [SmartContractOperationType; 3] = [
+        SmartContractOperationType::CallContract,
+        SmartContractOperationType::InstantiateContract,
+        SmartContractOperationType::UploadWasm,
     ];
     pub const VARIANTS_STR: [&'static str; 3] =
-        ["InvokeContract", "CreateContract", "InstallContractCode"];
+        ["CallContract", "InstantiateContract", "UploadWasm"];
 
     #[must_use]
     pub const fn name(&self) -> &'static str {
         match self {
-            Self::InvokeContract(_) => "InvokeContract",
-            Self::CreateContract(_) => "CreateContract",
-            Self::InstallContractCode(_) => "InstallContractCode",
+            Self::CallContract(_) => "CallContract",
+            Self::InstantiateContract(_) => "InstantiateContract",
+            Self::UploadWasm(_) => "UploadWasm",
         }
     }
 
     #[must_use]
-    pub const fn discriminant(&self) -> HostFunctionType {
+    pub const fn discriminant(&self) -> SmartContractOperationType {
         #[allow(clippy::match_same_arms)]
         match self {
-            Self::InvokeContract(_) => HostFunctionType::InvokeContract,
-            Self::CreateContract(_) => HostFunctionType::CreateContract,
-            Self::InstallContractCode(_) => HostFunctionType::InstallContractCode,
+            Self::CallContract(_) => SmartContractOperationType::CallContract,
+            Self::InstantiateContract(_) => SmartContractOperationType::InstantiateContract,
+            Self::UploadWasm(_) => SmartContractOperationType::UploadWasm,
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [HostFunctionType; 3] {
+    pub const fn variants() -> [SmartContractOperationType; 3] {
         Self::VARIANTS
     }
 }
 
-impl Name for HostFunction {
+impl Name for SmartContractOperation {
     #[must_use]
     fn name(&self) -> &'static str {
         Self::name(self)
     }
 }
 
-impl Discriminant<HostFunctionType> for HostFunction {
+impl Discriminant<SmartContractOperationType> for SmartContractOperation {
     #[must_use]
-    fn discriminant(&self) -> HostFunctionType {
+    fn discriminant(&self) -> SmartContractOperationType {
         Self::discriminant(self)
     }
 }
 
-impl Variants<HostFunctionType> for HostFunction {
-    fn variants() -> slice::Iter<'static, HostFunctionType> {
+impl Variants<SmartContractOperationType> for SmartContractOperation {
+    fn variants() -> slice::Iter<'static, SmartContractOperationType> {
         Self::VARIANTS.iter()
     }
 }
 
-impl Union<HostFunctionType> for HostFunction {}
+impl Union<SmartContractOperationType> for SmartContractOperation {}
 
-impl ReadXdr for HostFunction {
+impl ReadXdr for SmartContractOperation {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        let dv: HostFunctionType = <HostFunctionType as ReadXdr>::read_xdr(r)?;
+        let dv: SmartContractOperationType = <SmartContractOperationType as ReadXdr>::read_xdr(r)?;
         #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
         let v = match dv {
-            HostFunctionType::InvokeContract => Self::InvokeContract(ScVec::read_xdr(r)?),
-            HostFunctionType::CreateContract => {
-                Self::CreateContract(CreateContractArgs::read_xdr(r)?)
+            SmartContractOperationType::CallContract => Self::CallContract(ScVec::read_xdr(r)?),
+            SmartContractOperationType::InstantiateContract => {
+                Self::InstantiateContract(InstantiateContractArgs::read_xdr(r)?)
             }
-            HostFunctionType::InstallContractCode => {
-                Self::InstallContractCode(InstallContractCodeArgs::read_xdr(r)?)
+            SmartContractOperationType::UploadWasm => {
+                Self::UploadWasm(BytesM::<256000>::read_xdr(r)?)
             }
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
@@ -22887,27 +22858,27 @@ impl ReadXdr for HostFunction {
     }
 }
 
-impl WriteXdr for HostFunction {
+impl WriteXdr for SmartContractOperation {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         self.discriminant().write_xdr(w)?;
         #[allow(clippy::match_same_arms)]
         match self {
-            Self::InvokeContract(v) => v.write_xdr(w)?,
-            Self::CreateContract(v) => v.write_xdr(w)?,
-            Self::InstallContractCode(v) => v.write_xdr(w)?,
+            Self::CallContract(v) => v.write_xdr(w)?,
+            Self::InstantiateContract(v) => v.write_xdr(w)?,
+            Self::UploadWasm(v) => v.write_xdr(w)?,
         };
         Ok(())
     }
 }
 
-// InvokeHostFunctionOp is an XDR Struct defines as:
+// SmartContractOp is an XDR Struct defines as:
 //
-//   struct InvokeHostFunctionOp
+//   struct SmartContractOp
 //    {
-//        // The host function to invoke
-//        HostFunction function;
-//        // The footprint for this invocation
+//        // The smart contract operation to perform
+//        SmartContractOperation operation;
+//        // The ledger footprint for this operation
 //        LedgerFootprint footprint;
 //    };
 //
@@ -22918,25 +22889,25 @@ impl WriteXdr for HostFunction {
     derive(serde::Serialize, serde::Deserialize),
     serde(rename_all = "snake_case")
 )]
-pub struct InvokeHostFunctionOp {
-    pub function: HostFunction,
+pub struct SmartContractOp {
+    pub operation: SmartContractOperation,
     pub footprint: LedgerFootprint,
 }
 
-impl ReadXdr for InvokeHostFunctionOp {
+impl ReadXdr for SmartContractOp {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
         Ok(Self {
-            function: HostFunction::read_xdr(r)?,
+            operation: SmartContractOperation::read_xdr(r)?,
             footprint: LedgerFootprint::read_xdr(r)?,
         })
     }
 }
 
-impl WriteXdr for InvokeHostFunctionOp {
+impl WriteXdr for SmartContractOp {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
-        self.function.write_xdr(w)?;
+        self.operation.write_xdr(w)?;
         self.footprint.write_xdr(w)?;
         Ok(())
     }
@@ -22994,8 +22965,8 @@ impl WriteXdr for InvokeHostFunctionOp {
 //            LiquidityPoolDepositOp liquidityPoolDepositOp;
 //        case LIQUIDITY_POOL_WITHDRAW:
 //            LiquidityPoolWithdrawOp liquidityPoolWithdrawOp;
-//        case INVOKE_HOST_FUNCTION:
-//            InvokeHostFunctionOp invokeHostFunctionOp;
+//        case SMART_CONTRACT:
+//            SmartContractOp smartContractOp;
 //        }
 //
 // union with discriminant OperationType
@@ -23032,7 +23003,7 @@ pub enum OperationBody {
     SetTrustLineFlags(SetTrustLineFlagsOp),
     LiquidityPoolDeposit(LiquidityPoolDepositOp),
     LiquidityPoolWithdraw(LiquidityPoolWithdrawOp),
-    InvokeHostFunction(InvokeHostFunctionOp),
+    SmartContract(SmartContractOp),
 }
 
 impl OperationBody {
@@ -23061,7 +23032,7 @@ impl OperationBody {
         OperationType::SetTrustLineFlags,
         OperationType::LiquidityPoolDeposit,
         OperationType::LiquidityPoolWithdraw,
-        OperationType::InvokeHostFunction,
+        OperationType::SmartContract,
     ];
     pub const VARIANTS_STR: [&'static str; 25] = [
         "CreateAccount",
@@ -23088,7 +23059,7 @@ impl OperationBody {
         "SetTrustLineFlags",
         "LiquidityPoolDeposit",
         "LiquidityPoolWithdraw",
-        "InvokeHostFunction",
+        "SmartContract",
     ];
 
     #[must_use]
@@ -23118,7 +23089,7 @@ impl OperationBody {
             Self::SetTrustLineFlags(_) => "SetTrustLineFlags",
             Self::LiquidityPoolDeposit(_) => "LiquidityPoolDeposit",
             Self::LiquidityPoolWithdraw(_) => "LiquidityPoolWithdraw",
-            Self::InvokeHostFunction(_) => "InvokeHostFunction",
+            Self::SmartContract(_) => "SmartContract",
         }
     }
 
@@ -23150,7 +23121,7 @@ impl OperationBody {
             Self::SetTrustLineFlags(_) => OperationType::SetTrustLineFlags,
             Self::LiquidityPoolDeposit(_) => OperationType::LiquidityPoolDeposit,
             Self::LiquidityPoolWithdraw(_) => OperationType::LiquidityPoolWithdraw,
-            Self::InvokeHostFunction(_) => OperationType::InvokeHostFunction,
+            Self::SmartContract(_) => OperationType::SmartContract,
         }
     }
 
@@ -23236,9 +23207,7 @@ impl ReadXdr for OperationBody {
             OperationType::LiquidityPoolWithdraw => {
                 Self::LiquidityPoolWithdraw(LiquidityPoolWithdrawOp::read_xdr(r)?)
             }
-            OperationType::InvokeHostFunction => {
-                Self::InvokeHostFunction(InvokeHostFunctionOp::read_xdr(r)?)
-            }
+            OperationType::SmartContract => Self::SmartContract(SmartContractOp::read_xdr(r)?),
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -23276,7 +23245,7 @@ impl WriteXdr for OperationBody {
             Self::SetTrustLineFlags(v) => v.write_xdr(w)?,
             Self::LiquidityPoolDeposit(v) => v.write_xdr(w)?,
             Self::LiquidityPoolWithdraw(v) => v.write_xdr(w)?,
-            Self::InvokeHostFunction(v) => v.write_xdr(w)?,
+            Self::SmartContract(v) => v.write_xdr(w)?,
         };
         Ok(())
     }
@@ -23341,8 +23310,8 @@ impl WriteXdr for OperationBody {
 //            LiquidityPoolDepositOp liquidityPoolDepositOp;
 //        case LIQUIDITY_POOL_WITHDRAW:
 //            LiquidityPoolWithdrawOp liquidityPoolWithdrawOp;
-//        case INVOKE_HOST_FUNCTION:
-//            InvokeHostFunctionOp invokeHostFunctionOp;
+//        case SMART_CONTRACT:
+//            SmartContractOp smartContractOp;
 //        }
 //        body;
 //    };
@@ -23640,12 +23609,12 @@ impl WriteXdr for HashIdPreimageSourceAccountContractId {
     }
 }
 
-// HashIdPreimageCreateContractArgs is an XDR NestedStruct defines as:
+// HashIdPreimageInstantiateContractArgs is an XDR NestedStruct defines as:
 //
 //   struct
 //        {
 //            Hash networkID;
-//            SCContractCode source;
+//            SCContractExecutable executable;
 //            uint256 salt;
 //        }
 //
@@ -23656,28 +23625,28 @@ impl WriteXdr for HashIdPreimageSourceAccountContractId {
     derive(serde::Serialize, serde::Deserialize),
     serde(rename_all = "snake_case")
 )]
-pub struct HashIdPreimageCreateContractArgs {
+pub struct HashIdPreimageInstantiateContractArgs {
     pub network_id: Hash,
-    pub source: ScContractCode,
+    pub executable: ScContractExecutable,
     pub salt: Uint256,
 }
 
-impl ReadXdr for HashIdPreimageCreateContractArgs {
+impl ReadXdr for HashIdPreimageInstantiateContractArgs {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
         Ok(Self {
             network_id: Hash::read_xdr(r)?,
-            source: ScContractCode::read_xdr(r)?,
+            executable: ScContractExecutable::read_xdr(r)?,
             salt: Uint256::read_xdr(r)?,
         })
     }
 }
 
-impl WriteXdr for HashIdPreimageCreateContractArgs {
+impl WriteXdr for HashIdPreimageInstantiateContractArgs {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         self.network_id.write_xdr(w)?;
-        self.source.write_xdr(w)?;
+        self.executable.write_xdr(w)?;
         self.salt.write_xdr(w)?;
         Ok(())
     }
@@ -23730,13 +23699,13 @@ impl WriteXdr for HashIdPreimageCreateContractArgs {
 //            AccountID sourceAccount;
 //            uint256 salt;
 //        } sourceAccountContractID;
-//    case ENVELOPE_TYPE_CREATE_CONTRACT_ARGS:
+//    case ENVELOPE_TYPE_INSTANTIATE_CONTRACT_ARGS:
 //        struct
 //        {
 //            Hash networkID;
-//            SCContractCode source;
+//            SCContractExecutable executable;
 //            uint256 salt;
-//        } createContractArgs;
+//        } InstantiateContractArgs;
 //    };
 //
 // union with discriminant EnvelopeType
@@ -23755,7 +23724,7 @@ pub enum HashIdPreimage {
     ContractIdFromContract(HashIdPreimageContractId),
     ContractIdFromAsset(HashIdPreimageFromAsset),
     ContractIdFromSourceAccount(HashIdPreimageSourceAccountContractId),
-    CreateContractArgs(HashIdPreimageCreateContractArgs),
+    InstantiateContractArgs(HashIdPreimageInstantiateContractArgs),
 }
 
 impl HashIdPreimage {
@@ -23766,7 +23735,7 @@ impl HashIdPreimage {
         EnvelopeType::ContractIdFromContract,
         EnvelopeType::ContractIdFromAsset,
         EnvelopeType::ContractIdFromSourceAccount,
-        EnvelopeType::CreateContractArgs,
+        EnvelopeType::InstantiateContractArgs,
     ];
     pub const VARIANTS_STR: [&'static str; 7] = [
         "OpId",
@@ -23775,7 +23744,7 @@ impl HashIdPreimage {
         "ContractIdFromContract",
         "ContractIdFromAsset",
         "ContractIdFromSourceAccount",
-        "CreateContractArgs",
+        "InstantiateContractArgs",
     ];
 
     #[must_use]
@@ -23787,7 +23756,7 @@ impl HashIdPreimage {
             Self::ContractIdFromContract(_) => "ContractIdFromContract",
             Self::ContractIdFromAsset(_) => "ContractIdFromAsset",
             Self::ContractIdFromSourceAccount(_) => "ContractIdFromSourceAccount",
-            Self::CreateContractArgs(_) => "CreateContractArgs",
+            Self::InstantiateContractArgs(_) => "InstantiateContractArgs",
         }
     }
 
@@ -23801,7 +23770,7 @@ impl HashIdPreimage {
             Self::ContractIdFromContract(_) => EnvelopeType::ContractIdFromContract,
             Self::ContractIdFromAsset(_) => EnvelopeType::ContractIdFromAsset,
             Self::ContractIdFromSourceAccount(_) => EnvelopeType::ContractIdFromSourceAccount,
-            Self::CreateContractArgs(_) => EnvelopeType::CreateContractArgs,
+            Self::InstantiateContractArgs(_) => EnvelopeType::InstantiateContractArgs,
         }
     }
 
@@ -23855,8 +23824,8 @@ impl ReadXdr for HashIdPreimage {
             EnvelopeType::ContractIdFromSourceAccount => Self::ContractIdFromSourceAccount(
                 HashIdPreimageSourceAccountContractId::read_xdr(r)?,
             ),
-            EnvelopeType::CreateContractArgs => {
-                Self::CreateContractArgs(HashIdPreimageCreateContractArgs::read_xdr(r)?)
+            EnvelopeType::InstantiateContractArgs => {
+                Self::InstantiateContractArgs(HashIdPreimageInstantiateContractArgs::read_xdr(r)?)
             }
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
@@ -23877,7 +23846,7 @@ impl WriteXdr for HashIdPreimage {
             Self::ContractIdFromContract(v) => v.write_xdr(w)?,
             Self::ContractIdFromAsset(v) => v.write_xdr(w)?,
             Self::ContractIdFromSourceAccount(v) => v.write_xdr(w)?,
-            Self::CreateContractArgs(v) => v.write_xdr(w)?,
+            Self::InstantiateContractArgs(v) => v.write_xdr(w)?,
         };
         Ok(())
     }
@@ -32917,16 +32886,16 @@ impl WriteXdr for LiquidityPoolWithdrawResult {
     }
 }
 
-// InvokeHostFunctionResultCode is an XDR Enum defines as:
+// SmartContractOperationResultCode is an XDR Enum defines as:
 //
-//   enum InvokeHostFunctionResultCode
+//   enum SmartContractOperationResultCode
 //    {
 //        // codes considered as "success" for the operation
-//        INVOKE_HOST_FUNCTION_SUCCESS = 0,
+//        SMART_CONTRACT_OPERATION_SUCCESS = 0,
 //
 //        // codes considered as "failure" for the operation
-//        INVOKE_HOST_FUNCTION_MALFORMED = -1,
-//        INVOKE_HOST_FUNCTION_TRAPPED = -2
+//        SMART_CONTRACT_OPERATION_MALFORMED = -1,
+//        SMART_CONTRACT_OPERATION_TRAPPED = -2
 //    };
 //
 // enum
@@ -32938,17 +32907,17 @@ impl WriteXdr for LiquidityPoolWithdrawResult {
     serde(rename_all = "snake_case")
 )]
 #[repr(i32)]
-pub enum InvokeHostFunctionResultCode {
+pub enum SmartContractOperationResultCode {
     Success = 0,
     Malformed = -1,
     Trapped = -2,
 }
 
-impl InvokeHostFunctionResultCode {
-    pub const VARIANTS: [InvokeHostFunctionResultCode; 3] = [
-        InvokeHostFunctionResultCode::Success,
-        InvokeHostFunctionResultCode::Malformed,
-        InvokeHostFunctionResultCode::Trapped,
+impl SmartContractOperationResultCode {
+    pub const VARIANTS: [SmartContractOperationResultCode; 3] = [
+        SmartContractOperationResultCode::Success,
+        SmartContractOperationResultCode::Malformed,
+        SmartContractOperationResultCode::Trapped,
     ];
     pub const VARIANTS_STR: [&'static str; 3] = ["Success", "Malformed", "Trapped"];
 
@@ -32962,40 +32931,40 @@ impl InvokeHostFunctionResultCode {
     }
 
     #[must_use]
-    pub const fn variants() -> [InvokeHostFunctionResultCode; 3] {
+    pub const fn variants() -> [SmartContractOperationResultCode; 3] {
         Self::VARIANTS
     }
 }
 
-impl Name for InvokeHostFunctionResultCode {
+impl Name for SmartContractOperationResultCode {
     #[must_use]
     fn name(&self) -> &'static str {
         Self::name(self)
     }
 }
 
-impl Variants<InvokeHostFunctionResultCode> for InvokeHostFunctionResultCode {
-    fn variants() -> slice::Iter<'static, InvokeHostFunctionResultCode> {
+impl Variants<SmartContractOperationResultCode> for SmartContractOperationResultCode {
+    fn variants() -> slice::Iter<'static, SmartContractOperationResultCode> {
         Self::VARIANTS.iter()
     }
 }
 
-impl Enum for InvokeHostFunctionResultCode {}
+impl Enum for SmartContractOperationResultCode {}
 
-impl fmt::Display for InvokeHostFunctionResultCode {
+impl fmt::Display for SmartContractOperationResultCode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.name())
     }
 }
 
-impl TryFrom<i32> for InvokeHostFunctionResultCode {
+impl TryFrom<i32> for SmartContractOperationResultCode {
     type Error = Error;
 
     fn try_from(i: i32) -> Result<Self> {
         let e = match i {
-            0 => InvokeHostFunctionResultCode::Success,
-            -1 => InvokeHostFunctionResultCode::Malformed,
-            -2 => InvokeHostFunctionResultCode::Trapped,
+            0 => SmartContractOperationResultCode::Success,
+            -1 => SmartContractOperationResultCode::Malformed,
+            -2 => SmartContractOperationResultCode::Trapped,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -33003,14 +32972,14 @@ impl TryFrom<i32> for InvokeHostFunctionResultCode {
     }
 }
 
-impl From<InvokeHostFunctionResultCode> for i32 {
+impl From<SmartContractOperationResultCode> for i32 {
     #[must_use]
-    fn from(e: InvokeHostFunctionResultCode) -> Self {
+    fn from(e: SmartContractOperationResultCode) -> Self {
         e as Self
     }
 }
 
-impl ReadXdr for InvokeHostFunctionResultCode {
+impl ReadXdr for SmartContractOperationResultCode {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
         let e = i32::read_xdr(r)?;
@@ -33019,7 +32988,7 @@ impl ReadXdr for InvokeHostFunctionResultCode {
     }
 }
 
-impl WriteXdr for InvokeHostFunctionResultCode {
+impl WriteXdr for SmartContractOperationResultCode {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         let i: i32 = (*self).into();
@@ -33027,18 +32996,18 @@ impl WriteXdr for InvokeHostFunctionResultCode {
     }
 }
 
-// InvokeHostFunctionResult is an XDR Union defines as:
+// SmartContractOperationResult is an XDR Union defines as:
 //
-//   union InvokeHostFunctionResult switch (InvokeHostFunctionResultCode code)
+//   union SmartContractOperationResult switch (SmartContractOperationResultCode code)
 //    {
-//    case INVOKE_HOST_FUNCTION_SUCCESS:
+//    case SMART_CONTRACT_OPERATION_SUCCESS:
 //        SCVal success;
-//    case INVOKE_HOST_FUNCTION_MALFORMED:
-//    case INVOKE_HOST_FUNCTION_TRAPPED:
+//    case SMART_CONTRACT_OPERATION_MALFORMED:
+//    case SMART_CONTRACT_OPERATION_TRAPPED:
 //        void;
 //    };
 //
-// union with discriminant InvokeHostFunctionResultCode
+// union with discriminant SmartContractOperationResultCode
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 #[cfg_attr(
@@ -33047,17 +33016,17 @@ impl WriteXdr for InvokeHostFunctionResultCode {
     serde(rename_all = "snake_case")
 )]
 #[allow(clippy::large_enum_variant)]
-pub enum InvokeHostFunctionResult {
+pub enum SmartContractOperationResult {
     Success(ScVal),
     Malformed,
     Trapped,
 }
 
-impl InvokeHostFunctionResult {
-    pub const VARIANTS: [InvokeHostFunctionResultCode; 3] = [
-        InvokeHostFunctionResultCode::Success,
-        InvokeHostFunctionResultCode::Malformed,
-        InvokeHostFunctionResultCode::Trapped,
+impl SmartContractOperationResult {
+    pub const VARIANTS: [SmartContractOperationResultCode; 3] = [
+        SmartContractOperationResultCode::Success,
+        SmartContractOperationResultCode::Malformed,
+        SmartContractOperationResultCode::Trapped,
     ];
     pub const VARIANTS_STR: [&'static str; 3] = ["Success", "Malformed", "Trapped"];
 
@@ -33071,53 +33040,53 @@ impl InvokeHostFunctionResult {
     }
 
     #[must_use]
-    pub const fn discriminant(&self) -> InvokeHostFunctionResultCode {
+    pub const fn discriminant(&self) -> SmartContractOperationResultCode {
         #[allow(clippy::match_same_arms)]
         match self {
-            Self::Success(_) => InvokeHostFunctionResultCode::Success,
-            Self::Malformed => InvokeHostFunctionResultCode::Malformed,
-            Self::Trapped => InvokeHostFunctionResultCode::Trapped,
+            Self::Success(_) => SmartContractOperationResultCode::Success,
+            Self::Malformed => SmartContractOperationResultCode::Malformed,
+            Self::Trapped => SmartContractOperationResultCode::Trapped,
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [InvokeHostFunctionResultCode; 3] {
+    pub const fn variants() -> [SmartContractOperationResultCode; 3] {
         Self::VARIANTS
     }
 }
 
-impl Name for InvokeHostFunctionResult {
+impl Name for SmartContractOperationResult {
     #[must_use]
     fn name(&self) -> &'static str {
         Self::name(self)
     }
 }
 
-impl Discriminant<InvokeHostFunctionResultCode> for InvokeHostFunctionResult {
+impl Discriminant<SmartContractOperationResultCode> for SmartContractOperationResult {
     #[must_use]
-    fn discriminant(&self) -> InvokeHostFunctionResultCode {
+    fn discriminant(&self) -> SmartContractOperationResultCode {
         Self::discriminant(self)
     }
 }
 
-impl Variants<InvokeHostFunctionResultCode> for InvokeHostFunctionResult {
-    fn variants() -> slice::Iter<'static, InvokeHostFunctionResultCode> {
+impl Variants<SmartContractOperationResultCode> for SmartContractOperationResult {
+    fn variants() -> slice::Iter<'static, SmartContractOperationResultCode> {
         Self::VARIANTS.iter()
     }
 }
 
-impl Union<InvokeHostFunctionResultCode> for InvokeHostFunctionResult {}
+impl Union<SmartContractOperationResultCode> for SmartContractOperationResult {}
 
-impl ReadXdr for InvokeHostFunctionResult {
+impl ReadXdr for SmartContractOperationResult {
     #[cfg(feature = "std")]
     fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        let dv: InvokeHostFunctionResultCode =
-            <InvokeHostFunctionResultCode as ReadXdr>::read_xdr(r)?;
+        let dv: SmartContractOperationResultCode =
+            <SmartContractOperationResultCode as ReadXdr>::read_xdr(r)?;
         #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
         let v = match dv {
-            InvokeHostFunctionResultCode::Success => Self::Success(ScVal::read_xdr(r)?),
-            InvokeHostFunctionResultCode::Malformed => Self::Malformed,
-            InvokeHostFunctionResultCode::Trapped => Self::Trapped,
+            SmartContractOperationResultCode::Success => Self::Success(ScVal::read_xdr(r)?),
+            SmartContractOperationResultCode::Malformed => Self::Malformed,
+            SmartContractOperationResultCode::Trapped => Self::Trapped,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -33125,7 +33094,7 @@ impl ReadXdr for InvokeHostFunctionResult {
     }
 }
 
-impl WriteXdr for InvokeHostFunctionResult {
+impl WriteXdr for SmartContractOperationResult {
     #[cfg(feature = "std")]
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         self.discriminant().write_xdr(w)?;
@@ -33327,8 +33296,8 @@ impl WriteXdr for OperationResultCode {
 //            LiquidityPoolDepositResult liquidityPoolDepositResult;
 //        case LIQUIDITY_POOL_WITHDRAW:
 //            LiquidityPoolWithdrawResult liquidityPoolWithdrawResult;
-//        case INVOKE_HOST_FUNCTION:
-//            InvokeHostFunctionResult invokeHostFunctionResult;
+//        case SMART_CONTRACT:
+//            SmartContractOperationResult smartContractOperationResult;
 //        }
 //
 // union with discriminant OperationType
@@ -33365,7 +33334,7 @@ pub enum OperationResultTr {
     SetTrustLineFlags(SetTrustLineFlagsResult),
     LiquidityPoolDeposit(LiquidityPoolDepositResult),
     LiquidityPoolWithdraw(LiquidityPoolWithdrawResult),
-    InvokeHostFunction(InvokeHostFunctionResult),
+    SmartContract(SmartContractOperationResult),
 }
 
 impl OperationResultTr {
@@ -33394,7 +33363,7 @@ impl OperationResultTr {
         OperationType::SetTrustLineFlags,
         OperationType::LiquidityPoolDeposit,
         OperationType::LiquidityPoolWithdraw,
-        OperationType::InvokeHostFunction,
+        OperationType::SmartContract,
     ];
     pub const VARIANTS_STR: [&'static str; 25] = [
         "CreateAccount",
@@ -33421,7 +33390,7 @@ impl OperationResultTr {
         "SetTrustLineFlags",
         "LiquidityPoolDeposit",
         "LiquidityPoolWithdraw",
-        "InvokeHostFunction",
+        "SmartContract",
     ];
 
     #[must_use]
@@ -33451,7 +33420,7 @@ impl OperationResultTr {
             Self::SetTrustLineFlags(_) => "SetTrustLineFlags",
             Self::LiquidityPoolDeposit(_) => "LiquidityPoolDeposit",
             Self::LiquidityPoolWithdraw(_) => "LiquidityPoolWithdraw",
-            Self::InvokeHostFunction(_) => "InvokeHostFunction",
+            Self::SmartContract(_) => "SmartContract",
         }
     }
 
@@ -33483,7 +33452,7 @@ impl OperationResultTr {
             Self::SetTrustLineFlags(_) => OperationType::SetTrustLineFlags,
             Self::LiquidityPoolDeposit(_) => OperationType::LiquidityPoolDeposit,
             Self::LiquidityPoolWithdraw(_) => OperationType::LiquidityPoolWithdraw,
-            Self::InvokeHostFunction(_) => OperationType::InvokeHostFunction,
+            Self::SmartContract(_) => OperationType::SmartContract,
         }
     }
 
@@ -33573,8 +33542,8 @@ impl ReadXdr for OperationResultTr {
             OperationType::LiquidityPoolWithdraw => {
                 Self::LiquidityPoolWithdraw(LiquidityPoolWithdrawResult::read_xdr(r)?)
             }
-            OperationType::InvokeHostFunction => {
-                Self::InvokeHostFunction(InvokeHostFunctionResult::read_xdr(r)?)
+            OperationType::SmartContract => {
+                Self::SmartContract(SmartContractOperationResult::read_xdr(r)?)
             }
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
@@ -33613,7 +33582,7 @@ impl WriteXdr for OperationResultTr {
             Self::SetTrustLineFlags(v) => v.write_xdr(w)?,
             Self::LiquidityPoolDeposit(v) => v.write_xdr(w)?,
             Self::LiquidityPoolWithdraw(v) => v.write_xdr(w)?,
-            Self::InvokeHostFunction(v) => v.write_xdr(w)?,
+            Self::SmartContract(v) => v.write_xdr(w)?,
         };
         Ok(())
     }
@@ -33674,8 +33643,8 @@ impl WriteXdr for OperationResultTr {
 //            LiquidityPoolDepositResult liquidityPoolDepositResult;
 //        case LIQUIDITY_POOL_WITHDRAW:
 //            LiquidityPoolWithdrawResult liquidityPoolWithdrawResult;
-//        case INVOKE_HOST_FUNCTION:
-//            InvokeHostFunctionResult invokeHostFunctionResult;
+//        case SMART_CONTRACT:
+//            SmartContractOperationResult smartContractOperationResult;
 //        }
 //        tr;
 //    case opBAD_AUTH:
@@ -36338,8 +36307,8 @@ pub enum TypeVariant {
     ScMapEntry,
     ScVec,
     ScMap,
-    ScContractCodeType,
-    ScContractCode,
+    ScContractExecutableType,
+    ScContractExecutable,
     Int128Parts,
     ScObject,
     StoredTransactionSet,
@@ -36545,15 +36514,14 @@ pub enum TypeVariant {
     SetTrustLineFlagsOp,
     LiquidityPoolDepositOp,
     LiquidityPoolWithdrawOp,
-    HostFunctionType,
+    SmartContractOperationType,
     ContractIdType,
     ContractIdPublicKeyType,
-    InstallContractCodeArgs,
     ContractId,
     ContractIdFromEd25519PublicKey,
-    CreateContractArgs,
-    HostFunction,
-    InvokeHostFunctionOp,
+    InstantiateContractArgs,
+    SmartContractOperation,
+    SmartContractOp,
     Operation,
     OperationBody,
     HashIdPreimage,
@@ -36563,7 +36531,7 @@ pub enum TypeVariant {
     HashIdPreimageContractId,
     HashIdPreimageFromAsset,
     HashIdPreimageSourceAccountContractId,
-    HashIdPreimageCreateContractArgs,
+    HashIdPreimageInstantiateContractArgs,
     MemoType,
     Memo,
     TimeBounds,
@@ -36642,8 +36610,8 @@ pub enum TypeVariant {
     LiquidityPoolDepositResult,
     LiquidityPoolWithdrawResultCode,
     LiquidityPoolWithdrawResult,
-    InvokeHostFunctionResultCode,
-    InvokeHostFunctionResult,
+    SmartContractOperationResultCode,
+    SmartContractOperationResult,
     OperationResultCode,
     OperationResult,
     OperationResultTr,
@@ -36679,7 +36647,7 @@ pub enum TypeVariant {
 }
 
 impl TypeVariant {
-    pub const VARIANTS: [TypeVariant; 390] = [
+    pub const VARIANTS: [TypeVariant; 389] = [
         TypeVariant::Value,
         TypeVariant::ScpBallot,
         TypeVariant::ScpStatementType,
@@ -36732,8 +36700,8 @@ impl TypeVariant {
         TypeVariant::ScMapEntry,
         TypeVariant::ScVec,
         TypeVariant::ScMap,
-        TypeVariant::ScContractCodeType,
-        TypeVariant::ScContractCode,
+        TypeVariant::ScContractExecutableType,
+        TypeVariant::ScContractExecutable,
         TypeVariant::Int128Parts,
         TypeVariant::ScObject,
         TypeVariant::StoredTransactionSet,
@@ -36939,15 +36907,14 @@ impl TypeVariant {
         TypeVariant::SetTrustLineFlagsOp,
         TypeVariant::LiquidityPoolDepositOp,
         TypeVariant::LiquidityPoolWithdrawOp,
-        TypeVariant::HostFunctionType,
+        TypeVariant::SmartContractOperationType,
         TypeVariant::ContractIdType,
         TypeVariant::ContractIdPublicKeyType,
-        TypeVariant::InstallContractCodeArgs,
         TypeVariant::ContractId,
         TypeVariant::ContractIdFromEd25519PublicKey,
-        TypeVariant::CreateContractArgs,
-        TypeVariant::HostFunction,
-        TypeVariant::InvokeHostFunctionOp,
+        TypeVariant::InstantiateContractArgs,
+        TypeVariant::SmartContractOperation,
+        TypeVariant::SmartContractOp,
         TypeVariant::Operation,
         TypeVariant::OperationBody,
         TypeVariant::HashIdPreimage,
@@ -36957,7 +36924,7 @@ impl TypeVariant {
         TypeVariant::HashIdPreimageContractId,
         TypeVariant::HashIdPreimageFromAsset,
         TypeVariant::HashIdPreimageSourceAccountContractId,
-        TypeVariant::HashIdPreimageCreateContractArgs,
+        TypeVariant::HashIdPreimageInstantiateContractArgs,
         TypeVariant::MemoType,
         TypeVariant::Memo,
         TypeVariant::TimeBounds,
@@ -37036,8 +37003,8 @@ impl TypeVariant {
         TypeVariant::LiquidityPoolDepositResult,
         TypeVariant::LiquidityPoolWithdrawResultCode,
         TypeVariant::LiquidityPoolWithdrawResult,
-        TypeVariant::InvokeHostFunctionResultCode,
-        TypeVariant::InvokeHostFunctionResult,
+        TypeVariant::SmartContractOperationResultCode,
+        TypeVariant::SmartContractOperationResult,
         TypeVariant::OperationResultCode,
         TypeVariant::OperationResult,
         TypeVariant::OperationResultTr,
@@ -37071,7 +37038,7 @@ impl TypeVariant {
         TypeVariant::HmacSha256Key,
         TypeVariant::HmacSha256Mac,
     ];
-    pub const VARIANTS_STR: [&'static str; 390] = [
+    pub const VARIANTS_STR: [&'static str; 389] = [
         "Value",
         "ScpBallot",
         "ScpStatementType",
@@ -37124,8 +37091,8 @@ impl TypeVariant {
         "ScMapEntry",
         "ScVec",
         "ScMap",
-        "ScContractCodeType",
-        "ScContractCode",
+        "ScContractExecutableType",
+        "ScContractExecutable",
         "Int128Parts",
         "ScObject",
         "StoredTransactionSet",
@@ -37331,15 +37298,14 @@ impl TypeVariant {
         "SetTrustLineFlagsOp",
         "LiquidityPoolDepositOp",
         "LiquidityPoolWithdrawOp",
-        "HostFunctionType",
+        "SmartContractOperationType",
         "ContractIdType",
         "ContractIdPublicKeyType",
-        "InstallContractCodeArgs",
         "ContractId",
         "ContractIdFromEd25519PublicKey",
-        "CreateContractArgs",
-        "HostFunction",
-        "InvokeHostFunctionOp",
+        "InstantiateContractArgs",
+        "SmartContractOperation",
+        "SmartContractOp",
         "Operation",
         "OperationBody",
         "HashIdPreimage",
@@ -37349,7 +37315,7 @@ impl TypeVariant {
         "HashIdPreimageContractId",
         "HashIdPreimageFromAsset",
         "HashIdPreimageSourceAccountContractId",
-        "HashIdPreimageCreateContractArgs",
+        "HashIdPreimageInstantiateContractArgs",
         "MemoType",
         "Memo",
         "TimeBounds",
@@ -37428,8 +37394,8 @@ impl TypeVariant {
         "LiquidityPoolDepositResult",
         "LiquidityPoolWithdrawResultCode",
         "LiquidityPoolWithdrawResult",
-        "InvokeHostFunctionResultCode",
-        "InvokeHostFunctionResult",
+        "SmartContractOperationResultCode",
+        "SmartContractOperationResult",
         "OperationResultCode",
         "OperationResult",
         "OperationResultTr",
@@ -37520,8 +37486,8 @@ impl TypeVariant {
             Self::ScMapEntry => "ScMapEntry",
             Self::ScVec => "ScVec",
             Self::ScMap => "ScMap",
-            Self::ScContractCodeType => "ScContractCodeType",
-            Self::ScContractCode => "ScContractCode",
+            Self::ScContractExecutableType => "ScContractExecutableType",
+            Self::ScContractExecutable => "ScContractExecutable",
             Self::Int128Parts => "Int128Parts",
             Self::ScObject => "ScObject",
             Self::StoredTransactionSet => "StoredTransactionSet",
@@ -37729,15 +37695,14 @@ impl TypeVariant {
             Self::SetTrustLineFlagsOp => "SetTrustLineFlagsOp",
             Self::LiquidityPoolDepositOp => "LiquidityPoolDepositOp",
             Self::LiquidityPoolWithdrawOp => "LiquidityPoolWithdrawOp",
-            Self::HostFunctionType => "HostFunctionType",
+            Self::SmartContractOperationType => "SmartContractOperationType",
             Self::ContractIdType => "ContractIdType",
             Self::ContractIdPublicKeyType => "ContractIdPublicKeyType",
-            Self::InstallContractCodeArgs => "InstallContractCodeArgs",
             Self::ContractId => "ContractId",
             Self::ContractIdFromEd25519PublicKey => "ContractIdFromEd25519PublicKey",
-            Self::CreateContractArgs => "CreateContractArgs",
-            Self::HostFunction => "HostFunction",
-            Self::InvokeHostFunctionOp => "InvokeHostFunctionOp",
+            Self::InstantiateContractArgs => "InstantiateContractArgs",
+            Self::SmartContractOperation => "SmartContractOperation",
+            Self::SmartContractOp => "SmartContractOp",
             Self::Operation => "Operation",
             Self::OperationBody => "OperationBody",
             Self::HashIdPreimage => "HashIdPreimage",
@@ -37747,7 +37712,7 @@ impl TypeVariant {
             Self::HashIdPreimageContractId => "HashIdPreimageContractId",
             Self::HashIdPreimageFromAsset => "HashIdPreimageFromAsset",
             Self::HashIdPreimageSourceAccountContractId => "HashIdPreimageSourceAccountContractId",
-            Self::HashIdPreimageCreateContractArgs => "HashIdPreimageCreateContractArgs",
+            Self::HashIdPreimageInstantiateContractArgs => "HashIdPreimageInstantiateContractArgs",
             Self::MemoType => "MemoType",
             Self::Memo => "Memo",
             Self::TimeBounds => "TimeBounds",
@@ -37830,8 +37795,8 @@ impl TypeVariant {
             Self::LiquidityPoolDepositResult => "LiquidityPoolDepositResult",
             Self::LiquidityPoolWithdrawResultCode => "LiquidityPoolWithdrawResultCode",
             Self::LiquidityPoolWithdrawResult => "LiquidityPoolWithdrawResult",
-            Self::InvokeHostFunctionResultCode => "InvokeHostFunctionResultCode",
-            Self::InvokeHostFunctionResult => "InvokeHostFunctionResult",
+            Self::SmartContractOperationResultCode => "SmartContractOperationResultCode",
+            Self::SmartContractOperationResult => "SmartContractOperationResult",
             Self::OperationResultCode => "OperationResultCode",
             Self::OperationResult => "OperationResult",
             Self::OperationResultTr => "OperationResultTr",
@@ -37869,7 +37834,7 @@ impl TypeVariant {
 
     #[must_use]
     #[allow(clippy::too_many_lines)]
-    pub const fn variants() -> [TypeVariant; 390] {
+    pub const fn variants() -> [TypeVariant; 389] {
         Self::VARIANTS
     }
 }
@@ -37944,8 +37909,8 @@ impl core::str::FromStr for TypeVariant {
             "ScMapEntry" => Ok(Self::ScMapEntry),
             "ScVec" => Ok(Self::ScVec),
             "ScMap" => Ok(Self::ScMap),
-            "ScContractCodeType" => Ok(Self::ScContractCodeType),
-            "ScContractCode" => Ok(Self::ScContractCode),
+            "ScContractExecutableType" => Ok(Self::ScContractExecutableType),
+            "ScContractExecutable" => Ok(Self::ScContractExecutable),
             "Int128Parts" => Ok(Self::Int128Parts),
             "ScObject" => Ok(Self::ScObject),
             "StoredTransactionSet" => Ok(Self::StoredTransactionSet),
@@ -38153,15 +38118,14 @@ impl core::str::FromStr for TypeVariant {
             "SetTrustLineFlagsOp" => Ok(Self::SetTrustLineFlagsOp),
             "LiquidityPoolDepositOp" => Ok(Self::LiquidityPoolDepositOp),
             "LiquidityPoolWithdrawOp" => Ok(Self::LiquidityPoolWithdrawOp),
-            "HostFunctionType" => Ok(Self::HostFunctionType),
+            "SmartContractOperationType" => Ok(Self::SmartContractOperationType),
             "ContractIdType" => Ok(Self::ContractIdType),
             "ContractIdPublicKeyType" => Ok(Self::ContractIdPublicKeyType),
-            "InstallContractCodeArgs" => Ok(Self::InstallContractCodeArgs),
             "ContractId" => Ok(Self::ContractId),
             "ContractIdFromEd25519PublicKey" => Ok(Self::ContractIdFromEd25519PublicKey),
-            "CreateContractArgs" => Ok(Self::CreateContractArgs),
-            "HostFunction" => Ok(Self::HostFunction),
-            "InvokeHostFunctionOp" => Ok(Self::InvokeHostFunctionOp),
+            "InstantiateContractArgs" => Ok(Self::InstantiateContractArgs),
+            "SmartContractOperation" => Ok(Self::SmartContractOperation),
+            "SmartContractOp" => Ok(Self::SmartContractOp),
             "Operation" => Ok(Self::Operation),
             "OperationBody" => Ok(Self::OperationBody),
             "HashIdPreimage" => Ok(Self::HashIdPreimage),
@@ -38173,7 +38137,9 @@ impl core::str::FromStr for TypeVariant {
             "HashIdPreimageSourceAccountContractId" => {
                 Ok(Self::HashIdPreimageSourceAccountContractId)
             }
-            "HashIdPreimageCreateContractArgs" => Ok(Self::HashIdPreimageCreateContractArgs),
+            "HashIdPreimageInstantiateContractArgs" => {
+                Ok(Self::HashIdPreimageInstantiateContractArgs)
+            }
             "MemoType" => Ok(Self::MemoType),
             "Memo" => Ok(Self::Memo),
             "TimeBounds" => Ok(Self::TimeBounds),
@@ -38260,8 +38226,8 @@ impl core::str::FromStr for TypeVariant {
             "LiquidityPoolDepositResult" => Ok(Self::LiquidityPoolDepositResult),
             "LiquidityPoolWithdrawResultCode" => Ok(Self::LiquidityPoolWithdrawResultCode),
             "LiquidityPoolWithdrawResult" => Ok(Self::LiquidityPoolWithdrawResult),
-            "InvokeHostFunctionResultCode" => Ok(Self::InvokeHostFunctionResultCode),
-            "InvokeHostFunctionResult" => Ok(Self::InvokeHostFunctionResult),
+            "SmartContractOperationResultCode" => Ok(Self::SmartContractOperationResultCode),
+            "SmartContractOperationResult" => Ok(Self::SmartContractOperationResult),
             "OperationResultCode" => Ok(Self::OperationResultCode),
             "OperationResult" => Ok(Self::OperationResult),
             "OperationResultTr" => Ok(Self::OperationResultTr),
@@ -38359,8 +38325,8 @@ pub enum Type {
     ScMapEntry(Box<ScMapEntry>),
     ScVec(Box<ScVec>),
     ScMap(Box<ScMap>),
-    ScContractCodeType(Box<ScContractCodeType>),
-    ScContractCode(Box<ScContractCode>),
+    ScContractExecutableType(Box<ScContractExecutableType>),
+    ScContractExecutable(Box<ScContractExecutable>),
     Int128Parts(Box<Int128Parts>),
     ScObject(Box<ScObject>),
     StoredTransactionSet(Box<StoredTransactionSet>),
@@ -38566,15 +38532,14 @@ pub enum Type {
     SetTrustLineFlagsOp(Box<SetTrustLineFlagsOp>),
     LiquidityPoolDepositOp(Box<LiquidityPoolDepositOp>),
     LiquidityPoolWithdrawOp(Box<LiquidityPoolWithdrawOp>),
-    HostFunctionType(Box<HostFunctionType>),
+    SmartContractOperationType(Box<SmartContractOperationType>),
     ContractIdType(Box<ContractIdType>),
     ContractIdPublicKeyType(Box<ContractIdPublicKeyType>),
-    InstallContractCodeArgs(Box<InstallContractCodeArgs>),
     ContractId(Box<ContractId>),
     ContractIdFromEd25519PublicKey(Box<ContractIdFromEd25519PublicKey>),
-    CreateContractArgs(Box<CreateContractArgs>),
-    HostFunction(Box<HostFunction>),
-    InvokeHostFunctionOp(Box<InvokeHostFunctionOp>),
+    InstantiateContractArgs(Box<InstantiateContractArgs>),
+    SmartContractOperation(Box<SmartContractOperation>),
+    SmartContractOp(Box<SmartContractOp>),
     Operation(Box<Operation>),
     OperationBody(Box<OperationBody>),
     HashIdPreimage(Box<HashIdPreimage>),
@@ -38584,7 +38549,7 @@ pub enum Type {
     HashIdPreimageContractId(Box<HashIdPreimageContractId>),
     HashIdPreimageFromAsset(Box<HashIdPreimageFromAsset>),
     HashIdPreimageSourceAccountContractId(Box<HashIdPreimageSourceAccountContractId>),
-    HashIdPreimageCreateContractArgs(Box<HashIdPreimageCreateContractArgs>),
+    HashIdPreimageInstantiateContractArgs(Box<HashIdPreimageInstantiateContractArgs>),
     MemoType(Box<MemoType>),
     Memo(Box<Memo>),
     TimeBounds(Box<TimeBounds>),
@@ -38663,8 +38628,8 @@ pub enum Type {
     LiquidityPoolDepositResult(Box<LiquidityPoolDepositResult>),
     LiquidityPoolWithdrawResultCode(Box<LiquidityPoolWithdrawResultCode>),
     LiquidityPoolWithdrawResult(Box<LiquidityPoolWithdrawResult>),
-    InvokeHostFunctionResultCode(Box<InvokeHostFunctionResultCode>),
-    InvokeHostFunctionResult(Box<InvokeHostFunctionResult>),
+    SmartContractOperationResultCode(Box<SmartContractOperationResultCode>),
+    SmartContractOperationResult(Box<SmartContractOperationResult>),
     OperationResultCode(Box<OperationResultCode>),
     OperationResult(Box<OperationResult>),
     OperationResultTr(Box<OperationResultTr>),
@@ -38700,7 +38665,7 @@ pub enum Type {
 }
 
 impl Type {
-    pub const VARIANTS: [TypeVariant; 390] = [
+    pub const VARIANTS: [TypeVariant; 389] = [
         TypeVariant::Value,
         TypeVariant::ScpBallot,
         TypeVariant::ScpStatementType,
@@ -38753,8 +38718,8 @@ impl Type {
         TypeVariant::ScMapEntry,
         TypeVariant::ScVec,
         TypeVariant::ScMap,
-        TypeVariant::ScContractCodeType,
-        TypeVariant::ScContractCode,
+        TypeVariant::ScContractExecutableType,
+        TypeVariant::ScContractExecutable,
         TypeVariant::Int128Parts,
         TypeVariant::ScObject,
         TypeVariant::StoredTransactionSet,
@@ -38960,15 +38925,14 @@ impl Type {
         TypeVariant::SetTrustLineFlagsOp,
         TypeVariant::LiquidityPoolDepositOp,
         TypeVariant::LiquidityPoolWithdrawOp,
-        TypeVariant::HostFunctionType,
+        TypeVariant::SmartContractOperationType,
         TypeVariant::ContractIdType,
         TypeVariant::ContractIdPublicKeyType,
-        TypeVariant::InstallContractCodeArgs,
         TypeVariant::ContractId,
         TypeVariant::ContractIdFromEd25519PublicKey,
-        TypeVariant::CreateContractArgs,
-        TypeVariant::HostFunction,
-        TypeVariant::InvokeHostFunctionOp,
+        TypeVariant::InstantiateContractArgs,
+        TypeVariant::SmartContractOperation,
+        TypeVariant::SmartContractOp,
         TypeVariant::Operation,
         TypeVariant::OperationBody,
         TypeVariant::HashIdPreimage,
@@ -38978,7 +38942,7 @@ impl Type {
         TypeVariant::HashIdPreimageContractId,
         TypeVariant::HashIdPreimageFromAsset,
         TypeVariant::HashIdPreimageSourceAccountContractId,
-        TypeVariant::HashIdPreimageCreateContractArgs,
+        TypeVariant::HashIdPreimageInstantiateContractArgs,
         TypeVariant::MemoType,
         TypeVariant::Memo,
         TypeVariant::TimeBounds,
@@ -39057,8 +39021,8 @@ impl Type {
         TypeVariant::LiquidityPoolDepositResult,
         TypeVariant::LiquidityPoolWithdrawResultCode,
         TypeVariant::LiquidityPoolWithdrawResult,
-        TypeVariant::InvokeHostFunctionResultCode,
-        TypeVariant::InvokeHostFunctionResult,
+        TypeVariant::SmartContractOperationResultCode,
+        TypeVariant::SmartContractOperationResult,
         TypeVariant::OperationResultCode,
         TypeVariant::OperationResult,
         TypeVariant::OperationResultTr,
@@ -39092,7 +39056,7 @@ impl Type {
         TypeVariant::HmacSha256Key,
         TypeVariant::HmacSha256Mac,
     ];
-    pub const VARIANTS_STR: [&'static str; 390] = [
+    pub const VARIANTS_STR: [&'static str; 389] = [
         "Value",
         "ScpBallot",
         "ScpStatementType",
@@ -39145,8 +39109,8 @@ impl Type {
         "ScMapEntry",
         "ScVec",
         "ScMap",
-        "ScContractCodeType",
-        "ScContractCode",
+        "ScContractExecutableType",
+        "ScContractExecutable",
         "Int128Parts",
         "ScObject",
         "StoredTransactionSet",
@@ -39352,15 +39316,14 @@ impl Type {
         "SetTrustLineFlagsOp",
         "LiquidityPoolDepositOp",
         "LiquidityPoolWithdrawOp",
-        "HostFunctionType",
+        "SmartContractOperationType",
         "ContractIdType",
         "ContractIdPublicKeyType",
-        "InstallContractCodeArgs",
         "ContractId",
         "ContractIdFromEd25519PublicKey",
-        "CreateContractArgs",
-        "HostFunction",
-        "InvokeHostFunctionOp",
+        "InstantiateContractArgs",
+        "SmartContractOperation",
+        "SmartContractOp",
         "Operation",
         "OperationBody",
         "HashIdPreimage",
@@ -39370,7 +39333,7 @@ impl Type {
         "HashIdPreimageContractId",
         "HashIdPreimageFromAsset",
         "HashIdPreimageSourceAccountContractId",
-        "HashIdPreimageCreateContractArgs",
+        "HashIdPreimageInstantiateContractArgs",
         "MemoType",
         "Memo",
         "TimeBounds",
@@ -39449,8 +39412,8 @@ impl Type {
         "LiquidityPoolDepositResult",
         "LiquidityPoolWithdrawResultCode",
         "LiquidityPoolWithdrawResult",
-        "InvokeHostFunctionResultCode",
-        "InvokeHostFunctionResult",
+        "SmartContractOperationResultCode",
+        "SmartContractOperationResult",
         "OperationResultCode",
         "OperationResult",
         "OperationResultTr",
@@ -39619,12 +39582,12 @@ impl Type {
             TypeVariant::ScMapEntry => Ok(Self::ScMapEntry(Box::new(ScMapEntry::read_xdr(r)?))),
             TypeVariant::ScVec => Ok(Self::ScVec(Box::new(ScVec::read_xdr(r)?))),
             TypeVariant::ScMap => Ok(Self::ScMap(Box::new(ScMap::read_xdr(r)?))),
-            TypeVariant::ScContractCodeType => Ok(Self::ScContractCodeType(Box::new(
-                ScContractCodeType::read_xdr(r)?,
+            TypeVariant::ScContractExecutableType => Ok(Self::ScContractExecutableType(Box::new(
+                ScContractExecutableType::read_xdr(r)?,
             ))),
-            TypeVariant::ScContractCode => {
-                Ok(Self::ScContractCode(Box::new(ScContractCode::read_xdr(r)?)))
-            }
+            TypeVariant::ScContractExecutable => Ok(Self::ScContractExecutable(Box::new(
+                ScContractExecutable::read_xdr(r)?,
+            ))),
             TypeVariant::Int128Parts => Ok(Self::Int128Parts(Box::new(Int128Parts::read_xdr(r)?))),
             TypeVariant::ScObject => Ok(Self::ScObject(Box::new(ScObject::read_xdr(r)?))),
             TypeVariant::StoredTransactionSet => Ok(Self::StoredTransactionSet(Box::new(
@@ -40174,17 +40137,14 @@ impl Type {
             TypeVariant::LiquidityPoolWithdrawOp => Ok(Self::LiquidityPoolWithdrawOp(Box::new(
                 LiquidityPoolWithdrawOp::read_xdr(r)?,
             ))),
-            TypeVariant::HostFunctionType => Ok(Self::HostFunctionType(Box::new(
-                HostFunctionType::read_xdr(r)?,
-            ))),
+            TypeVariant::SmartContractOperationType => Ok(Self::SmartContractOperationType(
+                Box::new(SmartContractOperationType::read_xdr(r)?),
+            )),
             TypeVariant::ContractIdType => {
                 Ok(Self::ContractIdType(Box::new(ContractIdType::read_xdr(r)?)))
             }
             TypeVariant::ContractIdPublicKeyType => Ok(Self::ContractIdPublicKeyType(Box::new(
                 ContractIdPublicKeyType::read_xdr(r)?,
-            ))),
-            TypeVariant::InstallContractCodeArgs => Ok(Self::InstallContractCodeArgs(Box::new(
-                InstallContractCodeArgs::read_xdr(r)?,
             ))),
             TypeVariant::ContractId => Ok(Self::ContractId(Box::new(ContractId::read_xdr(r)?))),
             TypeVariant::ContractIdFromEd25519PublicKey => {
@@ -40192,14 +40152,14 @@ impl Type {
                     ContractIdFromEd25519PublicKey::read_xdr(r)?,
                 )))
             }
-            TypeVariant::CreateContractArgs => Ok(Self::CreateContractArgs(Box::new(
-                CreateContractArgs::read_xdr(r)?,
+            TypeVariant::InstantiateContractArgs => Ok(Self::InstantiateContractArgs(Box::new(
+                InstantiateContractArgs::read_xdr(r)?,
             ))),
-            TypeVariant::HostFunction => {
-                Ok(Self::HostFunction(Box::new(HostFunction::read_xdr(r)?)))
-            }
-            TypeVariant::InvokeHostFunctionOp => Ok(Self::InvokeHostFunctionOp(Box::new(
-                InvokeHostFunctionOp::read_xdr(r)?,
+            TypeVariant::SmartContractOperation => Ok(Self::SmartContractOperation(Box::new(
+                SmartContractOperation::read_xdr(r)?,
+            ))),
+            TypeVariant::SmartContractOp => Ok(Self::SmartContractOp(Box::new(
+                SmartContractOp::read_xdr(r)?,
             ))),
             TypeVariant::Operation => Ok(Self::Operation(Box::new(Operation::read_xdr(r)?))),
             TypeVariant::OperationBody => {
@@ -40230,9 +40190,9 @@ impl Type {
                     HashIdPreimageSourceAccountContractId::read_xdr(r)?,
                 )))
             }
-            TypeVariant::HashIdPreimageCreateContractArgs => {
-                Ok(Self::HashIdPreimageCreateContractArgs(Box::new(
-                    HashIdPreimageCreateContractArgs::read_xdr(r)?,
+            TypeVariant::HashIdPreimageInstantiateContractArgs => {
+                Ok(Self::HashIdPreimageInstantiateContractArgs(Box::new(
+                    HashIdPreimageInstantiateContractArgs::read_xdr(r)?,
                 )))
             }
             TypeVariant::MemoType => Ok(Self::MemoType(Box::new(MemoType::read_xdr(r)?))),
@@ -40491,12 +40451,14 @@ impl Type {
             TypeVariant::LiquidityPoolWithdrawResult => Ok(Self::LiquidityPoolWithdrawResult(
                 Box::new(LiquidityPoolWithdrawResult::read_xdr(r)?),
             )),
-            TypeVariant::InvokeHostFunctionResultCode => Ok(Self::InvokeHostFunctionResultCode(
-                Box::new(InvokeHostFunctionResultCode::read_xdr(r)?),
+            TypeVariant::SmartContractOperationResultCode => {
+                Ok(Self::SmartContractOperationResultCode(Box::new(
+                    SmartContractOperationResultCode::read_xdr(r)?,
+                )))
+            }
+            TypeVariant::SmartContractOperationResult => Ok(Self::SmartContractOperationResult(
+                Box::new(SmartContractOperationResult::read_xdr(r)?),
             )),
-            TypeVariant::InvokeHostFunctionResult => Ok(Self::InvokeHostFunctionResult(Box::new(
-                InvokeHostFunctionResult::read_xdr(r)?,
-            ))),
             TypeVariant::OperationResultCode => Ok(Self::OperationResultCode(Box::new(
                 OperationResultCode::read_xdr(r)?,
             ))),
@@ -40808,13 +40770,13 @@ impl Type {
             TypeVariant::ScMap => Box::new(
                 ReadXdrIter::<_, ScMap>::new(r).map(|r| r.map(|t| Self::ScMap(Box::new(t)))),
             ),
-            TypeVariant::ScContractCodeType => Box::new(
-                ReadXdrIter::<_, ScContractCodeType>::new(r)
-                    .map(|r| r.map(|t| Self::ScContractCodeType(Box::new(t)))),
+            TypeVariant::ScContractExecutableType => Box::new(
+                ReadXdrIter::<_, ScContractExecutableType>::new(r)
+                    .map(|r| r.map(|t| Self::ScContractExecutableType(Box::new(t)))),
             ),
-            TypeVariant::ScContractCode => Box::new(
-                ReadXdrIter::<_, ScContractCode>::new(r)
-                    .map(|r| r.map(|t| Self::ScContractCode(Box::new(t)))),
+            TypeVariant::ScContractExecutable => Box::new(
+                ReadXdrIter::<_, ScContractExecutable>::new(r)
+                    .map(|r| r.map(|t| Self::ScContractExecutable(Box::new(t)))),
             ),
             TypeVariant::Int128Parts => Box::new(
                 ReadXdrIter::<_, Int128Parts>::new(r)
@@ -41621,9 +41583,9 @@ impl Type {
                 ReadXdrIter::<_, LiquidityPoolWithdrawOp>::new(r)
                     .map(|r| r.map(|t| Self::LiquidityPoolWithdrawOp(Box::new(t)))),
             ),
-            TypeVariant::HostFunctionType => Box::new(
-                ReadXdrIter::<_, HostFunctionType>::new(r)
-                    .map(|r| r.map(|t| Self::HostFunctionType(Box::new(t)))),
+            TypeVariant::SmartContractOperationType => Box::new(
+                ReadXdrIter::<_, SmartContractOperationType>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOperationType(Box::new(t)))),
             ),
             TypeVariant::ContractIdType => Box::new(
                 ReadXdrIter::<_, ContractIdType>::new(r)
@@ -41633,10 +41595,6 @@ impl Type {
                 ReadXdrIter::<_, ContractIdPublicKeyType>::new(r)
                     .map(|r| r.map(|t| Self::ContractIdPublicKeyType(Box::new(t)))),
             ),
-            TypeVariant::InstallContractCodeArgs => Box::new(
-                ReadXdrIter::<_, InstallContractCodeArgs>::new(r)
-                    .map(|r| r.map(|t| Self::InstallContractCodeArgs(Box::new(t)))),
-            ),
             TypeVariant::ContractId => Box::new(
                 ReadXdrIter::<_, ContractId>::new(r)
                     .map(|r| r.map(|t| Self::ContractId(Box::new(t)))),
@@ -41645,17 +41603,17 @@ impl Type {
                 ReadXdrIter::<_, ContractIdFromEd25519PublicKey>::new(r)
                     .map(|r| r.map(|t| Self::ContractIdFromEd25519PublicKey(Box::new(t)))),
             ),
-            TypeVariant::CreateContractArgs => Box::new(
-                ReadXdrIter::<_, CreateContractArgs>::new(r)
-                    .map(|r| r.map(|t| Self::CreateContractArgs(Box::new(t)))),
+            TypeVariant::InstantiateContractArgs => Box::new(
+                ReadXdrIter::<_, InstantiateContractArgs>::new(r)
+                    .map(|r| r.map(|t| Self::InstantiateContractArgs(Box::new(t)))),
             ),
-            TypeVariant::HostFunction => Box::new(
-                ReadXdrIter::<_, HostFunction>::new(r)
-                    .map(|r| r.map(|t| Self::HostFunction(Box::new(t)))),
+            TypeVariant::SmartContractOperation => Box::new(
+                ReadXdrIter::<_, SmartContractOperation>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOperation(Box::new(t)))),
             ),
-            TypeVariant::InvokeHostFunctionOp => Box::new(
-                ReadXdrIter::<_, InvokeHostFunctionOp>::new(r)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionOp(Box::new(t)))),
+            TypeVariant::SmartContractOp => Box::new(
+                ReadXdrIter::<_, SmartContractOp>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOp(Box::new(t)))),
             ),
             TypeVariant::Operation => Box::new(
                 ReadXdrIter::<_, Operation>::new(r)
@@ -41693,9 +41651,9 @@ impl Type {
                 ReadXdrIter::<_, HashIdPreimageSourceAccountContractId>::new(r)
                     .map(|r| r.map(|t| Self::HashIdPreimageSourceAccountContractId(Box::new(t)))),
             ),
-            TypeVariant::HashIdPreimageCreateContractArgs => Box::new(
-                ReadXdrIter::<_, HashIdPreimageCreateContractArgs>::new(r)
-                    .map(|r| r.map(|t| Self::HashIdPreimageCreateContractArgs(Box::new(t)))),
+            TypeVariant::HashIdPreimageInstantiateContractArgs => Box::new(
+                ReadXdrIter::<_, HashIdPreimageInstantiateContractArgs>::new(r)
+                    .map(|r| r.map(|t| Self::HashIdPreimageInstantiateContractArgs(Box::new(t)))),
             ),
             TypeVariant::MemoType => Box::new(
                 ReadXdrIter::<_, MemoType>::new(r).map(|r| r.map(|t| Self::MemoType(Box::new(t)))),
@@ -42008,13 +41966,13 @@ impl Type {
                 ReadXdrIter::<_, LiquidityPoolWithdrawResult>::new(r)
                     .map(|r| r.map(|t| Self::LiquidityPoolWithdrawResult(Box::new(t)))),
             ),
-            TypeVariant::InvokeHostFunctionResultCode => Box::new(
-                ReadXdrIter::<_, InvokeHostFunctionResultCode>::new(r)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionResultCode(Box::new(t)))),
+            TypeVariant::SmartContractOperationResultCode => Box::new(
+                ReadXdrIter::<_, SmartContractOperationResultCode>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOperationResultCode(Box::new(t)))),
             ),
-            TypeVariant::InvokeHostFunctionResult => Box::new(
-                ReadXdrIter::<_, InvokeHostFunctionResult>::new(r)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionResult(Box::new(t)))),
+            TypeVariant::SmartContractOperationResult => Box::new(
+                ReadXdrIter::<_, SmartContractOperationResult>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOperationResult(Box::new(t)))),
             ),
             TypeVariant::OperationResultCode => Box::new(
                 ReadXdrIter::<_, OperationResultCode>::new(r)
@@ -42355,13 +42313,13 @@ impl Type {
                 ReadXdrIter::<_, Frame<ScMap>>::new(r)
                     .map(|r| r.map(|t| Self::ScMap(Box::new(t.0)))),
             ),
-            TypeVariant::ScContractCodeType => Box::new(
-                ReadXdrIter::<_, Frame<ScContractCodeType>>::new(r)
-                    .map(|r| r.map(|t| Self::ScContractCodeType(Box::new(t.0)))),
+            TypeVariant::ScContractExecutableType => Box::new(
+                ReadXdrIter::<_, Frame<ScContractExecutableType>>::new(r)
+                    .map(|r| r.map(|t| Self::ScContractExecutableType(Box::new(t.0)))),
             ),
-            TypeVariant::ScContractCode => Box::new(
-                ReadXdrIter::<_, Frame<ScContractCode>>::new(r)
-                    .map(|r| r.map(|t| Self::ScContractCode(Box::new(t.0)))),
+            TypeVariant::ScContractExecutable => Box::new(
+                ReadXdrIter::<_, Frame<ScContractExecutable>>::new(r)
+                    .map(|r| r.map(|t| Self::ScContractExecutable(Box::new(t.0)))),
             ),
             TypeVariant::Int128Parts => Box::new(
                 ReadXdrIter::<_, Frame<Int128Parts>>::new(r)
@@ -43183,9 +43141,9 @@ impl Type {
                 ReadXdrIter::<_, Frame<LiquidityPoolWithdrawOp>>::new(r)
                     .map(|r| r.map(|t| Self::LiquidityPoolWithdrawOp(Box::new(t.0)))),
             ),
-            TypeVariant::HostFunctionType => Box::new(
-                ReadXdrIter::<_, Frame<HostFunctionType>>::new(r)
-                    .map(|r| r.map(|t| Self::HostFunctionType(Box::new(t.0)))),
+            TypeVariant::SmartContractOperationType => Box::new(
+                ReadXdrIter::<_, Frame<SmartContractOperationType>>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOperationType(Box::new(t.0)))),
             ),
             TypeVariant::ContractIdType => Box::new(
                 ReadXdrIter::<_, Frame<ContractIdType>>::new(r)
@@ -43195,10 +43153,6 @@ impl Type {
                 ReadXdrIter::<_, Frame<ContractIdPublicKeyType>>::new(r)
                     .map(|r| r.map(|t| Self::ContractIdPublicKeyType(Box::new(t.0)))),
             ),
-            TypeVariant::InstallContractCodeArgs => Box::new(
-                ReadXdrIter::<_, Frame<InstallContractCodeArgs>>::new(r)
-                    .map(|r| r.map(|t| Self::InstallContractCodeArgs(Box::new(t.0)))),
-            ),
             TypeVariant::ContractId => Box::new(
                 ReadXdrIter::<_, Frame<ContractId>>::new(r)
                     .map(|r| r.map(|t| Self::ContractId(Box::new(t.0)))),
@@ -43207,17 +43161,17 @@ impl Type {
                 ReadXdrIter::<_, Frame<ContractIdFromEd25519PublicKey>>::new(r)
                     .map(|r| r.map(|t| Self::ContractIdFromEd25519PublicKey(Box::new(t.0)))),
             ),
-            TypeVariant::CreateContractArgs => Box::new(
-                ReadXdrIter::<_, Frame<CreateContractArgs>>::new(r)
-                    .map(|r| r.map(|t| Self::CreateContractArgs(Box::new(t.0)))),
+            TypeVariant::InstantiateContractArgs => Box::new(
+                ReadXdrIter::<_, Frame<InstantiateContractArgs>>::new(r)
+                    .map(|r| r.map(|t| Self::InstantiateContractArgs(Box::new(t.0)))),
             ),
-            TypeVariant::HostFunction => Box::new(
-                ReadXdrIter::<_, Frame<HostFunction>>::new(r)
-                    .map(|r| r.map(|t| Self::HostFunction(Box::new(t.0)))),
+            TypeVariant::SmartContractOperation => Box::new(
+                ReadXdrIter::<_, Frame<SmartContractOperation>>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOperation(Box::new(t.0)))),
             ),
-            TypeVariant::InvokeHostFunctionOp => Box::new(
-                ReadXdrIter::<_, Frame<InvokeHostFunctionOp>>::new(r)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionOp(Box::new(t.0)))),
+            TypeVariant::SmartContractOp => Box::new(
+                ReadXdrIter::<_, Frame<SmartContractOp>>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOp(Box::new(t.0)))),
             ),
             TypeVariant::Operation => Box::new(
                 ReadXdrIter::<_, Frame<Operation>>::new(r)
@@ -43255,9 +43209,9 @@ impl Type {
                 ReadXdrIter::<_, Frame<HashIdPreimageSourceAccountContractId>>::new(r)
                     .map(|r| r.map(|t| Self::HashIdPreimageSourceAccountContractId(Box::new(t.0)))),
             ),
-            TypeVariant::HashIdPreimageCreateContractArgs => Box::new(
-                ReadXdrIter::<_, Frame<HashIdPreimageCreateContractArgs>>::new(r)
-                    .map(|r| r.map(|t| Self::HashIdPreimageCreateContractArgs(Box::new(t.0)))),
+            TypeVariant::HashIdPreimageInstantiateContractArgs => Box::new(
+                ReadXdrIter::<_, Frame<HashIdPreimageInstantiateContractArgs>>::new(r)
+                    .map(|r| r.map(|t| Self::HashIdPreimageInstantiateContractArgs(Box::new(t.0)))),
             ),
             TypeVariant::MemoType => Box::new(
                 ReadXdrIter::<_, Frame<MemoType>>::new(r)
@@ -43574,13 +43528,13 @@ impl Type {
                 ReadXdrIter::<_, Frame<LiquidityPoolWithdrawResult>>::new(r)
                     .map(|r| r.map(|t| Self::LiquidityPoolWithdrawResult(Box::new(t.0)))),
             ),
-            TypeVariant::InvokeHostFunctionResultCode => Box::new(
-                ReadXdrIter::<_, Frame<InvokeHostFunctionResultCode>>::new(r)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionResultCode(Box::new(t.0)))),
+            TypeVariant::SmartContractOperationResultCode => Box::new(
+                ReadXdrIter::<_, Frame<SmartContractOperationResultCode>>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOperationResultCode(Box::new(t.0)))),
             ),
-            TypeVariant::InvokeHostFunctionResult => Box::new(
-                ReadXdrIter::<_, Frame<InvokeHostFunctionResult>>::new(r)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionResult(Box::new(t.0)))),
+            TypeVariant::SmartContractOperationResult => Box::new(
+                ReadXdrIter::<_, Frame<SmartContractOperationResult>>::new(r)
+                    .map(|r| r.map(|t| Self::SmartContractOperationResult(Box::new(t.0)))),
             ),
             TypeVariant::OperationResultCode => Box::new(
                 ReadXdrIter::<_, Frame<OperationResultCode>>::new(r)
@@ -43924,13 +43878,13 @@ impl Type {
             TypeVariant::ScMap => Box::new(
                 ReadXdrIter::<_, ScMap>::new(dec).map(|r| r.map(|t| Self::ScMap(Box::new(t)))),
             ),
-            TypeVariant::ScContractCodeType => Box::new(
-                ReadXdrIter::<_, ScContractCodeType>::new(dec)
-                    .map(|r| r.map(|t| Self::ScContractCodeType(Box::new(t)))),
+            TypeVariant::ScContractExecutableType => Box::new(
+                ReadXdrIter::<_, ScContractExecutableType>::new(dec)
+                    .map(|r| r.map(|t| Self::ScContractExecutableType(Box::new(t)))),
             ),
-            TypeVariant::ScContractCode => Box::new(
-                ReadXdrIter::<_, ScContractCode>::new(dec)
-                    .map(|r| r.map(|t| Self::ScContractCode(Box::new(t)))),
+            TypeVariant::ScContractExecutable => Box::new(
+                ReadXdrIter::<_, ScContractExecutable>::new(dec)
+                    .map(|r| r.map(|t| Self::ScContractExecutable(Box::new(t)))),
             ),
             TypeVariant::Int128Parts => Box::new(
                 ReadXdrIter::<_, Int128Parts>::new(dec)
@@ -44745,9 +44699,9 @@ impl Type {
                 ReadXdrIter::<_, LiquidityPoolWithdrawOp>::new(dec)
                     .map(|r| r.map(|t| Self::LiquidityPoolWithdrawOp(Box::new(t)))),
             ),
-            TypeVariant::HostFunctionType => Box::new(
-                ReadXdrIter::<_, HostFunctionType>::new(dec)
-                    .map(|r| r.map(|t| Self::HostFunctionType(Box::new(t)))),
+            TypeVariant::SmartContractOperationType => Box::new(
+                ReadXdrIter::<_, SmartContractOperationType>::new(dec)
+                    .map(|r| r.map(|t| Self::SmartContractOperationType(Box::new(t)))),
             ),
             TypeVariant::ContractIdType => Box::new(
                 ReadXdrIter::<_, ContractIdType>::new(dec)
@@ -44757,10 +44711,6 @@ impl Type {
                 ReadXdrIter::<_, ContractIdPublicKeyType>::new(dec)
                     .map(|r| r.map(|t| Self::ContractIdPublicKeyType(Box::new(t)))),
             ),
-            TypeVariant::InstallContractCodeArgs => Box::new(
-                ReadXdrIter::<_, InstallContractCodeArgs>::new(dec)
-                    .map(|r| r.map(|t| Self::InstallContractCodeArgs(Box::new(t)))),
-            ),
             TypeVariant::ContractId => Box::new(
                 ReadXdrIter::<_, ContractId>::new(dec)
                     .map(|r| r.map(|t| Self::ContractId(Box::new(t)))),
@@ -44769,17 +44719,17 @@ impl Type {
                 ReadXdrIter::<_, ContractIdFromEd25519PublicKey>::new(dec)
                     .map(|r| r.map(|t| Self::ContractIdFromEd25519PublicKey(Box::new(t)))),
             ),
-            TypeVariant::CreateContractArgs => Box::new(
-                ReadXdrIter::<_, CreateContractArgs>::new(dec)
-                    .map(|r| r.map(|t| Self::CreateContractArgs(Box::new(t)))),
+            TypeVariant::InstantiateContractArgs => Box::new(
+                ReadXdrIter::<_, InstantiateContractArgs>::new(dec)
+                    .map(|r| r.map(|t| Self::InstantiateContractArgs(Box::new(t)))),
             ),
-            TypeVariant::HostFunction => Box::new(
-                ReadXdrIter::<_, HostFunction>::new(dec)
-                    .map(|r| r.map(|t| Self::HostFunction(Box::new(t)))),
+            TypeVariant::SmartContractOperation => Box::new(
+                ReadXdrIter::<_, SmartContractOperation>::new(dec)
+                    .map(|r| r.map(|t| Self::SmartContractOperation(Box::new(t)))),
             ),
-            TypeVariant::InvokeHostFunctionOp => Box::new(
-                ReadXdrIter::<_, InvokeHostFunctionOp>::new(dec)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionOp(Box::new(t)))),
+            TypeVariant::SmartContractOp => Box::new(
+                ReadXdrIter::<_, SmartContractOp>::new(dec)
+                    .map(|r| r.map(|t| Self::SmartContractOp(Box::new(t)))),
             ),
             TypeVariant::Operation => Box::new(
                 ReadXdrIter::<_, Operation>::new(dec)
@@ -44817,9 +44767,9 @@ impl Type {
                 ReadXdrIter::<_, HashIdPreimageSourceAccountContractId>::new(dec)
                     .map(|r| r.map(|t| Self::HashIdPreimageSourceAccountContractId(Box::new(t)))),
             ),
-            TypeVariant::HashIdPreimageCreateContractArgs => Box::new(
-                ReadXdrIter::<_, HashIdPreimageCreateContractArgs>::new(dec)
-                    .map(|r| r.map(|t| Self::HashIdPreimageCreateContractArgs(Box::new(t)))),
+            TypeVariant::HashIdPreimageInstantiateContractArgs => Box::new(
+                ReadXdrIter::<_, HashIdPreimageInstantiateContractArgs>::new(dec)
+                    .map(|r| r.map(|t| Self::HashIdPreimageInstantiateContractArgs(Box::new(t)))),
             ),
             TypeVariant::MemoType => Box::new(
                 ReadXdrIter::<_, MemoType>::new(dec)
@@ -45133,13 +45083,13 @@ impl Type {
                 ReadXdrIter::<_, LiquidityPoolWithdrawResult>::new(dec)
                     .map(|r| r.map(|t| Self::LiquidityPoolWithdrawResult(Box::new(t)))),
             ),
-            TypeVariant::InvokeHostFunctionResultCode => Box::new(
-                ReadXdrIter::<_, InvokeHostFunctionResultCode>::new(dec)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionResultCode(Box::new(t)))),
+            TypeVariant::SmartContractOperationResultCode => Box::new(
+                ReadXdrIter::<_, SmartContractOperationResultCode>::new(dec)
+                    .map(|r| r.map(|t| Self::SmartContractOperationResultCode(Box::new(t)))),
             ),
-            TypeVariant::InvokeHostFunctionResult => Box::new(
-                ReadXdrIter::<_, InvokeHostFunctionResult>::new(dec)
-                    .map(|r| r.map(|t| Self::InvokeHostFunctionResult(Box::new(t)))),
+            TypeVariant::SmartContractOperationResult => Box::new(
+                ReadXdrIter::<_, SmartContractOperationResult>::new(dec)
+                    .map(|r| r.map(|t| Self::SmartContractOperationResult(Box::new(t)))),
             ),
             TypeVariant::OperationResultCode => Box::new(
                 ReadXdrIter::<_, OperationResultCode>::new(dec)
@@ -45337,8 +45287,8 @@ impl Type {
             Self::ScMapEntry(ref v) => v.as_ref(),
             Self::ScVec(ref v) => v.as_ref(),
             Self::ScMap(ref v) => v.as_ref(),
-            Self::ScContractCodeType(ref v) => v.as_ref(),
-            Self::ScContractCode(ref v) => v.as_ref(),
+            Self::ScContractExecutableType(ref v) => v.as_ref(),
+            Self::ScContractExecutable(ref v) => v.as_ref(),
             Self::Int128Parts(ref v) => v.as_ref(),
             Self::ScObject(ref v) => v.as_ref(),
             Self::StoredTransactionSet(ref v) => v.as_ref(),
@@ -45544,15 +45494,14 @@ impl Type {
             Self::SetTrustLineFlagsOp(ref v) => v.as_ref(),
             Self::LiquidityPoolDepositOp(ref v) => v.as_ref(),
             Self::LiquidityPoolWithdrawOp(ref v) => v.as_ref(),
-            Self::HostFunctionType(ref v) => v.as_ref(),
+            Self::SmartContractOperationType(ref v) => v.as_ref(),
             Self::ContractIdType(ref v) => v.as_ref(),
             Self::ContractIdPublicKeyType(ref v) => v.as_ref(),
-            Self::InstallContractCodeArgs(ref v) => v.as_ref(),
             Self::ContractId(ref v) => v.as_ref(),
             Self::ContractIdFromEd25519PublicKey(ref v) => v.as_ref(),
-            Self::CreateContractArgs(ref v) => v.as_ref(),
-            Self::HostFunction(ref v) => v.as_ref(),
-            Self::InvokeHostFunctionOp(ref v) => v.as_ref(),
+            Self::InstantiateContractArgs(ref v) => v.as_ref(),
+            Self::SmartContractOperation(ref v) => v.as_ref(),
+            Self::SmartContractOp(ref v) => v.as_ref(),
             Self::Operation(ref v) => v.as_ref(),
             Self::OperationBody(ref v) => v.as_ref(),
             Self::HashIdPreimage(ref v) => v.as_ref(),
@@ -45562,7 +45511,7 @@ impl Type {
             Self::HashIdPreimageContractId(ref v) => v.as_ref(),
             Self::HashIdPreimageFromAsset(ref v) => v.as_ref(),
             Self::HashIdPreimageSourceAccountContractId(ref v) => v.as_ref(),
-            Self::HashIdPreimageCreateContractArgs(ref v) => v.as_ref(),
+            Self::HashIdPreimageInstantiateContractArgs(ref v) => v.as_ref(),
             Self::MemoType(ref v) => v.as_ref(),
             Self::Memo(ref v) => v.as_ref(),
             Self::TimeBounds(ref v) => v.as_ref(),
@@ -45641,8 +45590,8 @@ impl Type {
             Self::LiquidityPoolDepositResult(ref v) => v.as_ref(),
             Self::LiquidityPoolWithdrawResultCode(ref v) => v.as_ref(),
             Self::LiquidityPoolWithdrawResult(ref v) => v.as_ref(),
-            Self::InvokeHostFunctionResultCode(ref v) => v.as_ref(),
-            Self::InvokeHostFunctionResult(ref v) => v.as_ref(),
+            Self::SmartContractOperationResultCode(ref v) => v.as_ref(),
+            Self::SmartContractOperationResult(ref v) => v.as_ref(),
             Self::OperationResultCode(ref v) => v.as_ref(),
             Self::OperationResult(ref v) => v.as_ref(),
             Self::OperationResultTr(ref v) => v.as_ref(),
@@ -45734,8 +45683,8 @@ impl Type {
             Self::ScMapEntry(_) => "ScMapEntry",
             Self::ScVec(_) => "ScVec",
             Self::ScMap(_) => "ScMap",
-            Self::ScContractCodeType(_) => "ScContractCodeType",
-            Self::ScContractCode(_) => "ScContractCode",
+            Self::ScContractExecutableType(_) => "ScContractExecutableType",
+            Self::ScContractExecutable(_) => "ScContractExecutable",
             Self::Int128Parts(_) => "Int128Parts",
             Self::ScObject(_) => "ScObject",
             Self::StoredTransactionSet(_) => "StoredTransactionSet",
@@ -45943,15 +45892,14 @@ impl Type {
             Self::SetTrustLineFlagsOp(_) => "SetTrustLineFlagsOp",
             Self::LiquidityPoolDepositOp(_) => "LiquidityPoolDepositOp",
             Self::LiquidityPoolWithdrawOp(_) => "LiquidityPoolWithdrawOp",
-            Self::HostFunctionType(_) => "HostFunctionType",
+            Self::SmartContractOperationType(_) => "SmartContractOperationType",
             Self::ContractIdType(_) => "ContractIdType",
             Self::ContractIdPublicKeyType(_) => "ContractIdPublicKeyType",
-            Self::InstallContractCodeArgs(_) => "InstallContractCodeArgs",
             Self::ContractId(_) => "ContractId",
             Self::ContractIdFromEd25519PublicKey(_) => "ContractIdFromEd25519PublicKey",
-            Self::CreateContractArgs(_) => "CreateContractArgs",
-            Self::HostFunction(_) => "HostFunction",
-            Self::InvokeHostFunctionOp(_) => "InvokeHostFunctionOp",
+            Self::InstantiateContractArgs(_) => "InstantiateContractArgs",
+            Self::SmartContractOperation(_) => "SmartContractOperation",
+            Self::SmartContractOp(_) => "SmartContractOp",
             Self::Operation(_) => "Operation",
             Self::OperationBody(_) => "OperationBody",
             Self::HashIdPreimage(_) => "HashIdPreimage",
@@ -45963,7 +45911,9 @@ impl Type {
             Self::HashIdPreimageSourceAccountContractId(_) => {
                 "HashIdPreimageSourceAccountContractId"
             }
-            Self::HashIdPreimageCreateContractArgs(_) => "HashIdPreimageCreateContractArgs",
+            Self::HashIdPreimageInstantiateContractArgs(_) => {
+                "HashIdPreimageInstantiateContractArgs"
+            }
             Self::MemoType(_) => "MemoType",
             Self::Memo(_) => "Memo",
             Self::TimeBounds(_) => "TimeBounds",
@@ -46050,8 +46000,8 @@ impl Type {
             Self::LiquidityPoolDepositResult(_) => "LiquidityPoolDepositResult",
             Self::LiquidityPoolWithdrawResultCode(_) => "LiquidityPoolWithdrawResultCode",
             Self::LiquidityPoolWithdrawResult(_) => "LiquidityPoolWithdrawResult",
-            Self::InvokeHostFunctionResultCode(_) => "InvokeHostFunctionResultCode",
-            Self::InvokeHostFunctionResult(_) => "InvokeHostFunctionResult",
+            Self::SmartContractOperationResultCode(_) => "SmartContractOperationResultCode",
+            Self::SmartContractOperationResult(_) => "SmartContractOperationResult",
             Self::OperationResultCode(_) => "OperationResultCode",
             Self::OperationResult(_) => "OperationResult",
             Self::OperationResultTr(_) => "OperationResultTr",
@@ -46089,7 +46039,7 @@ impl Type {
 
     #[must_use]
     #[allow(clippy::too_many_lines)]
-    pub const fn variants() -> [TypeVariant; 390] {
+    pub const fn variants() -> [TypeVariant; 389] {
         Self::VARIANTS
     }
 
@@ -46149,8 +46099,8 @@ impl Type {
             Self::ScMapEntry(_) => TypeVariant::ScMapEntry,
             Self::ScVec(_) => TypeVariant::ScVec,
             Self::ScMap(_) => TypeVariant::ScMap,
-            Self::ScContractCodeType(_) => TypeVariant::ScContractCodeType,
-            Self::ScContractCode(_) => TypeVariant::ScContractCode,
+            Self::ScContractExecutableType(_) => TypeVariant::ScContractExecutableType,
+            Self::ScContractExecutable(_) => TypeVariant::ScContractExecutable,
             Self::Int128Parts(_) => TypeVariant::Int128Parts,
             Self::ScObject(_) => TypeVariant::ScObject,
             Self::StoredTransactionSet(_) => TypeVariant::StoredTransactionSet,
@@ -46374,15 +46324,14 @@ impl Type {
             Self::SetTrustLineFlagsOp(_) => TypeVariant::SetTrustLineFlagsOp,
             Self::LiquidityPoolDepositOp(_) => TypeVariant::LiquidityPoolDepositOp,
             Self::LiquidityPoolWithdrawOp(_) => TypeVariant::LiquidityPoolWithdrawOp,
-            Self::HostFunctionType(_) => TypeVariant::HostFunctionType,
+            Self::SmartContractOperationType(_) => TypeVariant::SmartContractOperationType,
             Self::ContractIdType(_) => TypeVariant::ContractIdType,
             Self::ContractIdPublicKeyType(_) => TypeVariant::ContractIdPublicKeyType,
-            Self::InstallContractCodeArgs(_) => TypeVariant::InstallContractCodeArgs,
             Self::ContractId(_) => TypeVariant::ContractId,
             Self::ContractIdFromEd25519PublicKey(_) => TypeVariant::ContractIdFromEd25519PublicKey,
-            Self::CreateContractArgs(_) => TypeVariant::CreateContractArgs,
-            Self::HostFunction(_) => TypeVariant::HostFunction,
-            Self::InvokeHostFunctionOp(_) => TypeVariant::InvokeHostFunctionOp,
+            Self::InstantiateContractArgs(_) => TypeVariant::InstantiateContractArgs,
+            Self::SmartContractOperation(_) => TypeVariant::SmartContractOperation,
+            Self::SmartContractOp(_) => TypeVariant::SmartContractOp,
             Self::Operation(_) => TypeVariant::Operation,
             Self::OperationBody(_) => TypeVariant::OperationBody,
             Self::HashIdPreimage(_) => TypeVariant::HashIdPreimage,
@@ -46396,8 +46345,8 @@ impl Type {
             Self::HashIdPreimageSourceAccountContractId(_) => {
                 TypeVariant::HashIdPreimageSourceAccountContractId
             }
-            Self::HashIdPreimageCreateContractArgs(_) => {
-                TypeVariant::HashIdPreimageCreateContractArgs
+            Self::HashIdPreimageInstantiateContractArgs(_) => {
+                TypeVariant::HashIdPreimageInstantiateContractArgs
             }
             Self::MemoType(_) => TypeVariant::MemoType,
             Self::Memo(_) => TypeVariant::Memo,
@@ -46503,8 +46452,10 @@ impl Type {
                 TypeVariant::LiquidityPoolWithdrawResultCode
             }
             Self::LiquidityPoolWithdrawResult(_) => TypeVariant::LiquidityPoolWithdrawResult,
-            Self::InvokeHostFunctionResultCode(_) => TypeVariant::InvokeHostFunctionResultCode,
-            Self::InvokeHostFunctionResult(_) => TypeVariant::InvokeHostFunctionResult,
+            Self::SmartContractOperationResultCode(_) => {
+                TypeVariant::SmartContractOperationResultCode
+            }
+            Self::SmartContractOperationResult(_) => TypeVariant::SmartContractOperationResult,
             Self::OperationResultCode(_) => TypeVariant::OperationResultCode,
             Self::OperationResult(_) => TypeVariant::OperationResult,
             Self::OperationResultTr(_) => TypeVariant::OperationResultTr,

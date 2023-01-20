@@ -24,11 +24,11 @@ pub const XDR_FILES_SHA256: [(&str, &str); 10] = [
     ),
     (
         "xdr/next/Stellar-contract-spec.x",
-        "4c5de1a6de09dfb03b38e66250ae0ac2f8085ac948ddd9a9c6cdc6a1c0396d2e",
+        "12426042317d65b8a101c9c178caa43fc626da3ffa20ddf5d3c7c7b2de21f899",
     ),
     (
         "xdr/next/Stellar-contract.x",
-        "1b7a1aeeaa2ccba2b797c58f7f9be7aea1608ba7a016f5034bc695eb4c402a85",
+        "e637c5296893a92a7db67e636bc8ba57e74ef40bf945d294ab89fe87325afa0a",
     ),
     (
         "xdr/next/Stellar-internal.x",
@@ -48,7 +48,7 @@ pub const XDR_FILES_SHA256: [(&str, &str); 10] = [
     ),
     (
         "xdr/next/Stellar-transaction.x",
-        "e3233d7dcaddadd619a3d19f46a1b7db7f3995b0cc7109d4d93ccfc40bc9c244",
+        "8db49f081b4f2d7ffa943a563f27c8a0559b7be21cf241e787c00c9b457f7dd8",
     ),
     (
         "xdr/next/Stellar-types.x",
@@ -2982,7 +2982,6 @@ impl WriteXdr for ScEnvMetaEntry {
 //        SC_SPEC_TYPE_BYTES = 11,
 //        SC_SPEC_TYPE_INVOKER = 12,
 //        SC_SPEC_TYPE_ADDRESS = 13,
-//        SC_SPEC_TYPE_ACCOUNT = 14,
 //
 //        // Types with parameters.
 //        SC_SPEC_TYPE_OPTION = 1000,
@@ -3021,7 +3020,6 @@ pub enum ScSpecType {
     Bytes = 11,
     Invoker = 12,
     Address = 13,
-    Account = 14,
     Option = 1000,
     Result = 1001,
     Vec = 1002,
@@ -3033,7 +3031,7 @@ pub enum ScSpecType {
 }
 
 impl ScSpecType {
-    pub const VARIANTS: [ScSpecType; 23] = [
+    pub const VARIANTS: [ScSpecType; 22] = [
         ScSpecType::Val,
         ScSpecType::U32,
         ScSpecType::I32,
@@ -3048,7 +3046,6 @@ impl ScSpecType {
         ScSpecType::Bytes,
         ScSpecType::Invoker,
         ScSpecType::Address,
-        ScSpecType::Account,
         ScSpecType::Option,
         ScSpecType::Result,
         ScSpecType::Vec,
@@ -3058,10 +3055,10 @@ impl ScSpecType {
         ScSpecType::BytesN,
         ScSpecType::Udt,
     ];
-    pub const VARIANTS_STR: [&'static str; 23] = [
+    pub const VARIANTS_STR: [&'static str; 22] = [
         "Val", "U32", "I32", "U64", "I64", "U128", "I128", "Bool", "Symbol", "Bitset", "Status",
-        "Bytes", "Invoker", "Address", "Account", "Option", "Result", "Vec", "Set", "Map", "Tuple",
-        "BytesN", "Udt",
+        "Bytes", "Invoker", "Address", "Option", "Result", "Vec", "Set", "Map", "Tuple", "BytesN",
+        "Udt",
     ];
 
     #[must_use]
@@ -3081,7 +3078,6 @@ impl ScSpecType {
             Self::Bytes => "Bytes",
             Self::Invoker => "Invoker",
             Self::Address => "Address",
-            Self::Account => "Account",
             Self::Option => "Option",
             Self::Result => "Result",
             Self::Vec => "Vec",
@@ -3094,7 +3090,7 @@ impl ScSpecType {
     }
 
     #[must_use]
-    pub const fn variants() -> [ScSpecType; 23] {
+    pub const fn variants() -> [ScSpecType; 22] {
         Self::VARIANTS
     }
 }
@@ -3139,7 +3135,6 @@ impl TryFrom<i32> for ScSpecType {
             11 => ScSpecType::Bytes,
             12 => ScSpecType::Invoker,
             13 => ScSpecType::Address,
-            14 => ScSpecType::Account,
             1000 => ScSpecType::Option,
             1001 => ScSpecType::Result,
             1002 => ScSpecType::Vec,
@@ -3484,7 +3479,6 @@ impl WriteXdr for ScSpecTypeUdt {
 //    case SC_SPEC_TYPE_STATUS:
 //    case SC_SPEC_TYPE_BYTES:
 //    case SC_SPEC_TYPE_ADDRESS:
-//    case SC_SPEC_TYPE_ACCOUNT:
 //        void;
 //    case SC_SPEC_TYPE_OPTION:
 //        SCSpecTypeOption option;
@@ -3527,7 +3521,6 @@ pub enum ScSpecTypeDef {
     Status,
     Bytes,
     Address,
-    Account,
     Option(Box<ScSpecTypeOption>),
     Result(Box<ScSpecTypeResult>),
     Vec(Box<ScSpecTypeVec>),
@@ -3539,7 +3532,7 @@ pub enum ScSpecTypeDef {
 }
 
 impl ScSpecTypeDef {
-    pub const VARIANTS: [ScSpecType; 22] = [
+    pub const VARIANTS: [ScSpecType; 21] = [
         ScSpecType::Val,
         ScSpecType::U64,
         ScSpecType::I64,
@@ -3553,7 +3546,6 @@ impl ScSpecTypeDef {
         ScSpecType::Status,
         ScSpecType::Bytes,
         ScSpecType::Address,
-        ScSpecType::Account,
         ScSpecType::Option,
         ScSpecType::Result,
         ScSpecType::Vec,
@@ -3563,10 +3555,9 @@ impl ScSpecTypeDef {
         ScSpecType::BytesN,
         ScSpecType::Udt,
     ];
-    pub const VARIANTS_STR: [&'static str; 22] = [
+    pub const VARIANTS_STR: [&'static str; 21] = [
         "Val", "U64", "I64", "U128", "I128", "U32", "I32", "Bool", "Symbol", "Bitset", "Status",
-        "Bytes", "Address", "Account", "Option", "Result", "Vec", "Map", "Set", "Tuple", "BytesN",
-        "Udt",
+        "Bytes", "Address", "Option", "Result", "Vec", "Map", "Set", "Tuple", "BytesN", "Udt",
     ];
 
     #[must_use]
@@ -3585,7 +3576,6 @@ impl ScSpecTypeDef {
             Self::Status => "Status",
             Self::Bytes => "Bytes",
             Self::Address => "Address",
-            Self::Account => "Account",
             Self::Option(_) => "Option",
             Self::Result(_) => "Result",
             Self::Vec(_) => "Vec",
@@ -3614,7 +3604,6 @@ impl ScSpecTypeDef {
             Self::Status => ScSpecType::Status,
             Self::Bytes => ScSpecType::Bytes,
             Self::Address => ScSpecType::Address,
-            Self::Account => ScSpecType::Account,
             Self::Option(_) => ScSpecType::Option,
             Self::Result(_) => ScSpecType::Result,
             Self::Vec(_) => ScSpecType::Vec,
@@ -3627,7 +3616,7 @@ impl ScSpecTypeDef {
     }
 
     #[must_use]
-    pub const fn variants() -> [ScSpecType; 22] {
+    pub const fn variants() -> [ScSpecType; 21] {
         Self::VARIANTS
     }
 }
@@ -3673,7 +3662,6 @@ impl ReadXdr for ScSpecTypeDef {
             ScSpecType::Status => Self::Status,
             ScSpecType::Bytes => Self::Bytes,
             ScSpecType::Address => Self::Address,
-            ScSpecType::Account => Self::Account,
             ScSpecType::Option => Self::Option(Box::<ScSpecTypeOption>::read_xdr(r)?),
             ScSpecType::Result => Self::Result(Box::<ScSpecTypeResult>::read_xdr(r)?),
             ScSpecType::Vec => Self::Vec(Box::<ScSpecTypeVec>::read_xdr(r)?),
@@ -3708,7 +3696,6 @@ impl WriteXdr for ScSpecTypeDef {
             Self::Status => ().write_xdr(w)?,
             Self::Bytes => ().write_xdr(w)?,
             Self::Address => ().write_xdr(w)?,
-            Self::Account => ().write_xdr(w)?,
             Self::Option(v) => v.write_xdr(w)?,
             Self::Result(v) => v.write_xdr(w)?,
             Self::Vec(v) => v.write_xdr(w)?,
@@ -6098,10 +6085,8 @@ impl WriteXdr for ScVal {
 //        SCO_I128 = 5,
 //        SCO_BYTES = 6,
 //        SCO_CONTRACT_CODE = 7,
-//        SCO_ACCOUNT_ID = 8,
-//        SCO_ACCOUNT = 9,
-//        SCO_ADDRESS = 10,
-//        SCO_NONCE_KEY = 11
+//        SCO_ADDRESS = 8,
+//        SCO_NONCE_KEY = 9
 //
 //        // TODO: add more
 //    };
@@ -6124,14 +6109,12 @@ pub enum ScObjectType {
     I128 = 5,
     Bytes = 6,
     ContractCode = 7,
-    AccountId = 8,
-    Account = 9,
-    Address = 10,
-    NonceKey = 11,
+    Address = 8,
+    NonceKey = 9,
 }
 
 impl ScObjectType {
-    pub const VARIANTS: [ScObjectType; 12] = [
+    pub const VARIANTS: [ScObjectType; 10] = [
         ScObjectType::Vec,
         ScObjectType::Map,
         ScObjectType::U64,
@@ -6140,12 +6123,10 @@ impl ScObjectType {
         ScObjectType::I128,
         ScObjectType::Bytes,
         ScObjectType::ContractCode,
-        ScObjectType::AccountId,
-        ScObjectType::Account,
         ScObjectType::Address,
         ScObjectType::NonceKey,
     ];
-    pub const VARIANTS_STR: [&'static str; 12] = [
+    pub const VARIANTS_STR: [&'static str; 10] = [
         "Vec",
         "Map",
         "U64",
@@ -6154,8 +6135,6 @@ impl ScObjectType {
         "I128",
         "Bytes",
         "ContractCode",
-        "AccountId",
-        "Account",
         "Address",
         "NonceKey",
     ];
@@ -6171,15 +6150,13 @@ impl ScObjectType {
             Self::I128 => "I128",
             Self::Bytes => "Bytes",
             Self::ContractCode => "ContractCode",
-            Self::AccountId => "AccountId",
-            Self::Account => "Account",
             Self::Address => "Address",
             Self::NonceKey => "NonceKey",
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [ScObjectType; 12] {
+    pub const fn variants() -> [ScObjectType; 10] {
         Self::VARIANTS
     }
 }
@@ -6218,10 +6195,8 @@ impl TryFrom<i32> for ScObjectType {
             5 => ScObjectType::I128,
             6 => ScObjectType::Bytes,
             7 => ScObjectType::ContractCode,
-            8 => ScObjectType::AccountId,
-            9 => ScObjectType::Account,
-            10 => ScObjectType::Address,
-            11 => ScObjectType::NonceKey,
+            8 => ScObjectType::Address,
+            9 => ScObjectType::NonceKey,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -6741,382 +6716,12 @@ impl WriteXdr for Int128Parts {
     }
 }
 
-// ContractInvocation is an XDR Struct defines as:
-//
-//   struct ContractInvocation
-//    {
-//        Hash contractID;
-//        SCSymbol functionName;
-//    };
-//
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-#[cfg_attr(
-    all(feature = "serde", feature = "alloc"),
-    derive(serde::Serialize, serde::Deserialize),
-    serde(rename_all = "snake_case")
-)]
-pub struct ContractInvocation {
-    pub contract_id: Hash,
-    pub function_name: StringM<10>,
-}
-
-impl ReadXdr for ContractInvocation {
-    #[cfg(feature = "std")]
-    fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        Ok(Self {
-            contract_id: Hash::read_xdr(r)?,
-            function_name: StringM::<10>::read_xdr(r)?,
-        })
-    }
-}
-
-impl WriteXdr for ContractInvocation {
-    #[cfg(feature = "std")]
-    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
-        self.contract_id.write_xdr(w)?;
-        self.function_name.write_xdr(w)?;
-        Ok(())
-    }
-}
-
-// AuthorizedInvocation is an XDR Struct defines as:
-//
-//   struct AuthorizedInvocation
-//    {
-//        ContractInvocation callStack<>;
-//        SCVec topArgs;
-//        uint64* nonce;
-//    };
-//
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-#[cfg_attr(
-    all(feature = "serde", feature = "alloc"),
-    derive(serde::Serialize, serde::Deserialize),
-    serde(rename_all = "snake_case")
-)]
-pub struct AuthorizedInvocation {
-    pub call_stack: VecM<ContractInvocation>,
-    pub top_args: ScVec,
-    pub nonce: Option<u64>,
-}
-
-impl ReadXdr for AuthorizedInvocation {
-    #[cfg(feature = "std")]
-    fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        Ok(Self {
-            call_stack: VecM::<ContractInvocation>::read_xdr(r)?,
-            top_args: ScVec::read_xdr(r)?,
-            nonce: Option::<u64>::read_xdr(r)?,
-        })
-    }
-}
-
-impl WriteXdr for AuthorizedInvocation {
-    #[cfg(feature = "std")]
-    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
-        self.call_stack.write_xdr(w)?;
-        self.top_args.write_xdr(w)?;
-        self.nonce.write_xdr(w)?;
-        Ok(())
-    }
-}
-
-// ScAccountIdType is an XDR Enum defines as:
-//
-//   enum SCAccountIdType
-//    {
-//        SC_ACCOUNT_ID_TYPE_BUILTIN_INVOKER = 0,
-//        SC_ACCOUNT_ID_TYPE_BUILTIN_CLASSIC_ACCOUNT = 1,
-//        SC_ACCOUNT_ID_TYPE_BUILTIN_ED25519 = 2,
-//        SC_ACCOUNT_ID_TYPE_GENERIC_ACCOUNT = 3
-//    };
-//
-// enum
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-#[cfg_attr(
-    all(feature = "serde", feature = "alloc"),
-    derive(serde::Serialize, serde::Deserialize),
-    serde(rename_all = "snake_case")
-)]
-#[repr(i32)]
-pub enum ScAccountIdType {
-    BuiltinInvoker = 0,
-    BuiltinClassicAccount = 1,
-    BuiltinEd25519 = 2,
-    GenericAccount = 3,
-}
-
-impl ScAccountIdType {
-    pub const VARIANTS: [ScAccountIdType; 4] = [
-        ScAccountIdType::BuiltinInvoker,
-        ScAccountIdType::BuiltinClassicAccount,
-        ScAccountIdType::BuiltinEd25519,
-        ScAccountIdType::GenericAccount,
-    ];
-    pub const VARIANTS_STR: [&'static str; 4] = [
-        "BuiltinInvoker",
-        "BuiltinClassicAccount",
-        "BuiltinEd25519",
-        "GenericAccount",
-    ];
-
-    #[must_use]
-    pub const fn name(&self) -> &'static str {
-        match self {
-            Self::BuiltinInvoker => "BuiltinInvoker",
-            Self::BuiltinClassicAccount => "BuiltinClassicAccount",
-            Self::BuiltinEd25519 => "BuiltinEd25519",
-            Self::GenericAccount => "GenericAccount",
-        }
-    }
-
-    #[must_use]
-    pub const fn variants() -> [ScAccountIdType; 4] {
-        Self::VARIANTS
-    }
-}
-
-impl Name for ScAccountIdType {
-    #[must_use]
-    fn name(&self) -> &'static str {
-        Self::name(self)
-    }
-}
-
-impl Variants<ScAccountIdType> for ScAccountIdType {
-    fn variants() -> slice::Iter<'static, ScAccountIdType> {
-        Self::VARIANTS.iter()
-    }
-}
-
-impl Enum for ScAccountIdType {}
-
-impl fmt::Display for ScAccountIdType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.name())
-    }
-}
-
-impl TryFrom<i32> for ScAccountIdType {
-    type Error = Error;
-
-    fn try_from(i: i32) -> Result<Self> {
-        let e = match i {
-            0 => ScAccountIdType::BuiltinInvoker,
-            1 => ScAccountIdType::BuiltinClassicAccount,
-            2 => ScAccountIdType::BuiltinEd25519,
-            3 => ScAccountIdType::GenericAccount,
-            #[allow(unreachable_patterns)]
-            _ => return Err(Error::Invalid),
-        };
-        Ok(e)
-    }
-}
-
-impl From<ScAccountIdType> for i32 {
-    #[must_use]
-    fn from(e: ScAccountIdType) -> Self {
-        e as Self
-    }
-}
-
-impl ReadXdr for ScAccountIdType {
-    #[cfg(feature = "std")]
-    fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        let e = i32::read_xdr(r)?;
-        let v: Self = e.try_into()?;
-        Ok(v)
-    }
-}
-
-impl WriteXdr for ScAccountIdType {
-    #[cfg(feature = "std")]
-    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
-        let i: i32 = (*self).into();
-        i.write_xdr(w)
-    }
-}
-
-// ScAccountId is an XDR Union defines as:
-//
-//   union ScAccountId switch (SCAccountIdType type)
-//    {
-//    case SC_ACCOUNT_ID_TYPE_BUILTIN_CLASSIC_ACCOUNT:
-//        AccountID accountId;
-//    case SC_ACCOUNT_ID_TYPE_BUILTIN_ED25519:
-//        Hash ed25519PublicKey;
-//    case SC_ACCOUNT_ID_TYPE_BUILTIN_INVOKER:
-//        void;
-//    case SC_ACCOUNT_ID_TYPE_GENERIC_ACCOUNT:
-//        Hash accountContractId;
-//    };
-//
-// union with discriminant ScAccountIdType
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-#[cfg_attr(
-    all(feature = "serde", feature = "alloc"),
-    derive(serde::Serialize, serde::Deserialize),
-    serde(rename_all = "snake_case")
-)]
-#[allow(clippy::large_enum_variant)]
-pub enum ScAccountId {
-    BuiltinClassicAccount(AccountId),
-    BuiltinEd25519(Hash),
-    BuiltinInvoker,
-    GenericAccount(Hash),
-}
-
-impl ScAccountId {
-    pub const VARIANTS: [ScAccountIdType; 4] = [
-        ScAccountIdType::BuiltinClassicAccount,
-        ScAccountIdType::BuiltinEd25519,
-        ScAccountIdType::BuiltinInvoker,
-        ScAccountIdType::GenericAccount,
-    ];
-    pub const VARIANTS_STR: [&'static str; 4] = [
-        "BuiltinClassicAccount",
-        "BuiltinEd25519",
-        "BuiltinInvoker",
-        "GenericAccount",
-    ];
-
-    #[must_use]
-    pub const fn name(&self) -> &'static str {
-        match self {
-            Self::BuiltinClassicAccount(_) => "BuiltinClassicAccount",
-            Self::BuiltinEd25519(_) => "BuiltinEd25519",
-            Self::BuiltinInvoker => "BuiltinInvoker",
-            Self::GenericAccount(_) => "GenericAccount",
-        }
-    }
-
-    #[must_use]
-    pub const fn discriminant(&self) -> ScAccountIdType {
-        #[allow(clippy::match_same_arms)]
-        match self {
-            Self::BuiltinClassicAccount(_) => ScAccountIdType::BuiltinClassicAccount,
-            Self::BuiltinEd25519(_) => ScAccountIdType::BuiltinEd25519,
-            Self::BuiltinInvoker => ScAccountIdType::BuiltinInvoker,
-            Self::GenericAccount(_) => ScAccountIdType::GenericAccount,
-        }
-    }
-
-    #[must_use]
-    pub const fn variants() -> [ScAccountIdType; 4] {
-        Self::VARIANTS
-    }
-}
-
-impl Name for ScAccountId {
-    #[must_use]
-    fn name(&self) -> &'static str {
-        Self::name(self)
-    }
-}
-
-impl Discriminant<ScAccountIdType> for ScAccountId {
-    #[must_use]
-    fn discriminant(&self) -> ScAccountIdType {
-        Self::discriminant(self)
-    }
-}
-
-impl Variants<ScAccountIdType> for ScAccountId {
-    fn variants() -> slice::Iter<'static, ScAccountIdType> {
-        Self::VARIANTS.iter()
-    }
-}
-
-impl Union<ScAccountIdType> for ScAccountId {}
-
-impl ReadXdr for ScAccountId {
-    #[cfg(feature = "std")]
-    fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        let dv: ScAccountIdType = <ScAccountIdType as ReadXdr>::read_xdr(r)?;
-        #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
-        let v = match dv {
-            ScAccountIdType::BuiltinClassicAccount => {
-                Self::BuiltinClassicAccount(AccountId::read_xdr(r)?)
-            }
-            ScAccountIdType::BuiltinEd25519 => Self::BuiltinEd25519(Hash::read_xdr(r)?),
-            ScAccountIdType::BuiltinInvoker => Self::BuiltinInvoker,
-            ScAccountIdType::GenericAccount => Self::GenericAccount(Hash::read_xdr(r)?),
-            #[allow(unreachable_patterns)]
-            _ => return Err(Error::Invalid),
-        };
-        Ok(v)
-    }
-}
-
-impl WriteXdr for ScAccountId {
-    #[cfg(feature = "std")]
-    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
-        self.discriminant().write_xdr(w)?;
-        #[allow(clippy::match_same_arms)]
-        match self {
-            Self::BuiltinClassicAccount(v) => v.write_xdr(w)?,
-            Self::BuiltinEd25519(v) => v.write_xdr(w)?,
-            Self::BuiltinInvoker => ().write_xdr(w)?,
-            Self::GenericAccount(v) => v.write_xdr(w)?,
-        };
-        Ok(())
-    }
-}
-
-// ScAccount is an XDR Struct defines as:
-//
-//   struct SCAccount
-//    {
-//        ScAccountId accountId;
-//        AuthorizedInvocation invocations<>;
-//        SCVec signatureArgs;
-//    };
-//
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-#[cfg_attr(
-    all(feature = "serde", feature = "alloc"),
-    derive(serde::Serialize, serde::Deserialize),
-    serde(rename_all = "snake_case")
-)]
-pub struct ScAccount {
-    pub account_id: ScAccountId,
-    pub invocations: VecM<AuthorizedInvocation>,
-    pub signature_args: ScVec,
-}
-
-impl ReadXdr for ScAccount {
-    #[cfg(feature = "std")]
-    fn read_xdr(r: &mut impl Read) -> Result<Self> {
-        Ok(Self {
-            account_id: ScAccountId::read_xdr(r)?,
-            invocations: VecM::<AuthorizedInvocation>::read_xdr(r)?,
-            signature_args: ScVec::read_xdr(r)?,
-        })
-    }
-}
-
-impl WriteXdr for ScAccount {
-    #[cfg(feature = "std")]
-    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
-        self.account_id.write_xdr(w)?;
-        self.invocations.write_xdr(w)?;
-        self.signature_args.write_xdr(w)?;
-        Ok(())
-    }
-}
-
 // ScAddressType is an XDR Enum defines as:
 //
 //   enum SCAddressType
 //    {
 //        SC_ADDRESS_TYPE_CLASSIC_ACCOUNT = 0,
-//        SC_ADDRESS_TYPE_ED25519 = 1,
-//        SC_ADDRESS_TYPE_CONTRACT = 2
+//        SC_ADDRESS_TYPE_CONTRACT = 1
 //    };
 //
 // enum
@@ -7130,29 +6735,24 @@ impl WriteXdr for ScAccount {
 #[repr(i32)]
 pub enum ScAddressType {
     ClassicAccount = 0,
-    Ed25519 = 1,
-    Contract = 2,
+    Contract = 1,
 }
 
 impl ScAddressType {
-    pub const VARIANTS: [ScAddressType; 3] = [
-        ScAddressType::ClassicAccount,
-        ScAddressType::Ed25519,
-        ScAddressType::Contract,
-    ];
-    pub const VARIANTS_STR: [&'static str; 3] = ["ClassicAccount", "Ed25519", "Contract"];
+    pub const VARIANTS: [ScAddressType; 2] =
+        [ScAddressType::ClassicAccount, ScAddressType::Contract];
+    pub const VARIANTS_STR: [&'static str; 2] = ["ClassicAccount", "Contract"];
 
     #[must_use]
     pub const fn name(&self) -> &'static str {
         match self {
             Self::ClassicAccount => "ClassicAccount",
-            Self::Ed25519 => "Ed25519",
             Self::Contract => "Contract",
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [ScAddressType; 3] {
+    pub const fn variants() -> [ScAddressType; 2] {
         Self::VARIANTS
     }
 }
@@ -7184,8 +6784,7 @@ impl TryFrom<i32> for ScAddressType {
     fn try_from(i: i32) -> Result<Self> {
         let e = match i {
             0 => ScAddressType::ClassicAccount,
-            1 => ScAddressType::Ed25519,
-            2 => ScAddressType::Contract,
+            1 => ScAddressType::Contract,
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
         };
@@ -7223,8 +6822,6 @@ impl WriteXdr for ScAddressType {
 //    {
 //    case SC_ADDRESS_TYPE_CLASSIC_ACCOUNT:
 //        AccountID accountId;
-//    case SC_ADDRESS_TYPE_ED25519:
-//        Hash ed25519PublicKey;
 //    case SC_ADDRESS_TYPE_CONTRACT:
 //        Hash contractId;
 //    };
@@ -7240,23 +6837,18 @@ impl WriteXdr for ScAddressType {
 #[allow(clippy::large_enum_variant)]
 pub enum ScAddress {
     ClassicAccount(AccountId),
-    Ed25519(Hash),
     Contract(Hash),
 }
 
 impl ScAddress {
-    pub const VARIANTS: [ScAddressType; 3] = [
-        ScAddressType::ClassicAccount,
-        ScAddressType::Ed25519,
-        ScAddressType::Contract,
-    ];
-    pub const VARIANTS_STR: [&'static str; 3] = ["ClassicAccount", "Ed25519", "Contract"];
+    pub const VARIANTS: [ScAddressType; 2] =
+        [ScAddressType::ClassicAccount, ScAddressType::Contract];
+    pub const VARIANTS_STR: [&'static str; 2] = ["ClassicAccount", "Contract"];
 
     #[must_use]
     pub const fn name(&self) -> &'static str {
         match self {
             Self::ClassicAccount(_) => "ClassicAccount",
-            Self::Ed25519(_) => "Ed25519",
             Self::Contract(_) => "Contract",
         }
     }
@@ -7266,13 +6858,12 @@ impl ScAddress {
         #[allow(clippy::match_same_arms)]
         match self {
             Self::ClassicAccount(_) => ScAddressType::ClassicAccount,
-            Self::Ed25519(_) => ScAddressType::Ed25519,
             Self::Contract(_) => ScAddressType::Contract,
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [ScAddressType; 3] {
+    pub const fn variants() -> [ScAddressType; 2] {
         Self::VARIANTS
     }
 }
@@ -7306,7 +6897,6 @@ impl ReadXdr for ScAddress {
         #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
         let v = match dv {
             ScAddressType::ClassicAccount => Self::ClassicAccount(AccountId::read_xdr(r)?),
-            ScAddressType::Ed25519 => Self::Ed25519(Hash::read_xdr(r)?),
             ScAddressType::Contract => Self::Contract(Hash::read_xdr(r)?),
             #[allow(unreachable_patterns)]
             _ => return Err(Error::Invalid),
@@ -7322,7 +6912,6 @@ impl WriteXdr for ScAddress {
         #[allow(clippy::match_same_arms)]
         match self {
             Self::ClassicAccount(v) => v.write_xdr(w)?,
-            Self::Ed25519(v) => v.write_xdr(w)?,
             Self::Contract(v) => v.write_xdr(w)?,
         };
         Ok(())
@@ -7349,10 +6938,6 @@ impl WriteXdr for ScAddress {
 //        opaque bin<SCVAL_LIMIT>;
 //    case SCO_CONTRACT_CODE:
 //        SCContractCode contractCode;
-//    case SCO_ACCOUNT_ID:
-//        AccountID accountID;
-//    case SCO_ACCOUNT:
-//        SCAccount account;
 //    case SCO_ADDRESS:
 //        SCAddress address;
 //    case SCO_NONCE_KEY:
@@ -7377,14 +6962,12 @@ pub enum ScObject {
     I128(Int128Parts),
     Bytes(BytesM<256000>),
     ContractCode(ScContractCode),
-    AccountId(AccountId),
-    Account(ScAccount),
     Address(ScAddress),
     NonceKey(ScAddress),
 }
 
 impl ScObject {
-    pub const VARIANTS: [ScObjectType; 12] = [
+    pub const VARIANTS: [ScObjectType; 10] = [
         ScObjectType::Vec,
         ScObjectType::Map,
         ScObjectType::U64,
@@ -7393,12 +6976,10 @@ impl ScObject {
         ScObjectType::I128,
         ScObjectType::Bytes,
         ScObjectType::ContractCode,
-        ScObjectType::AccountId,
-        ScObjectType::Account,
         ScObjectType::Address,
         ScObjectType::NonceKey,
     ];
-    pub const VARIANTS_STR: [&'static str; 12] = [
+    pub const VARIANTS_STR: [&'static str; 10] = [
         "Vec",
         "Map",
         "U64",
@@ -7407,8 +6988,6 @@ impl ScObject {
         "I128",
         "Bytes",
         "ContractCode",
-        "AccountId",
-        "Account",
         "Address",
         "NonceKey",
     ];
@@ -7424,8 +7003,6 @@ impl ScObject {
             Self::I128(_) => "I128",
             Self::Bytes(_) => "Bytes",
             Self::ContractCode(_) => "ContractCode",
-            Self::AccountId(_) => "AccountId",
-            Self::Account(_) => "Account",
             Self::Address(_) => "Address",
             Self::NonceKey(_) => "NonceKey",
         }
@@ -7443,15 +7020,13 @@ impl ScObject {
             Self::I128(_) => ScObjectType::I128,
             Self::Bytes(_) => ScObjectType::Bytes,
             Self::ContractCode(_) => ScObjectType::ContractCode,
-            Self::AccountId(_) => ScObjectType::AccountId,
-            Self::Account(_) => ScObjectType::Account,
             Self::Address(_) => ScObjectType::Address,
             Self::NonceKey(_) => ScObjectType::NonceKey,
         }
     }
 
     #[must_use]
-    pub const fn variants() -> [ScObjectType; 12] {
+    pub const fn variants() -> [ScObjectType; 10] {
         Self::VARIANTS
     }
 }
@@ -7492,8 +7067,6 @@ impl ReadXdr for ScObject {
             ScObjectType::I128 => Self::I128(Int128Parts::read_xdr(r)?),
             ScObjectType::Bytes => Self::Bytes(BytesM::<256000>::read_xdr(r)?),
             ScObjectType::ContractCode => Self::ContractCode(ScContractCode::read_xdr(r)?),
-            ScObjectType::AccountId => Self::AccountId(AccountId::read_xdr(r)?),
-            ScObjectType::Account => Self::Account(ScAccount::read_xdr(r)?),
             ScObjectType::Address => Self::Address(ScAddress::read_xdr(r)?),
             ScObjectType::NonceKey => Self::NonceKey(ScAddress::read_xdr(r)?),
             #[allow(unreachable_patterns)]
@@ -7517,8 +7090,6 @@ impl WriteXdr for ScObject {
             Self::I128(v) => v.write_xdr(w)?,
             Self::Bytes(v) => v.write_xdr(w)?,
             Self::ContractCode(v) => v.write_xdr(w)?,
-            Self::AccountId(v) => v.write_xdr(w)?,
-            Self::Account(v) => v.write_xdr(w)?,
             Self::Address(v) => v.write_xdr(w)?,
             Self::NonceKey(v) => v.write_xdr(w)?,
         };
@@ -23507,6 +23078,131 @@ impl WriteXdr for HostFunction {
     }
 }
 
+// ContractInvocation is an XDR Struct defines as:
+//
+//   struct ContractInvocation
+//    {
+//        Hash contractID;
+//        SCSymbol functionName;
+//    };
+//
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
+#[cfg_attr(
+    all(feature = "serde", feature = "alloc"),
+    derive(serde::Serialize, serde::Deserialize),
+    serde(rename_all = "snake_case")
+)]
+pub struct ContractInvocation {
+    pub contract_id: Hash,
+    pub function_name: StringM<10>,
+}
+
+impl ReadXdr for ContractInvocation {
+    #[cfg(feature = "std")]
+    fn read_xdr(r: &mut impl Read) -> Result<Self> {
+        Ok(Self {
+            contract_id: Hash::read_xdr(r)?,
+            function_name: StringM::<10>::read_xdr(r)?,
+        })
+    }
+}
+
+impl WriteXdr for ContractInvocation {
+    #[cfg(feature = "std")]
+    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
+        self.contract_id.write_xdr(w)?;
+        self.function_name.write_xdr(w)?;
+        Ok(())
+    }
+}
+
+// AuthorizedInvocation is an XDR Struct defines as:
+//
+//   struct AuthorizedInvocation
+//    {
+//        ContractInvocation callStack<>;
+//        SCVec topArgs;
+//        uint64* nonce;
+//    };
+//
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
+#[cfg_attr(
+    all(feature = "serde", feature = "alloc"),
+    derive(serde::Serialize, serde::Deserialize),
+    serde(rename_all = "snake_case")
+)]
+pub struct AuthorizedInvocation {
+    pub call_stack: VecM<ContractInvocation>,
+    pub top_args: ScVec,
+    pub nonce: Option<u64>,
+}
+
+impl ReadXdr for AuthorizedInvocation {
+    #[cfg(feature = "std")]
+    fn read_xdr(r: &mut impl Read) -> Result<Self> {
+        Ok(Self {
+            call_stack: VecM::<ContractInvocation>::read_xdr(r)?,
+            top_args: ScVec::read_xdr(r)?,
+            nonce: Option::<u64>::read_xdr(r)?,
+        })
+    }
+}
+
+impl WriteXdr for AuthorizedInvocation {
+    #[cfg(feature = "std")]
+    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
+        self.call_stack.write_xdr(w)?;
+        self.top_args.write_xdr(w)?;
+        self.nonce.write_xdr(w)?;
+        Ok(())
+    }
+}
+
+// ContractAuth is an XDR Struct defines as:
+//
+//   struct ContractAuth
+//    {
+//        SCAddress address;
+//        AuthorizedInvocation invocations<>;
+//        SCVec signatureArgs;
+//    };
+//
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
+#[cfg_attr(
+    all(feature = "serde", feature = "alloc"),
+    derive(serde::Serialize, serde::Deserialize),
+    serde(rename_all = "snake_case")
+)]
+pub struct ContractAuth {
+    pub address: ScAddress,
+    pub invocations: VecM<AuthorizedInvocation>,
+    pub signature_args: ScVec,
+}
+
+impl ReadXdr for ContractAuth {
+    #[cfg(feature = "std")]
+    fn read_xdr(r: &mut impl Read) -> Result<Self> {
+        Ok(Self {
+            address: ScAddress::read_xdr(r)?,
+            invocations: VecM::<AuthorizedInvocation>::read_xdr(r)?,
+            signature_args: ScVec::read_xdr(r)?,
+        })
+    }
+}
+
+impl WriteXdr for ContractAuth {
+    #[cfg(feature = "std")]
+    fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
+        self.address.write_xdr(w)?;
+        self.invocations.write_xdr(w)?;
+        self.signature_args.write_xdr(w)?;
+        Ok(())
+    }
+}
+
 // InvokeHostFunctionOp is an XDR Struct defines as:
 //
 //   struct InvokeHostFunctionOp
@@ -23515,6 +23211,9 @@ impl WriteXdr for HostFunction {
 //        HostFunction function;
 //        // The footprint for this invocation
 //        LedgerFootprint footprint;
+//        // Per-address authorizations for this host fn
+//        // Currently only supported for INVOKER_CONTRACT function
+//        ContractAuth auth<>;
 //    };
 //
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -23527,6 +23226,7 @@ impl WriteXdr for HostFunction {
 pub struct InvokeHostFunctionOp {
     pub function: HostFunction,
     pub footprint: LedgerFootprint,
+    pub auth: VecM<ContractAuth>,
 }
 
 impl ReadXdr for InvokeHostFunctionOp {
@@ -23535,6 +23235,7 @@ impl ReadXdr for InvokeHostFunctionOp {
         Ok(Self {
             function: HostFunction::read_xdr(r)?,
             footprint: LedgerFootprint::read_xdr(r)?,
+            auth: VecM::<ContractAuth>::read_xdr(r)?,
         })
     }
 }
@@ -23544,6 +23245,7 @@ impl WriteXdr for InvokeHostFunctionOp {
     fn write_xdr(&self, w: &mut impl Write) -> Result<()> {
         self.function.write_xdr(w)?;
         self.footprint.write_xdr(w)?;
+        self.auth.write_xdr(w)?;
         Ok(())
     }
 }
@@ -37001,11 +36703,6 @@ pub enum TypeVariant {
     ScContractCodeType,
     ScContractCode,
     Int128Parts,
-    ContractInvocation,
-    AuthorizedInvocation,
-    ScAccountIdType,
-    ScAccountId,
-    ScAccount,
     ScAddressType,
     ScAddress,
     ScObject,
@@ -37220,6 +36917,9 @@ pub enum TypeVariant {
     ContractIdFromEd25519PublicKey,
     CreateContractArgs,
     HostFunction,
+    ContractInvocation,
+    AuthorizedInvocation,
+    ContractAuth,
     InvokeHostFunctionOp,
     Operation,
     OperationBody,
@@ -37347,7 +37047,7 @@ pub enum TypeVariant {
 }
 
 impl TypeVariant {
-    pub const VARIANTS: [TypeVariant; 398] = [
+    pub const VARIANTS: [TypeVariant; 396] = [
         TypeVariant::Value,
         TypeVariant::ScpBallot,
         TypeVariant::ScpStatementType,
@@ -37403,11 +37103,6 @@ impl TypeVariant {
         TypeVariant::ScContractCodeType,
         TypeVariant::ScContractCode,
         TypeVariant::Int128Parts,
-        TypeVariant::ContractInvocation,
-        TypeVariant::AuthorizedInvocation,
-        TypeVariant::ScAccountIdType,
-        TypeVariant::ScAccountId,
-        TypeVariant::ScAccount,
         TypeVariant::ScAddressType,
         TypeVariant::ScAddress,
         TypeVariant::ScObject,
@@ -37622,6 +37317,9 @@ impl TypeVariant {
         TypeVariant::ContractIdFromEd25519PublicKey,
         TypeVariant::CreateContractArgs,
         TypeVariant::HostFunction,
+        TypeVariant::ContractInvocation,
+        TypeVariant::AuthorizedInvocation,
+        TypeVariant::ContractAuth,
         TypeVariant::InvokeHostFunctionOp,
         TypeVariant::Operation,
         TypeVariant::OperationBody,
@@ -37747,7 +37445,7 @@ impl TypeVariant {
         TypeVariant::HmacSha256Key,
         TypeVariant::HmacSha256Mac,
     ];
-    pub const VARIANTS_STR: [&'static str; 398] = [
+    pub const VARIANTS_STR: [&'static str; 396] = [
         "Value",
         "ScpBallot",
         "ScpStatementType",
@@ -37803,11 +37501,6 @@ impl TypeVariant {
         "ScContractCodeType",
         "ScContractCode",
         "Int128Parts",
-        "ContractInvocation",
-        "AuthorizedInvocation",
-        "ScAccountIdType",
-        "ScAccountId",
-        "ScAccount",
         "ScAddressType",
         "ScAddress",
         "ScObject",
@@ -38022,6 +37715,9 @@ impl TypeVariant {
         "ContractIdFromEd25519PublicKey",
         "CreateContractArgs",
         "HostFunction",
+        "ContractInvocation",
+        "AuthorizedInvocation",
+        "ContractAuth",
         "InvokeHostFunctionOp",
         "Operation",
         "OperationBody",
@@ -38207,11 +37903,6 @@ impl TypeVariant {
             Self::ScContractCodeType => "ScContractCodeType",
             Self::ScContractCode => "ScContractCode",
             Self::Int128Parts => "Int128Parts",
-            Self::ContractInvocation => "ContractInvocation",
-            Self::AuthorizedInvocation => "AuthorizedInvocation",
-            Self::ScAccountIdType => "ScAccountIdType",
-            Self::ScAccountId => "ScAccountId",
-            Self::ScAccount => "ScAccount",
             Self::ScAddressType => "ScAddressType",
             Self::ScAddress => "ScAddress",
             Self::ScObject => "ScObject",
@@ -38428,6 +38119,9 @@ impl TypeVariant {
             Self::ContractIdFromEd25519PublicKey => "ContractIdFromEd25519PublicKey",
             Self::CreateContractArgs => "CreateContractArgs",
             Self::HostFunction => "HostFunction",
+            Self::ContractInvocation => "ContractInvocation",
+            Self::AuthorizedInvocation => "AuthorizedInvocation",
+            Self::ContractAuth => "ContractAuth",
             Self::InvokeHostFunctionOp => "InvokeHostFunctionOp",
             Self::Operation => "Operation",
             Self::OperationBody => "OperationBody",
@@ -38561,7 +38255,7 @@ impl TypeVariant {
 
     #[must_use]
     #[allow(clippy::too_many_lines)]
-    pub const fn variants() -> [TypeVariant; 398] {
+    pub const fn variants() -> [TypeVariant; 396] {
         Self::VARIANTS
     }
 }
@@ -38639,11 +38333,6 @@ impl core::str::FromStr for TypeVariant {
             "ScContractCodeType" => Ok(Self::ScContractCodeType),
             "ScContractCode" => Ok(Self::ScContractCode),
             "Int128Parts" => Ok(Self::Int128Parts),
-            "ContractInvocation" => Ok(Self::ContractInvocation),
-            "AuthorizedInvocation" => Ok(Self::AuthorizedInvocation),
-            "ScAccountIdType" => Ok(Self::ScAccountIdType),
-            "ScAccountId" => Ok(Self::ScAccountId),
-            "ScAccount" => Ok(Self::ScAccount),
             "ScAddressType" => Ok(Self::ScAddressType),
             "ScAddress" => Ok(Self::ScAddress),
             "ScObject" => Ok(Self::ScObject),
@@ -38860,6 +38549,9 @@ impl core::str::FromStr for TypeVariant {
             "ContractIdFromEd25519PublicKey" => Ok(Self::ContractIdFromEd25519PublicKey),
             "CreateContractArgs" => Ok(Self::CreateContractArgs),
             "HostFunction" => Ok(Self::HostFunction),
+            "ContractInvocation" => Ok(Self::ContractInvocation),
+            "AuthorizedInvocation" => Ok(Self::AuthorizedInvocation),
+            "ContractAuth" => Ok(Self::ContractAuth),
             "InvokeHostFunctionOp" => Ok(Self::InvokeHostFunctionOp),
             "Operation" => Ok(Self::Operation),
             "OperationBody" => Ok(Self::OperationBody),
@@ -39062,11 +38754,6 @@ pub enum Type {
     ScContractCodeType(Box<ScContractCodeType>),
     ScContractCode(Box<ScContractCode>),
     Int128Parts(Box<Int128Parts>),
-    ContractInvocation(Box<ContractInvocation>),
-    AuthorizedInvocation(Box<AuthorizedInvocation>),
-    ScAccountIdType(Box<ScAccountIdType>),
-    ScAccountId(Box<ScAccountId>),
-    ScAccount(Box<ScAccount>),
     ScAddressType(Box<ScAddressType>),
     ScAddress(Box<ScAddress>),
     ScObject(Box<ScObject>),
@@ -39281,6 +38968,9 @@ pub enum Type {
     ContractIdFromEd25519PublicKey(Box<ContractIdFromEd25519PublicKey>),
     CreateContractArgs(Box<CreateContractArgs>),
     HostFunction(Box<HostFunction>),
+    ContractInvocation(Box<ContractInvocation>),
+    AuthorizedInvocation(Box<AuthorizedInvocation>),
+    ContractAuth(Box<ContractAuth>),
     InvokeHostFunctionOp(Box<InvokeHostFunctionOp>),
     Operation(Box<Operation>),
     OperationBody(Box<OperationBody>),
@@ -39408,7 +39098,7 @@ pub enum Type {
 }
 
 impl Type {
-    pub const VARIANTS: [TypeVariant; 398] = [
+    pub const VARIANTS: [TypeVariant; 396] = [
         TypeVariant::Value,
         TypeVariant::ScpBallot,
         TypeVariant::ScpStatementType,
@@ -39464,11 +39154,6 @@ impl Type {
         TypeVariant::ScContractCodeType,
         TypeVariant::ScContractCode,
         TypeVariant::Int128Parts,
-        TypeVariant::ContractInvocation,
-        TypeVariant::AuthorizedInvocation,
-        TypeVariant::ScAccountIdType,
-        TypeVariant::ScAccountId,
-        TypeVariant::ScAccount,
         TypeVariant::ScAddressType,
         TypeVariant::ScAddress,
         TypeVariant::ScObject,
@@ -39683,6 +39368,9 @@ impl Type {
         TypeVariant::ContractIdFromEd25519PublicKey,
         TypeVariant::CreateContractArgs,
         TypeVariant::HostFunction,
+        TypeVariant::ContractInvocation,
+        TypeVariant::AuthorizedInvocation,
+        TypeVariant::ContractAuth,
         TypeVariant::InvokeHostFunctionOp,
         TypeVariant::Operation,
         TypeVariant::OperationBody,
@@ -39808,7 +39496,7 @@ impl Type {
         TypeVariant::HmacSha256Key,
         TypeVariant::HmacSha256Mac,
     ];
-    pub const VARIANTS_STR: [&'static str; 398] = [
+    pub const VARIANTS_STR: [&'static str; 396] = [
         "Value",
         "ScpBallot",
         "ScpStatementType",
@@ -39864,11 +39552,6 @@ impl Type {
         "ScContractCodeType",
         "ScContractCode",
         "Int128Parts",
-        "ContractInvocation",
-        "AuthorizedInvocation",
-        "ScAccountIdType",
-        "ScAccountId",
-        "ScAccount",
         "ScAddressType",
         "ScAddress",
         "ScObject",
@@ -40083,6 +39766,9 @@ impl Type {
         "ContractIdFromEd25519PublicKey",
         "CreateContractArgs",
         "HostFunction",
+        "ContractInvocation",
+        "AuthorizedInvocation",
+        "ContractAuth",
         "InvokeHostFunctionOp",
         "Operation",
         "OperationBody",
@@ -40350,17 +40036,6 @@ impl Type {
                 Ok(Self::ScContractCode(Box::new(ScContractCode::read_xdr(r)?)))
             }
             TypeVariant::Int128Parts => Ok(Self::Int128Parts(Box::new(Int128Parts::read_xdr(r)?))),
-            TypeVariant::ContractInvocation => Ok(Self::ContractInvocation(Box::new(
-                ContractInvocation::read_xdr(r)?,
-            ))),
-            TypeVariant::AuthorizedInvocation => Ok(Self::AuthorizedInvocation(Box::new(
-                AuthorizedInvocation::read_xdr(r)?,
-            ))),
-            TypeVariant::ScAccountIdType => Ok(Self::ScAccountIdType(Box::new(
-                ScAccountIdType::read_xdr(r)?,
-            ))),
-            TypeVariant::ScAccountId => Ok(Self::ScAccountId(Box::new(ScAccountId::read_xdr(r)?))),
-            TypeVariant::ScAccount => Ok(Self::ScAccount(Box::new(ScAccount::read_xdr(r)?))),
             TypeVariant::ScAddressType => {
                 Ok(Self::ScAddressType(Box::new(ScAddressType::read_xdr(r)?)))
             }
@@ -40936,6 +40611,15 @@ impl Type {
             ))),
             TypeVariant::HostFunction => {
                 Ok(Self::HostFunction(Box::new(HostFunction::read_xdr(r)?)))
+            }
+            TypeVariant::ContractInvocation => Ok(Self::ContractInvocation(Box::new(
+                ContractInvocation::read_xdr(r)?,
+            ))),
+            TypeVariant::AuthorizedInvocation => Ok(Self::AuthorizedInvocation(Box::new(
+                AuthorizedInvocation::read_xdr(r)?,
+            ))),
+            TypeVariant::ContractAuth => {
+                Ok(Self::ContractAuth(Box::new(ContractAuth::read_xdr(r)?)))
             }
             TypeVariant::InvokeHostFunctionOp => Ok(Self::InvokeHostFunctionOp(Box::new(
                 InvokeHostFunctionOp::read_xdr(r)?,
@@ -41561,26 +41245,6 @@ impl Type {
             TypeVariant::Int128Parts => Box::new(
                 ReadXdrIter::<_, Int128Parts>::new(r)
                     .map(|r| r.map(|t| Self::Int128Parts(Box::new(t)))),
-            ),
-            TypeVariant::ContractInvocation => Box::new(
-                ReadXdrIter::<_, ContractInvocation>::new(r)
-                    .map(|r| r.map(|t| Self::ContractInvocation(Box::new(t)))),
-            ),
-            TypeVariant::AuthorizedInvocation => Box::new(
-                ReadXdrIter::<_, AuthorizedInvocation>::new(r)
-                    .map(|r| r.map(|t| Self::AuthorizedInvocation(Box::new(t)))),
-            ),
-            TypeVariant::ScAccountIdType => Box::new(
-                ReadXdrIter::<_, ScAccountIdType>::new(r)
-                    .map(|r| r.map(|t| Self::ScAccountIdType(Box::new(t)))),
-            ),
-            TypeVariant::ScAccountId => Box::new(
-                ReadXdrIter::<_, ScAccountId>::new(r)
-                    .map(|r| r.map(|t| Self::ScAccountId(Box::new(t)))),
-            ),
-            TypeVariant::ScAccount => Box::new(
-                ReadXdrIter::<_, ScAccount>::new(r)
-                    .map(|r| r.map(|t| Self::ScAccount(Box::new(t)))),
             ),
             TypeVariant::ScAddressType => Box::new(
                 ReadXdrIter::<_, ScAddressType>::new(r)
@@ -42423,6 +42087,18 @@ impl Type {
                 ReadXdrIter::<_, HostFunction>::new(r)
                     .map(|r| r.map(|t| Self::HostFunction(Box::new(t)))),
             ),
+            TypeVariant::ContractInvocation => Box::new(
+                ReadXdrIter::<_, ContractInvocation>::new(r)
+                    .map(|r| r.map(|t| Self::ContractInvocation(Box::new(t)))),
+            ),
+            TypeVariant::AuthorizedInvocation => Box::new(
+                ReadXdrIter::<_, AuthorizedInvocation>::new(r)
+                    .map(|r| r.map(|t| Self::AuthorizedInvocation(Box::new(t)))),
+            ),
+            TypeVariant::ContractAuth => Box::new(
+                ReadXdrIter::<_, ContractAuth>::new(r)
+                    .map(|r| r.map(|t| Self::ContractAuth(Box::new(t)))),
+            ),
             TypeVariant::InvokeHostFunctionOp => Box::new(
                 ReadXdrIter::<_, InvokeHostFunctionOp>::new(r)
                     .map(|r| r.map(|t| Self::InvokeHostFunctionOp(Box::new(t)))),
@@ -43140,26 +42816,6 @@ impl Type {
             TypeVariant::Int128Parts => Box::new(
                 ReadXdrIter::<_, Frame<Int128Parts>>::new(r)
                     .map(|r| r.map(|t| Self::Int128Parts(Box::new(t.0)))),
-            ),
-            TypeVariant::ContractInvocation => Box::new(
-                ReadXdrIter::<_, Frame<ContractInvocation>>::new(r)
-                    .map(|r| r.map(|t| Self::ContractInvocation(Box::new(t.0)))),
-            ),
-            TypeVariant::AuthorizedInvocation => Box::new(
-                ReadXdrIter::<_, Frame<AuthorizedInvocation>>::new(r)
-                    .map(|r| r.map(|t| Self::AuthorizedInvocation(Box::new(t.0)))),
-            ),
-            TypeVariant::ScAccountIdType => Box::new(
-                ReadXdrIter::<_, Frame<ScAccountIdType>>::new(r)
-                    .map(|r| r.map(|t| Self::ScAccountIdType(Box::new(t.0)))),
-            ),
-            TypeVariant::ScAccountId => Box::new(
-                ReadXdrIter::<_, Frame<ScAccountId>>::new(r)
-                    .map(|r| r.map(|t| Self::ScAccountId(Box::new(t.0)))),
-            ),
-            TypeVariant::ScAccount => Box::new(
-                ReadXdrIter::<_, Frame<ScAccount>>::new(r)
-                    .map(|r| r.map(|t| Self::ScAccount(Box::new(t.0)))),
             ),
             TypeVariant::ScAddressType => Box::new(
                 ReadXdrIter::<_, Frame<ScAddressType>>::new(r)
@@ -44017,6 +43673,18 @@ impl Type {
                 ReadXdrIter::<_, Frame<HostFunction>>::new(r)
                     .map(|r| r.map(|t| Self::HostFunction(Box::new(t.0)))),
             ),
+            TypeVariant::ContractInvocation => Box::new(
+                ReadXdrIter::<_, Frame<ContractInvocation>>::new(r)
+                    .map(|r| r.map(|t| Self::ContractInvocation(Box::new(t.0)))),
+            ),
+            TypeVariant::AuthorizedInvocation => Box::new(
+                ReadXdrIter::<_, Frame<AuthorizedInvocation>>::new(r)
+                    .map(|r| r.map(|t| Self::AuthorizedInvocation(Box::new(t.0)))),
+            ),
+            TypeVariant::ContractAuth => Box::new(
+                ReadXdrIter::<_, Frame<ContractAuth>>::new(r)
+                    .map(|r| r.map(|t| Self::ContractAuth(Box::new(t.0)))),
+            ),
             TypeVariant::InvokeHostFunctionOp => Box::new(
                 ReadXdrIter::<_, Frame<InvokeHostFunctionOp>>::new(r)
                     .map(|r| r.map(|t| Self::InvokeHostFunctionOp(Box::new(t.0)))),
@@ -44741,26 +44409,6 @@ impl Type {
             TypeVariant::Int128Parts => Box::new(
                 ReadXdrIter::<_, Int128Parts>::new(dec)
                     .map(|r| r.map(|t| Self::Int128Parts(Box::new(t)))),
-            ),
-            TypeVariant::ContractInvocation => Box::new(
-                ReadXdrIter::<_, ContractInvocation>::new(dec)
-                    .map(|r| r.map(|t| Self::ContractInvocation(Box::new(t)))),
-            ),
-            TypeVariant::AuthorizedInvocation => Box::new(
-                ReadXdrIter::<_, AuthorizedInvocation>::new(dec)
-                    .map(|r| r.map(|t| Self::AuthorizedInvocation(Box::new(t)))),
-            ),
-            TypeVariant::ScAccountIdType => Box::new(
-                ReadXdrIter::<_, ScAccountIdType>::new(dec)
-                    .map(|r| r.map(|t| Self::ScAccountIdType(Box::new(t)))),
-            ),
-            TypeVariant::ScAccountId => Box::new(
-                ReadXdrIter::<_, ScAccountId>::new(dec)
-                    .map(|r| r.map(|t| Self::ScAccountId(Box::new(t)))),
-            ),
-            TypeVariant::ScAccount => Box::new(
-                ReadXdrIter::<_, ScAccount>::new(dec)
-                    .map(|r| r.map(|t| Self::ScAccount(Box::new(t)))),
             ),
             TypeVariant::ScAddressType => Box::new(
                 ReadXdrIter::<_, ScAddressType>::new(dec)
@@ -45611,6 +45259,18 @@ impl Type {
                 ReadXdrIter::<_, HostFunction>::new(dec)
                     .map(|r| r.map(|t| Self::HostFunction(Box::new(t)))),
             ),
+            TypeVariant::ContractInvocation => Box::new(
+                ReadXdrIter::<_, ContractInvocation>::new(dec)
+                    .map(|r| r.map(|t| Self::ContractInvocation(Box::new(t)))),
+            ),
+            TypeVariant::AuthorizedInvocation => Box::new(
+                ReadXdrIter::<_, AuthorizedInvocation>::new(dec)
+                    .map(|r| r.map(|t| Self::AuthorizedInvocation(Box::new(t)))),
+            ),
+            TypeVariant::ContractAuth => Box::new(
+                ReadXdrIter::<_, ContractAuth>::new(dec)
+                    .map(|r| r.map(|t| Self::ContractAuth(Box::new(t)))),
+            ),
             TypeVariant::InvokeHostFunctionOp => Box::new(
                 ReadXdrIter::<_, InvokeHostFunctionOp>::new(dec)
                     .map(|r| r.map(|t| Self::InvokeHostFunctionOp(Box::new(t)))),
@@ -46178,11 +45838,6 @@ impl Type {
             Self::ScContractCodeType(ref v) => v.as_ref(),
             Self::ScContractCode(ref v) => v.as_ref(),
             Self::Int128Parts(ref v) => v.as_ref(),
-            Self::ContractInvocation(ref v) => v.as_ref(),
-            Self::AuthorizedInvocation(ref v) => v.as_ref(),
-            Self::ScAccountIdType(ref v) => v.as_ref(),
-            Self::ScAccountId(ref v) => v.as_ref(),
-            Self::ScAccount(ref v) => v.as_ref(),
             Self::ScAddressType(ref v) => v.as_ref(),
             Self::ScAddress(ref v) => v.as_ref(),
             Self::ScObject(ref v) => v.as_ref(),
@@ -46397,6 +46052,9 @@ impl Type {
             Self::ContractIdFromEd25519PublicKey(ref v) => v.as_ref(),
             Self::CreateContractArgs(ref v) => v.as_ref(),
             Self::HostFunction(ref v) => v.as_ref(),
+            Self::ContractInvocation(ref v) => v.as_ref(),
+            Self::AuthorizedInvocation(ref v) => v.as_ref(),
+            Self::ContractAuth(ref v) => v.as_ref(),
             Self::InvokeHostFunctionOp(ref v) => v.as_ref(),
             Self::Operation(ref v) => v.as_ref(),
             Self::OperationBody(ref v) => v.as_ref(),
@@ -46583,11 +46241,6 @@ impl Type {
             Self::ScContractCodeType(_) => "ScContractCodeType",
             Self::ScContractCode(_) => "ScContractCode",
             Self::Int128Parts(_) => "Int128Parts",
-            Self::ContractInvocation(_) => "ContractInvocation",
-            Self::AuthorizedInvocation(_) => "AuthorizedInvocation",
-            Self::ScAccountIdType(_) => "ScAccountIdType",
-            Self::ScAccountId(_) => "ScAccountId",
-            Self::ScAccount(_) => "ScAccount",
             Self::ScAddressType(_) => "ScAddressType",
             Self::ScAddress(_) => "ScAddress",
             Self::ScObject(_) => "ScObject",
@@ -46804,6 +46457,9 @@ impl Type {
             Self::ContractIdFromEd25519PublicKey(_) => "ContractIdFromEd25519PublicKey",
             Self::CreateContractArgs(_) => "CreateContractArgs",
             Self::HostFunction(_) => "HostFunction",
+            Self::ContractInvocation(_) => "ContractInvocation",
+            Self::AuthorizedInvocation(_) => "AuthorizedInvocation",
+            Self::ContractAuth(_) => "ContractAuth",
             Self::InvokeHostFunctionOp(_) => "InvokeHostFunctionOp",
             Self::Operation(_) => "Operation",
             Self::OperationBody(_) => "OperationBody",
@@ -46943,7 +46599,7 @@ impl Type {
 
     #[must_use]
     #[allow(clippy::too_many_lines)]
-    pub const fn variants() -> [TypeVariant; 398] {
+    pub const fn variants() -> [TypeVariant; 396] {
         Self::VARIANTS
     }
 
@@ -47006,11 +46662,6 @@ impl Type {
             Self::ScContractCodeType(_) => TypeVariant::ScContractCodeType,
             Self::ScContractCode(_) => TypeVariant::ScContractCode,
             Self::Int128Parts(_) => TypeVariant::Int128Parts,
-            Self::ContractInvocation(_) => TypeVariant::ContractInvocation,
-            Self::AuthorizedInvocation(_) => TypeVariant::AuthorizedInvocation,
-            Self::ScAccountIdType(_) => TypeVariant::ScAccountIdType,
-            Self::ScAccountId(_) => TypeVariant::ScAccountId,
-            Self::ScAccount(_) => TypeVariant::ScAccount,
             Self::ScAddressType(_) => TypeVariant::ScAddressType,
             Self::ScAddress(_) => TypeVariant::ScAddress,
             Self::ScObject(_) => TypeVariant::ScObject,
@@ -47243,6 +46894,9 @@ impl Type {
             Self::ContractIdFromEd25519PublicKey(_) => TypeVariant::ContractIdFromEd25519PublicKey,
             Self::CreateContractArgs(_) => TypeVariant::CreateContractArgs,
             Self::HostFunction(_) => TypeVariant::HostFunction,
+            Self::ContractInvocation(_) => TypeVariant::ContractInvocation,
+            Self::AuthorizedInvocation(_) => TypeVariant::AuthorizedInvocation,
+            Self::ContractAuth(_) => TypeVariant::ContractAuth,
             Self::InvokeHostFunctionOp(_) => TypeVariant::InvokeHostFunctionOp,
             Self::Operation(_) => TypeVariant::Operation,
             Self::OperationBody(_) => TypeVariant::OperationBody,

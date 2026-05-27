@@ -55,3 +55,16 @@ impl WriteXdr for AllowTrustOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AllowTrustOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                trustor: AccountId::read_xdr_with_buffer(r)?,
+                asset: AssetCode::read_xdr_with_buffer(r)?,
+                authorize: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

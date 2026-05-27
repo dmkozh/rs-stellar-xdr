@@ -57,3 +57,16 @@ impl WriteXdr for AuthCert {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AuthCert {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                pubkey: Curve25519Public::read_xdr_with_buffer(r)?,
+                expiration: u64::read_xdr_with_buffer(r)?,
+                sig: Signature::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

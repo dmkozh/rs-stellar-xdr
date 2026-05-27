@@ -60,3 +60,16 @@ impl WriteXdr for PeerAddress {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PeerAddress {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ip: PeerAddressIp::read_xdr_with_buffer(r)?,
+                port: u32::read_xdr_with_buffer(r)?,
+                num_failures: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -83,3 +83,22 @@ impl WriteXdr for SerializedBinaryFuseFilter {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SerializedBinaryFuseFilter {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                type_: BinaryFuseFilterType::read_xdr_with_buffer(r)?,
+                input_hash_seed: ShortHashSeed::read_xdr_with_buffer(r)?,
+                filter_seed: ShortHashSeed::read_xdr_with_buffer(r)?,
+                segment_length: u32::read_xdr_with_buffer(r)?,
+                segement_length_mask: u32::read_xdr_with_buffer(r)?,
+                segment_count: u32::read_xdr_with_buffer(r)?,
+                segment_count_length: u32::read_xdr_with_buffer(r)?,
+                fingerprint_length: u32::read_xdr_with_buffer(r)?,
+                fingerprints: BytesM::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

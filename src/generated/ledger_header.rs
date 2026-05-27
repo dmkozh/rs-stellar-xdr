@@ -134,3 +134,28 @@ impl WriteXdr for LedgerHeader {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerHeader {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_version: u32::read_xdr_with_buffer(r)?,
+                previous_ledger_hash: Hash::read_xdr_with_buffer(r)?,
+                scp_value: StellarValue::read_xdr_with_buffer(r)?,
+                tx_set_result_hash: Hash::read_xdr_with_buffer(r)?,
+                bucket_list_hash: Hash::read_xdr_with_buffer(r)?,
+                ledger_seq: u32::read_xdr_with_buffer(r)?,
+                total_coins: i64::read_xdr_with_buffer(r)?,
+                fee_pool: i64::read_xdr_with_buffer(r)?,
+                inflation_seq: u32::read_xdr_with_buffer(r)?,
+                id_pool: u64::read_xdr_with_buffer(r)?,
+                base_fee: u32::read_xdr_with_buffer(r)?,
+                base_reserve: u32::read_xdr_with_buffer(r)?,
+                max_tx_set_size: u32::read_xdr_with_buffer(r)?,
+                skip_list: <[Hash; 4]>::read_xdr_with_buffer(r)?,
+                ext: LedgerHeaderExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

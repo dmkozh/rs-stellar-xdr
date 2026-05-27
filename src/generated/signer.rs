@@ -49,3 +49,15 @@ impl WriteXdr for Signer {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Signer {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                key: SignerKey::read_xdr_with_buffer(r)?,
+                weight: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

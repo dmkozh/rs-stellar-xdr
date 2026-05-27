@@ -181,3 +181,31 @@ impl WriteXdr for SorobanCredentials {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanCredentials {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: SorobanCredentialsType =
+                <SorobanCredentialsType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                SorobanCredentialsType::SourceAccount => Self::SourceAccount,
+                SorobanCredentialsType::Address => {
+                    Self::Address(SorobanAddressCredentials::read_xdr_with_buffer(r)?)
+                }
+                #[cfg(feature = "cap_0071")]
+                SorobanCredentialsType::AddressV2 => {
+                    Self::AddressV2(SorobanAddressCredentials::read_xdr_with_buffer(r)?)
+                }
+                #[cfg(feature = "cap_0071")]
+                SorobanCredentialsType::AddressWithDelegates => Self::AddressWithDelegates(
+                    SorobanAddressCredentialsWithDelegates::read_xdr_with_buffer(r)?,
+                ),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

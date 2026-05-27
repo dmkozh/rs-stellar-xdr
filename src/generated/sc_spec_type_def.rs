@@ -339,3 +339,48 @@ impl WriteXdr for ScSpecTypeDef {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecTypeDef {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ScSpecType = <ScSpecType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ScSpecType::Val => Self::Val,
+                ScSpecType::Bool => Self::Bool,
+                ScSpecType::Void => Self::Void,
+                ScSpecType::Error => Self::Error,
+                ScSpecType::U32 => Self::U32,
+                ScSpecType::I32 => Self::I32,
+                ScSpecType::U64 => Self::U64,
+                ScSpecType::I64 => Self::I64,
+                ScSpecType::Timepoint => Self::Timepoint,
+                ScSpecType::Duration => Self::Duration,
+                ScSpecType::U128 => Self::U128,
+                ScSpecType::I128 => Self::I128,
+                ScSpecType::U256 => Self::U256,
+                ScSpecType::I256 => Self::I256,
+                ScSpecType::Bytes => Self::Bytes,
+                ScSpecType::String => Self::String,
+                ScSpecType::Symbol => Self::Symbol,
+                ScSpecType::Address => Self::Address,
+                ScSpecType::MuxedAddress => Self::MuxedAddress,
+                ScSpecType::Option => {
+                    Self::Option(Box::<ScSpecTypeOption>::read_xdr_with_buffer(r)?)
+                }
+                ScSpecType::Result => {
+                    Self::Result(Box::<ScSpecTypeResult>::read_xdr_with_buffer(r)?)
+                }
+                ScSpecType::Vec => Self::Vec(Box::<ScSpecTypeVec>::read_xdr_with_buffer(r)?),
+                ScSpecType::Map => Self::Map(Box::<ScSpecTypeMap>::read_xdr_with_buffer(r)?),
+                ScSpecType::Tuple => Self::Tuple(Box::<ScSpecTypeTuple>::read_xdr_with_buffer(r)?),
+                ScSpecType::BytesN => Self::BytesN(ScSpecTypeBytesN::read_xdr_with_buffer(r)?),
+                ScSpecType::Udt => Self::Udt(ScSpecTypeUdt::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -205,3 +205,28 @@ impl WriteXdr for PaymentResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PaymentResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: PaymentResultCode = <PaymentResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                PaymentResultCode::Success => Self::Success,
+                PaymentResultCode::Malformed => Self::Malformed,
+                PaymentResultCode::Underfunded => Self::Underfunded,
+                PaymentResultCode::SrcNoTrust => Self::SrcNoTrust,
+                PaymentResultCode::SrcNotAuthorized => Self::SrcNotAuthorized,
+                PaymentResultCode::NoDestination => Self::NoDestination,
+                PaymentResultCode::NoTrust => Self::NoTrust,
+                PaymentResultCode::NotAuthorized => Self::NotAuthorized,
+                PaymentResultCode::LineFull => Self::LineFull,
+                PaymentResultCode::NoIssuer => Self::NoIssuer,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

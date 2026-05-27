@@ -167,3 +167,30 @@ impl WriteXdr for HostFunction {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for HostFunction {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: HostFunctionType = <HostFunctionType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                HostFunctionType::InvokeContract => {
+                    Self::InvokeContract(InvokeContractArgs::read_xdr_with_buffer(r)?)
+                }
+                HostFunctionType::CreateContract => {
+                    Self::CreateContract(CreateContractArgs::read_xdr_with_buffer(r)?)
+                }
+                HostFunctionType::UploadContractWasm => {
+                    Self::UploadContractWasm(BytesM::read_xdr_with_buffer(r)?)
+                }
+                HostFunctionType::CreateContractV2 => {
+                    Self::CreateContractV2(CreateContractArgsV2::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

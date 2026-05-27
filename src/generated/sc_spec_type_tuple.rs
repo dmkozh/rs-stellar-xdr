@@ -45,3 +45,14 @@ impl WriteXdr for ScSpecTypeTuple {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecTypeTuple {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                value_types: VecM::<ScSpecTypeDef, 12>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

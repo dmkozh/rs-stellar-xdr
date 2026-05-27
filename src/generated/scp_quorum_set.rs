@@ -53,3 +53,16 @@ impl WriteXdr for ScpQuorumSet {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScpQuorumSet {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                threshold: u32::read_xdr_with_buffer(r)?,
+                validators: VecM::<NodeId>::read_xdr_with_buffer(r)?,
+                inner_sets: VecM::<ScpQuorumSet>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

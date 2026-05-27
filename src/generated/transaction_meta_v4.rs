@@ -74,3 +74,20 @@ impl WriteXdr for TransactionMetaV4 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TransactionMetaV4 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+                tx_changes_before: LedgerEntryChanges::read_xdr_with_buffer(r)?,
+                operations: VecM::<OperationMetaV2>::read_xdr_with_buffer(r)?,
+                tx_changes_after: LedgerEntryChanges::read_xdr_with_buffer(r)?,
+                soroban_meta: Option::<SorobanTransactionMetaV2>::read_xdr_with_buffer(r)?,
+                events: VecM::<TransactionEvent>::read_xdr_with_buffer(r)?,
+                diagnostic_events: VecM::<DiagnosticEvent>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

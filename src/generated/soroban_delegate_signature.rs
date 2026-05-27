@@ -55,3 +55,17 @@ impl WriteXdr for SorobanDelegateSignature {
         })
     }
 }
+
+#[cfg(feature = "cap_0071")]
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanDelegateSignature {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                address: ScAddress::read_xdr_with_buffer(r)?,
+                signature: ScVal::read_xdr_with_buffer(r)?,
+                nested_delegates: VecM::<SorobanDelegateSignature>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

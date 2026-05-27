@@ -48,3 +48,15 @@ impl WriteXdr for ConfigUpgradeSetKey {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigUpgradeSetKey {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                contract_id: ContractId::read_xdr_with_buffer(r)?,
+                content_hash: Hash::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

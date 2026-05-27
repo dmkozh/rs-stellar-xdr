@@ -48,3 +48,15 @@ impl WriteXdr for FreezeBypassTxsDelta {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for FreezeBypassTxsDelta {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                add_txs: VecM::<Hash>::read_xdr_with_buffer(r)?,
+                remove_txs: VecM::<Hash>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

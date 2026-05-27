@@ -138,3 +138,22 @@ impl WriteXdr for MuxedAccount {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for MuxedAccount {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: CryptoKeyType = <CryptoKeyType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                CryptoKeyType::Ed25519 => Self::Ed25519(Uint256::read_xdr_with_buffer(r)?),
+                CryptoKeyType::MuxedEd25519 => {
+                    Self::MuxedEd25519(MuxedAccountMed25519::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

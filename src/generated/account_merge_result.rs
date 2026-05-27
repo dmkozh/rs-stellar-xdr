@@ -195,3 +195,27 @@ impl WriteXdr for AccountMergeResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AccountMergeResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: AccountMergeResultCode =
+                <AccountMergeResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                AccountMergeResultCode::Success => Self::Success(i64::read_xdr_with_buffer(r)?),
+                AccountMergeResultCode::Malformed => Self::Malformed,
+                AccountMergeResultCode::NoAccount => Self::NoAccount,
+                AccountMergeResultCode::ImmutableSet => Self::ImmutableSet,
+                AccountMergeResultCode::HasSubEntries => Self::HasSubEntries,
+                AccountMergeResultCode::SeqnumTooFar => Self::SeqnumTooFar,
+                AccountMergeResultCode::DestFull => Self::DestFull,
+                AccountMergeResultCode::IsSponsor => Self::IsSponsor,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

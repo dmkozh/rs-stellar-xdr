@@ -49,3 +49,15 @@ impl WriteXdr for DecoratedSignature {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for DecoratedSignature {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                hint: SignatureHint::read_xdr_with_buffer(r)?,
+                signature: Signature::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

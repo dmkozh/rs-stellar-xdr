@@ -70,3 +70,17 @@ impl WriteXdr for ContractEvent {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ContractEvent {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+                contract_id: Option::<ContractId>::read_xdr_with_buffer(r)?,
+                type_: ContractEventType::read_xdr_with_buffer(r)?,
+                body: ContractEventBody::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

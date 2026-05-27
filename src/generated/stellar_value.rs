@@ -72,3 +72,17 @@ impl WriteXdr for StellarValue {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for StellarValue {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                tx_set_hash: Hash::read_xdr_with_buffer(r)?,
+                close_time: TimePoint::read_xdr_with_buffer(r)?,
+                upgrades: VecM::<UpgradeType, 6>::read_xdr_with_buffer(r)?,
+                ext: StellarValueExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

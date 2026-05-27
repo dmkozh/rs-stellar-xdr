@@ -88,3 +88,19 @@ impl WriteXdr for PreconditionsV2 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PreconditionsV2 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                time_bounds: Option::<TimeBounds>::read_xdr_with_buffer(r)?,
+                ledger_bounds: Option::<LedgerBounds>::read_xdr_with_buffer(r)?,
+                min_seq_num: Option::<SequenceNumber>::read_xdr_with_buffer(r)?,
+                min_seq_age: Duration::read_xdr_with_buffer(r)?,
+                min_seq_ledger_gap: u32::read_xdr_with_buffer(r)?,
+                extra_signers: VecM::<SignerKey, 2>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

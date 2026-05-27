@@ -348,3 +348,44 @@ impl WriteXdr for ScVal {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScVal {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ScValType = <ScValType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ScValType::Bool => Self::Bool(bool::read_xdr_with_buffer(r)?),
+                ScValType::Void => Self::Void,
+                ScValType::Error => Self::Error(ScError::read_xdr_with_buffer(r)?),
+                ScValType::U32 => Self::U32(u32::read_xdr_with_buffer(r)?),
+                ScValType::I32 => Self::I32(i32::read_xdr_with_buffer(r)?),
+                ScValType::U64 => Self::U64(u64::read_xdr_with_buffer(r)?),
+                ScValType::I64 => Self::I64(i64::read_xdr_with_buffer(r)?),
+                ScValType::Timepoint => Self::Timepoint(TimePoint::read_xdr_with_buffer(r)?),
+                ScValType::Duration => Self::Duration(Duration::read_xdr_with_buffer(r)?),
+                ScValType::U128 => Self::U128(UInt128Parts::read_xdr_with_buffer(r)?),
+                ScValType::I128 => Self::I128(Int128Parts::read_xdr_with_buffer(r)?),
+                ScValType::U256 => Self::U256(UInt256Parts::read_xdr_with_buffer(r)?),
+                ScValType::I256 => Self::I256(Int256Parts::read_xdr_with_buffer(r)?),
+                ScValType::Bytes => Self::Bytes(ScBytes::read_xdr_with_buffer(r)?),
+                ScValType::String => Self::String(ScString::read_xdr_with_buffer(r)?),
+                ScValType::Symbol => Self::Symbol(ScSymbol::read_xdr_with_buffer(r)?),
+                ScValType::Vec => Self::Vec(Option::<ScVec>::read_xdr_with_buffer(r)?),
+                ScValType::Map => Self::Map(Option::<ScMap>::read_xdr_with_buffer(r)?),
+                ScValType::Address => Self::Address(ScAddress::read_xdr_with_buffer(r)?),
+                ScValType::ContractInstance => {
+                    Self::ContractInstance(ScContractInstance::read_xdr_with_buffer(r)?)
+                }
+                ScValType::LedgerKeyContractInstance => Self::LedgerKeyContractInstance,
+                ScValType::LedgerKeyNonce => {
+                    Self::LedgerKeyNonce(ScNonceKey::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -49,3 +49,15 @@ impl WriteXdr for LedgerKeyData {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerKeyData {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                account_id: AccountId::read_xdr_with_buffer(r)?,
+                data_name: String64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

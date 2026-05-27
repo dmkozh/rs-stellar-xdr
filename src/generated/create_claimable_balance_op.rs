@@ -57,3 +57,16 @@ impl WriteXdr for CreateClaimableBalanceOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for CreateClaimableBalanceOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                asset: Asset::read_xdr_with_buffer(r)?,
+                amount: i64::read_xdr_with_buffer(r)?,
+                claimants: VecM::<Claimant, 10>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

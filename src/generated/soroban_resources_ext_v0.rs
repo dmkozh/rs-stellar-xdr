@@ -48,3 +48,14 @@ impl WriteXdr for SorobanResourcesExtV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanResourcesExtV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                archived_soroban_entries: VecM::<u32>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

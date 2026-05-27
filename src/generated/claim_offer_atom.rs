@@ -82,3 +82,19 @@ impl WriteXdr for ClaimOfferAtom {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClaimOfferAtom {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                seller_id: AccountId::read_xdr_with_buffer(r)?,
+                offer_id: i64::read_xdr_with_buffer(r)?,
+                asset_sold: Asset::read_xdr_with_buffer(r)?,
+                amount_sold: i64::read_xdr_with_buffer(r)?,
+                asset_bought: Asset::read_xdr_with_buffer(r)?,
+                amount_bought: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

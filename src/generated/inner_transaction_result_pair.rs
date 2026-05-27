@@ -49,3 +49,15 @@ impl WriteXdr for InnerTransactionResultPair {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for InnerTransactionResultPair {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                transaction_hash: Hash::read_xdr_with_buffer(r)?,
+                result: InnerTransactionResult::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

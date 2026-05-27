@@ -48,6 +48,18 @@ impl WriteXdr for SignerKeyEd25519SignedPayload {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SignerKeyEd25519SignedPayload {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ed25519: Uint256::read_xdr_with_buffer(r)?,
+                payload: BytesM::<64>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}
 #[cfg(all(feature = "serde", feature = "alloc"))]
 impl<'de> serde::Deserialize<'de> for SignerKeyEd25519SignedPayload {
     fn deserialize<D>(deserializer: D) -> core::result::Result<Self, D::Error>

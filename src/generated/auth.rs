@@ -45,3 +45,14 @@ impl WriteXdr for Auth {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Auth {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                flags: i32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

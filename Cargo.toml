@@ -15,6 +15,11 @@ path = "src/bin/stellar-xdr/main.rs"
 required-features = ["cli"]
 doctest = false
 
+[[bench]]
+name = "xdr_perf"
+harness = false
+required-features = ["std"]
+
 [build-dependencies]
 crate-git-revision = "0.0.6"
 

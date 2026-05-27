@@ -45,3 +45,14 @@ impl WriteXdr for TransactionResultSet {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TransactionResultSet {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                results: VecM::<TransactionResultPair>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

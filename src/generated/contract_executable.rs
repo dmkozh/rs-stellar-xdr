@@ -138,3 +138,21 @@ impl WriteXdr for ContractExecutable {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ContractExecutable {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ContractExecutableType =
+                <ContractExecutableType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ContractExecutableType::Wasm => Self::Wasm(Hash::read_xdr_with_buffer(r)?),
+                ContractExecutableType::StellarAsset => Self::StellarAsset,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

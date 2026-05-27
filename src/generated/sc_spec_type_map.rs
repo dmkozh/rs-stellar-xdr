@@ -49,3 +49,15 @@ impl WriteXdr for ScSpecTypeMap {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecTypeMap {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                key_type: Box::<ScSpecTypeDef>::read_xdr_with_buffer(r)?,
+                value_type: Box::<ScSpecTypeDef>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

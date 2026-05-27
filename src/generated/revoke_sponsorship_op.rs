@@ -144,3 +144,25 @@ impl WriteXdr for RevokeSponsorshipOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for RevokeSponsorshipOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: RevokeSponsorshipType =
+                <RevokeSponsorshipType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                RevokeSponsorshipType::LedgerEntry => {
+                    Self::LedgerEntry(LedgerKey::read_xdr_with_buffer(r)?)
+                }
+                RevokeSponsorshipType::Signer => {
+                    Self::Signer(RevokeSponsorshipOpSigner::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

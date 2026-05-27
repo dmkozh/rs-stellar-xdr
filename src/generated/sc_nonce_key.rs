@@ -48,3 +48,14 @@ impl WriteXdr for ScNonceKey {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScNonceKey {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                nonce: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

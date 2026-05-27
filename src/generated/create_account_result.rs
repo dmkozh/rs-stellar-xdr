@@ -165,3 +165,24 @@ impl WriteXdr for CreateAccountResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for CreateAccountResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: CreateAccountResultCode =
+                <CreateAccountResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                CreateAccountResultCode::Success => Self::Success,
+                CreateAccountResultCode::Malformed => Self::Malformed,
+                CreateAccountResultCode::Underfunded => Self::Underfunded,
+                CreateAccountResultCode::LowReserve => Self::LowReserve,
+                CreateAccountResultCode::AlreadyExist => Self::AlreadyExist,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

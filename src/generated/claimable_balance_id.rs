@@ -128,3 +128,22 @@ impl WriteXdr for ClaimableBalanceId {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClaimableBalanceId {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ClaimableBalanceIdType =
+                <ClaimableBalanceIdType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ClaimableBalanceIdType::ClaimableBalanceIdTypeV0 => {
+                    Self::ClaimableBalanceIdTypeV0(Hash::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

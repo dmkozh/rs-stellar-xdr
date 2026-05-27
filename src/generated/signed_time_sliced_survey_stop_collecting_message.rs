@@ -49,3 +49,15 @@ impl WriteXdr for SignedTimeSlicedSurveyStopCollectingMessage {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SignedTimeSlicedSurveyStopCollectingMessage {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                signature: Signature::read_xdr_with_buffer(r)?,
+                stop_collecting: TimeSlicedSurveyStopCollectingMessage::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

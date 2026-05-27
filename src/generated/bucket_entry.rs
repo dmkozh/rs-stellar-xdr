@@ -154,3 +154,28 @@ impl WriteXdr for BucketEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for BucketEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: BucketEntryType = <BucketEntryType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                BucketEntryType::Liveentry => {
+                    Self::Liveentry(LedgerEntry::read_xdr_with_buffer(r)?)
+                }
+                BucketEntryType::Initentry => {
+                    Self::Initentry(LedgerEntry::read_xdr_with_buffer(r)?)
+                }
+                BucketEntryType::Deadentry => Self::Deadentry(LedgerKey::read_xdr_with_buffer(r)?),
+                BucketEntryType::Metaentry => {
+                    Self::Metaentry(BucketMetadata::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

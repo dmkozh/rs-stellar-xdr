@@ -58,3 +58,17 @@ impl WriteXdr for SetTrustLineFlagsOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SetTrustLineFlagsOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                trustor: AccountId::read_xdr_with_buffer(r)?,
+                asset: Asset::read_xdr_with_buffer(r)?,
+                clear_flags: u32::read_xdr_with_buffer(r)?,
+                set_flags: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

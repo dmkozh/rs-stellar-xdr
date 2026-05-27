@@ -45,3 +45,14 @@ impl WriteXdr for ShortHashSeed {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ShortHashSeed {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                seed: <[u8; 16]>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

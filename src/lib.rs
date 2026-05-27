@@ -130,6 +130,11 @@ mod generated;
 mod ledgerkey;
 pub use generated::*;
 
+#[cfg(feature = "alloc")]
+mod rc_bytes;
+#[cfg(feature = "alloc")]
+pub use rc_bytes::RcBytes;
+
 mod default;
 mod jsonschema;
 mod str;

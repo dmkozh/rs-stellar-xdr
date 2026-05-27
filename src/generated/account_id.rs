@@ -41,18 +41,28 @@ impl AsRef<PublicKey> for AccountId {
 
 impl ReadXdr for AccountId {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            let i = PublicKey::read_xdr(r)?;
-            let v = AccountId(i);
-            Ok(v)
-        })
+        // A newtype is a transparent wrapper; the inner type performs its own
+        // depth/length accounting, so no extra depth is charged here.
+        let i = PublicKey::read_xdr(r)?;
+        let v = AccountId(i);
+        Ok(v)
     }
 }
 
 impl WriteXdr for AccountId {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| self.0.write_xdr(w))
+        self.0.write_xdr(w)
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AccountId {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        Ok(AccountId(PublicKey::read_xdr_with_buffer(r)?))
     }
 }

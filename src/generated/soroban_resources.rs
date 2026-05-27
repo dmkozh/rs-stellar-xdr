@@ -62,3 +62,17 @@ impl WriteXdr for SorobanResources {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanResources {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                footprint: LedgerFootprint::read_xdr_with_buffer(r)?,
+                instructions: u32::read_xdr_with_buffer(r)?,
+                disk_read_bytes: u32::read_xdr_with_buffer(r)?,
+                write_bytes: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -110,3 +110,15 @@ impl WriteXdr for Operation {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Operation {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                source_account: Option::<MuxedAccount>::read_xdr_with_buffer(r)?,
+                body: OperationBody::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

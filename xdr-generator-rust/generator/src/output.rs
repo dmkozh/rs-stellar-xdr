@@ -106,6 +106,10 @@ pub struct TypedefNewtypeOutput {
     pub source_comment: String,
     pub has_default: bool,
     pub is_var_array: bool,
+    /// True when a variable-length array resolves to the `RcBytes`-backed
+    /// `BytesM`/`StringM` (i.e. XDR `opaque<>`/`string<>`), as opposed to a
+    /// `Vec`-backed `VecM<T>`. Such newtypes cannot expose a `&Vec<u8>`.
+    pub inner_is_shared_bytes: bool,
     pub is_fixed_opaque: bool,
     pub is_fixed_array: bool,
     pub is_custom_str: bool,

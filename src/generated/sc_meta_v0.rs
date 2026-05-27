@@ -49,3 +49,15 @@ impl WriteXdr for ScMetaV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScMetaV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                key: StringM::read_xdr_with_buffer(r)?,
+                val: StringM::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

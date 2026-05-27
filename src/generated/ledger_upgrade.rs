@@ -191,3 +191,31 @@ impl WriteXdr for LedgerUpgrade {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerUpgrade {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: LedgerUpgradeType = <LedgerUpgradeType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                LedgerUpgradeType::Version => Self::Version(u32::read_xdr_with_buffer(r)?),
+                LedgerUpgradeType::BaseFee => Self::BaseFee(u32::read_xdr_with_buffer(r)?),
+                LedgerUpgradeType::MaxTxSetSize => {
+                    Self::MaxTxSetSize(u32::read_xdr_with_buffer(r)?)
+                }
+                LedgerUpgradeType::BaseReserve => Self::BaseReserve(u32::read_xdr_with_buffer(r)?),
+                LedgerUpgradeType::Flags => Self::Flags(u32::read_xdr_with_buffer(r)?),
+                LedgerUpgradeType::Config => {
+                    Self::Config(ConfigUpgradeSetKey::read_xdr_with_buffer(r)?)
+                }
+                LedgerUpgradeType::MaxSorobanTxSetSize => {
+                    Self::MaxSorobanTxSetSize(u32::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -43,19 +43,29 @@ impl AsRef<BytesM<128>> for UpgradeType {
 
 impl ReadXdr for UpgradeType {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            let i = BytesM::<128>::read_xdr(r)?;
-            let v = UpgradeType(i);
-            Ok(v)
-        })
+        // A newtype is a transparent wrapper; the inner type performs its own
+        // depth/length accounting, so no extra depth is charged here.
+        let i = BytesM::<128>::read_xdr(r)?;
+        let v = UpgradeType(i);
+        Ok(v)
     }
 }
 
 impl WriteXdr for UpgradeType {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| self.0.write_xdr(w))
+        self.0.write_xdr(w)
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for UpgradeType {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        Ok(UpgradeType(BytesM::<128>::read_xdr_with_buffer(r)?))
     }
 }
 
@@ -69,7 +79,7 @@ impl Deref for UpgradeType {
 impl From<UpgradeType> for Vec<u8> {
     #[must_use]
     fn from(x: UpgradeType) -> Self {
-        x.0 .0
+        x.0.into()
     }
 }
 
@@ -88,22 +98,9 @@ impl TryFrom<&Vec<u8>> for UpgradeType {
     }
 }
 
-impl AsRef<Vec<u8>> for UpgradeType {
-    #[must_use]
-    fn as_ref(&self) -> &Vec<u8> {
-        &self.0 .0
-    }
-}
-
 impl AsRef<[u8]> for UpgradeType {
-    #[cfg(feature = "alloc")]
     #[must_use]
     fn as_ref(&self) -> &[u8] {
-        &self.0 .0
-    }
-    #[cfg(not(feature = "alloc"))]
-    #[must_use]
-    fn as_ref(&self) -> &[u8] {
-        self.0 .0
+        self.0.as_ref()
     }
 }

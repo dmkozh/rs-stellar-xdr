@@ -50,3 +50,15 @@ impl WriteXdr for SorobanTransactionMetaV2 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanTransactionMetaV2 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: SorobanTransactionMetaExt::read_xdr_with_buffer(r)?,
+                return_value: Option::<ScVal>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

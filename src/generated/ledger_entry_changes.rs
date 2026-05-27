@@ -43,19 +43,31 @@ impl AsRef<VecM<LedgerEntryChange>> for LedgerEntryChanges {
 
 impl ReadXdr for LedgerEntryChanges {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            let i = VecM::<LedgerEntryChange>::read_xdr(r)?;
-            let v = LedgerEntryChanges(i);
-            Ok(v)
-        })
+        // A newtype is a transparent wrapper; the inner type performs its own
+        // depth/length accounting, so no extra depth is charged here.
+        let i = VecM::<LedgerEntryChange>::read_xdr(r)?;
+        let v = LedgerEntryChanges(i);
+        Ok(v)
     }
 }
 
 impl WriteXdr for LedgerEntryChanges {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| self.0.write_xdr(w))
+        self.0.write_xdr(w)
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerEntryChanges {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        Ok(LedgerEntryChanges(
+            VecM::<LedgerEntryChange>::read_xdr_with_buffer(r)?,
+        ))
     }
 }
 
@@ -87,7 +99,6 @@ impl TryFrom<&Vec<LedgerEntryChange>> for LedgerEntryChanges {
         Ok(LedgerEntryChanges(x.try_into()?))
     }
 }
-
 impl AsRef<Vec<LedgerEntryChange>> for LedgerEntryChanges {
     #[must_use]
     fn as_ref(&self) -> &Vec<LedgerEntryChange> {

@@ -56,3 +56,15 @@ impl WriteXdr for ParallelTxsComponent {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ParallelTxsComponent {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                base_fee: Option::<i64>::read_xdr_with_buffer(r)?,
+                execution_stages: VecM::<ParallelTxExecutionStage>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -53,3 +53,16 @@ impl WriteXdr for StoredDebugTransactionSet {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for StoredDebugTransactionSet {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                tx_set: StoredTransactionSet::read_xdr_with_buffer(r)?,
+                ledger_seq: u32::read_xdr_with_buffer(r)?,
+                scp_value: StellarValue::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -148,3 +148,25 @@ impl WriteXdr for ClaimAtom {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClaimAtom {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ClaimAtomType = <ClaimAtomType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ClaimAtomType::V0 => Self::V0(ClaimOfferAtomV0::read_xdr_with_buffer(r)?),
+                ClaimAtomType::OrderBook => {
+                    Self::OrderBook(ClaimOfferAtom::read_xdr_with_buffer(r)?)
+                }
+                ClaimAtomType::LiquidityPool => {
+                    Self::LiquidityPool(ClaimLiquidityAtom::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

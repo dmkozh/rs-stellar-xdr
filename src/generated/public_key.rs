@@ -127,3 +127,21 @@ impl WriteXdr for PublicKey {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PublicKey {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: PublicKeyType = <PublicKeyType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                PublicKeyType::PublicKeyTypeEd25519 => {
+                    Self::PublicKeyTypeEd25519(Uint256::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

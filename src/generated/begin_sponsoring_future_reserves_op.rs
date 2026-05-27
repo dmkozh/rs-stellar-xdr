@@ -45,3 +45,14 @@ impl WriteXdr for BeginSponsoringFutureReservesOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for BeginSponsoringFutureReservesOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                sponsored_id: AccountId::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

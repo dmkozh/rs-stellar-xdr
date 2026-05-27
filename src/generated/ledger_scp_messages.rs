@@ -49,3 +49,15 @@ impl WriteXdr for LedgerScpMessages {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerScpMessages {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_seq: u32::read_xdr_with_buffer(r)?,
+                messages: VecM::<ScpEnvelope>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

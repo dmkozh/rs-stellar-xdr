@@ -181,3 +181,26 @@ impl WriteXdr for AllowTrustResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AllowTrustResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: AllowTrustResultCode =
+                <AllowTrustResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                AllowTrustResultCode::Success => Self::Success,
+                AllowTrustResultCode::Malformed => Self::Malformed,
+                AllowTrustResultCode::NoTrustLine => Self::NoTrustLine,
+                AllowTrustResultCode::TrustNotRequired => Self::TrustNotRequired,
+                AllowTrustResultCode::CantRevoke => Self::CantRevoke,
+                AllowTrustResultCode::SelfNotAllowed => Self::SelfNotAllowed,
+                AllowTrustResultCode::LowReserve => Self::LowReserve,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

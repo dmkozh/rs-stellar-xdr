@@ -49,3 +49,15 @@ impl WriteXdr for CreateContractArgs {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for CreateContractArgs {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                contract_id_preimage: ContractIdPreimage::read_xdr_with_buffer(r)?,
+                executable: ContractExecutable::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

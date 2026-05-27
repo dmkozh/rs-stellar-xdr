@@ -56,3 +56,16 @@ impl WriteXdr for EvictionIterator {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for EvictionIterator {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                bucket_list_level: u32::read_xdr_with_buffer(r)?,
+                is_curr_bucket: bool::read_xdr_with_buffer(r)?,
+                bucket_file_offset: u64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

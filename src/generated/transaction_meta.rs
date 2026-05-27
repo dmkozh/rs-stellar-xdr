@@ -156,3 +156,23 @@ impl WriteXdr for TransactionMeta {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TransactionMeta {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: i32 = <i32 as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                0 => Self::V0(VecM::<OperationMeta>::read_xdr_with_buffer(r)?),
+                1 => Self::V1(TransactionMetaV1::read_xdr_with_buffer(r)?),
+                2 => Self::V2(TransactionMetaV2::read_xdr_with_buffer(r)?),
+                3 => Self::V3(TransactionMetaV3::read_xdr_with_buffer(r)?),
+                4 => Self::V4(TransactionMetaV4::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

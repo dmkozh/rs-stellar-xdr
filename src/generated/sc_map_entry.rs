@@ -49,3 +49,15 @@ impl WriteXdr for ScMapEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScMapEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                key: ScVal::read_xdr_with_buffer(r)?,
+                val: ScVal::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -53,3 +53,16 @@ impl WriteXdr for TopologyResponseBodyV2 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TopologyResponseBodyV2 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                inbound_peers: TimeSlicedPeerDataList::read_xdr_with_buffer(r)?,
+                outbound_peers: TimeSlicedPeerDataList::read_xdr_with_buffer(r)?,
+                node_data: TimeSlicedNodeData::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -45,3 +45,14 @@ impl WriteXdr for SendMore {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SendMore {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                num_messages: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

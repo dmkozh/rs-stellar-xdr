@@ -55,3 +55,15 @@ impl WriteXdr for LedgerEntryExtensionV1 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerEntryExtensionV1 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                sponsoring_id: SponsorshipDescriptor::read_xdr_with_buffer(r)?,
+                ext: LedgerEntryExtensionV1Ext::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -64,6 +64,22 @@ impl WriteXdr for {{ s.name }} {
         })
     }
 }
+
+{% if let Some(cfg) = s.cfg -%}
+#[cfg({{ cfg }})]
+{% endif -%}
+#[cfg(feature = "std")]
+impl ReadXdrRc for {{ s.name }} {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+{%- for m in s.members %}
+                {{ m.name }}: {{ m.turbofish_type }}::read_xdr_with_buffer(r)?,
+{%- endfor %}
+            })
+        })
+    }
+}
 {%- if s.is_custom_str %}
 {%- if let Some(cfg) = s.cfg %}
 #[cfg({{ cfg }})]

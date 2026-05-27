@@ -73,3 +73,18 @@ impl WriteXdr for ClaimLiquidityAtom {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClaimLiquidityAtom {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                liquidity_pool_id: PoolId::read_xdr_with_buffer(r)?,
+                asset_sold: Asset::read_xdr_with_buffer(r)?,
+                amount_sold: i64::read_xdr_with_buffer(r)?,
+                asset_bought: Asset::read_xdr_with_buffer(r)?,
+                amount_bought: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

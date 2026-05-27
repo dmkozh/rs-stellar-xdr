@@ -49,3 +49,15 @@ impl WriteXdr for LedgerCloseValueSignature {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerCloseValueSignature {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                node_id: NodeId::read_xdr_with_buffer(r)?,
+                signature: Signature::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

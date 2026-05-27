@@ -45,3 +45,14 @@ impl WriteXdr for LedgerKeyLiquidityPool {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerKeyLiquidityPool {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                liquidity_pool_id: PoolId::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

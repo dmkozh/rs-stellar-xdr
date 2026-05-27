@@ -57,3 +57,15 @@ impl WriteXdr for ConfigSettingContractLedgerCostExtV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingContractLedgerCostExtV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                tx_max_footprint_entries: u32::read_xdr_with_buffer(r)?,
+                fee_write1_kb: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

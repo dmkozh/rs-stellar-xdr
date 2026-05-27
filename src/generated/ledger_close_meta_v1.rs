@@ -98,3 +98,22 @@ impl WriteXdr for LedgerCloseMetaV1 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerCloseMetaV1 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: LedgerCloseMetaExt::read_xdr_with_buffer(r)?,
+                ledger_header: LedgerHeaderHistoryEntry::read_xdr_with_buffer(r)?,
+                tx_set: GeneralizedTransactionSet::read_xdr_with_buffer(r)?,
+                tx_processing: VecM::<TransactionResultMeta>::read_xdr_with_buffer(r)?,
+                upgrades_processing: VecM::<UpgradeEntryMeta>::read_xdr_with_buffer(r)?,
+                scp_info: VecM::<ScpHistoryEntry>::read_xdr_with_buffer(r)?,
+                total_byte_size_of_live_soroban_state: u64::read_xdr_with_buffer(r)?,
+                evicted_keys: VecM::<LedgerKey>::read_xdr_with_buffer(r)?,
+                unused: VecM::<LedgerEntry>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -53,3 +53,16 @@ impl WriteXdr for ScSpecUdtErrorEnumCaseV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecUdtErrorEnumCaseV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                doc: StringM::<1024>::read_xdr_with_buffer(r)?,
+                name: StringM::<60>::read_xdr_with_buffer(r)?,
+                value: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

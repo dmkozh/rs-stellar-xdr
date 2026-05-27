@@ -49,3 +49,15 @@ impl WriteXdr for AlphaNum4 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AlphaNum4 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                asset_code: AssetCode4::read_xdr_with_buffer(r)?,
+                issuer: AccountId::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -167,3 +167,28 @@ impl WriteXdr for SorobanAuthorizedFunction {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanAuthorizedFunction {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: SorobanAuthorizedFunctionType =
+                <SorobanAuthorizedFunctionType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                SorobanAuthorizedFunctionType::ContractFn => {
+                    Self::ContractFn(InvokeContractArgs::read_xdr_with_buffer(r)?)
+                }
+                SorobanAuthorizedFunctionType::CreateContractHostFn => {
+                    Self::CreateContractHostFn(CreateContractArgs::read_xdr_with_buffer(r)?)
+                }
+                SorobanAuthorizedFunctionType::CreateContractV2HostFn => {
+                    Self::CreateContractV2HostFn(CreateContractArgsV2::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

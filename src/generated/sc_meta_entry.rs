@@ -128,3 +128,19 @@ impl WriteXdr for ScMetaEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScMetaEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ScMetaKind = <ScMetaKind as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ScMetaKind::ScMetaV0 => Self::ScMetaV0(ScMetaV0::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -45,3 +45,14 @@ impl WriteXdr for HmacSha256Key {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for HmacSha256Key {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                key: <[u8; 32]>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

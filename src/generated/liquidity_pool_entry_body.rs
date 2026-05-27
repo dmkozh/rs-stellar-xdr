@@ -143,3 +143,23 @@ impl WriteXdr for LiquidityPoolEntryBody {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LiquidityPoolEntryBody {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: LiquidityPoolType = <LiquidityPoolType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                LiquidityPoolType::LiquidityPoolConstantProduct => {
+                    Self::LiquidityPoolConstantProduct(
+                        LiquidityPoolEntryConstantProduct::read_xdr_with_buffer(r)?,
+                    )
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -275,3 +275,41 @@ impl WriteXdr for InnerTransactionResultResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for InnerTransactionResultResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: TransactionResultCode =
+                <TransactionResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                TransactionResultCode::TxSuccess => {
+                    Self::TxSuccess(VecM::<OperationResult>::read_xdr_with_buffer(r)?)
+                }
+                TransactionResultCode::TxFailed => {
+                    Self::TxFailed(VecM::<OperationResult>::read_xdr_with_buffer(r)?)
+                }
+                TransactionResultCode::TxTooEarly => Self::TxTooEarly,
+                TransactionResultCode::TxTooLate => Self::TxTooLate,
+                TransactionResultCode::TxMissingOperation => Self::TxMissingOperation,
+                TransactionResultCode::TxBadSeq => Self::TxBadSeq,
+                TransactionResultCode::TxBadAuth => Self::TxBadAuth,
+                TransactionResultCode::TxInsufficientBalance => Self::TxInsufficientBalance,
+                TransactionResultCode::TxNoAccount => Self::TxNoAccount,
+                TransactionResultCode::TxInsufficientFee => Self::TxInsufficientFee,
+                TransactionResultCode::TxBadAuthExtra => Self::TxBadAuthExtra,
+                TransactionResultCode::TxInternalError => Self::TxInternalError,
+                TransactionResultCode::TxNotSupported => Self::TxNotSupported,
+                TransactionResultCode::TxBadSponsorship => Self::TxBadSponsorship,
+                TransactionResultCode::TxBadMinSeqAgeOrGap => Self::TxBadMinSeqAgeOrGap,
+                TransactionResultCode::TxMalformed => Self::TxMalformed,
+                TransactionResultCode::TxSorobanInvalid => Self::TxSorobanInvalid,
+                TransactionResultCode::TxFrozenKeyAccessed => Self::TxFrozenKeyAccessed,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

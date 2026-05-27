@@ -49,3 +49,15 @@ impl WriteXdr for SignedTimeSlicedSurveyRequestMessage {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SignedTimeSlicedSurveyRequestMessage {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                request_signature: Signature::read_xdr_with_buffer(r)?,
+                request: TimeSlicedSurveyRequestMessage::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

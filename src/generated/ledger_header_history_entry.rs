@@ -60,3 +60,16 @@ impl WriteXdr for LedgerHeaderHistoryEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerHeaderHistoryEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                hash: Hash::read_xdr_with_buffer(r)?,
+                header: LedgerHeader::read_xdr_with_buffer(r)?,
+                ext: LedgerHeaderHistoryEntryExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

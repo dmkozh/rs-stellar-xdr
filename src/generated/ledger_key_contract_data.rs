@@ -53,3 +53,16 @@ impl WriteXdr for LedgerKeyContractData {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerKeyContractData {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                contract: ScAddress::read_xdr_with_buffer(r)?,
+                key: ScVal::read_xdr_with_buffer(r)?,
+                durability: ContractDataDurability::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

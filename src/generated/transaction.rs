@@ -86,3 +86,20 @@ impl WriteXdr for Transaction {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Transaction {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                source_account: MuxedAccount::read_xdr_with_buffer(r)?,
+                fee: u32::read_xdr_with_buffer(r)?,
+                seq_num: SequenceNumber::read_xdr_with_buffer(r)?,
+                cond: Preconditions::read_xdr_with_buffer(r)?,
+                memo: Memo::read_xdr_with_buffer(r)?,
+                operations: VecM::<Operation, 100>::read_xdr_with_buffer(r)?,
+                ext: TransactionExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

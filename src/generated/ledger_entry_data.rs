@@ -223,3 +223,40 @@ impl WriteXdr for LedgerEntryData {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerEntryData {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: LedgerEntryType = <LedgerEntryType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                LedgerEntryType::Account => Self::Account(AccountEntry::read_xdr_with_buffer(r)?),
+                LedgerEntryType::Trustline => {
+                    Self::Trustline(TrustLineEntry::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryType::Offer => Self::Offer(OfferEntry::read_xdr_with_buffer(r)?),
+                LedgerEntryType::Data => Self::Data(DataEntry::read_xdr_with_buffer(r)?),
+                LedgerEntryType::ClaimableBalance => {
+                    Self::ClaimableBalance(ClaimableBalanceEntry::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryType::LiquidityPool => {
+                    Self::LiquidityPool(LiquidityPoolEntry::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryType::ContractData => {
+                    Self::ContractData(ContractDataEntry::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryType::ContractCode => {
+                    Self::ContractCode(ContractCodeEntry::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryType::ConfigSetting => {
+                    Self::ConfigSetting(ConfigSettingEntry::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryType::Ttl => Self::Ttl(TtlEntry::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

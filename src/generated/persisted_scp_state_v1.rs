@@ -50,3 +50,15 @@ impl WriteXdr for PersistedScpStateV1 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PersistedScpStateV1 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                scp_envelopes: VecM::<ScpEnvelope>::read_xdr_with_buffer(r)?,
+                quorum_sets: VecM::<ScpQuorumSet>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

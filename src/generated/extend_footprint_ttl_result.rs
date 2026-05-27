@@ -162,3 +162,25 @@ impl WriteXdr for ExtendFootprintTtlResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ExtendFootprintTtlResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ExtendFootprintTtlResultCode =
+                <ExtendFootprintTtlResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ExtendFootprintTtlResultCode::Success => Self::Success,
+                ExtendFootprintTtlResultCode::Malformed => Self::Malformed,
+                ExtendFootprintTtlResultCode::ResourceLimitExceeded => Self::ResourceLimitExceeded,
+                ExtendFootprintTtlResultCode::InsufficientRefundableFee => {
+                    Self::InsufficientRefundableFee
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -57,3 +57,17 @@ impl WriteXdr for TimeSlicedSurveyRequestMessage {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TimeSlicedSurveyRequestMessage {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                request: SurveyRequestMessage::read_xdr_with_buffer(r)?,
+                nonce: u32::read_xdr_with_buffer(r)?,
+                inbound_peers_index: u32::read_xdr_with_buffer(r)?,
+                outbound_peers_index: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

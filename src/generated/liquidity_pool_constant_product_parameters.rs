@@ -53,3 +53,16 @@ impl WriteXdr for LiquidityPoolConstantProductParameters {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LiquidityPoolConstantProductParameters {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                asset_a: Asset::read_xdr_with_buffer(r)?,
+                asset_b: Asset::read_xdr_with_buffer(r)?,
+                fee: i32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

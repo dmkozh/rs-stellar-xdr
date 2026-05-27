@@ -182,3 +182,26 @@ impl WriteXdr for LiquidityPoolWithdrawResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LiquidityPoolWithdrawResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: LiquidityPoolWithdrawResultCode =
+                <LiquidityPoolWithdrawResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                LiquidityPoolWithdrawResultCode::Success => Self::Success,
+                LiquidityPoolWithdrawResultCode::Malformed => Self::Malformed,
+                LiquidityPoolWithdrawResultCode::NoTrust => Self::NoTrust,
+                LiquidityPoolWithdrawResultCode::Underfunded => Self::Underfunded,
+                LiquidityPoolWithdrawResultCode::LineFull => Self::LineFull,
+                LiquidityPoolWithdrawResultCode::UnderMinimum => Self::UnderMinimum,
+                LiquidityPoolWithdrawResultCode::TrustlineFrozen => Self::TrustlineFrozen,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

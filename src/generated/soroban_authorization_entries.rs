@@ -43,19 +43,33 @@ impl AsRef<VecM<SorobanAuthorizationEntry>> for SorobanAuthorizationEntries {
 
 impl ReadXdr for SorobanAuthorizationEntries {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            let i = VecM::<SorobanAuthorizationEntry>::read_xdr(r)?;
-            let v = SorobanAuthorizationEntries(i);
-            Ok(v)
-        })
+        // A newtype is a transparent wrapper; the inner type performs its own
+        // depth/length accounting, so no extra depth is charged here.
+        let i = VecM::<SorobanAuthorizationEntry>::read_xdr(r)?;
+        let v = SorobanAuthorizationEntries(i);
+        Ok(v)
     }
 }
 
 impl WriteXdr for SorobanAuthorizationEntries {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| self.0.write_xdr(w))
+        self.0.write_xdr(w)
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanAuthorizationEntries {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        Ok(SorobanAuthorizationEntries(VecM::<
+            SorobanAuthorizationEntry,
+        >::read_xdr_with_buffer(
+            r
+        )?))
     }
 }
 
@@ -87,7 +101,6 @@ impl TryFrom<&Vec<SorobanAuthorizationEntry>> for SorobanAuthorizationEntries {
         Ok(SorobanAuthorizationEntries(x.try_into()?))
     }
 }
-
 impl AsRef<Vec<SorobanAuthorizationEntry>> for SorobanAuthorizationEntries {
     #[must_use]
     fn as_ref(&self) -> &Vec<SorobanAuthorizationEntry> {

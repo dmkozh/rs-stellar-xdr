@@ -49,3 +49,15 @@ impl WriteXdr for InvokeHostFunctionSuccessPreImage {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for InvokeHostFunctionSuccessPreImage {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                return_value: ScVal::read_xdr_with_buffer(r)?,
+                events: VecM::<ContractEvent>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

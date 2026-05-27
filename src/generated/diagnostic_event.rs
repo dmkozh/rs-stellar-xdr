@@ -49,3 +49,15 @@ impl WriteXdr for DiagnosticEvent {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for DiagnosticEvent {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                in_successful_contract_call: bool::read_xdr_with_buffer(r)?,
+                event: ContractEvent::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

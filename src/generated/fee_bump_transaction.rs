@@ -71,3 +71,17 @@ impl WriteXdr for FeeBumpTransaction {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for FeeBumpTransaction {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                fee_source: MuxedAccount::read_xdr_with_buffer(r)?,
+                fee: i64::read_xdr_with_buffer(r)?,
+                inner_tx: FeeBumpTransactionInnerTx::read_xdr_with_buffer(r)?,
+                ext: FeeBumpTransactionExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

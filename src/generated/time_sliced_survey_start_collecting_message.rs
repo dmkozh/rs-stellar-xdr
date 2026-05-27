@@ -53,3 +53,16 @@ impl WriteXdr for TimeSlicedSurveyStartCollectingMessage {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TimeSlicedSurveyStartCollectingMessage {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                surveyor_id: NodeId::read_xdr_with_buffer(r)?,
+                nonce: u32::read_xdr_with_buffer(r)?,
+                ledger_num: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

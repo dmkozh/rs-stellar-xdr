@@ -49,3 +49,15 @@ impl WriteXdr for LedgerFootprint {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerFootprint {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                read_only: VecM::<LedgerKey>::read_xdr_with_buffer(r)?,
+                read_write: VecM::<LedgerKey>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

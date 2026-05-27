@@ -94,3 +94,21 @@ impl WriteXdr for OfferEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for OfferEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                seller_id: AccountId::read_xdr_with_buffer(r)?,
+                offer_id: i64::read_xdr_with_buffer(r)?,
+                selling: Asset::read_xdr_with_buffer(r)?,
+                buying: Asset::read_xdr_with_buffer(r)?,
+                amount: i64::read_xdr_with_buffer(r)?,
+                price: Price::read_xdr_with_buffer(r)?,
+                flags: u32::read_xdr_with_buffer(r)?,
+                ext: OfferEntryExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

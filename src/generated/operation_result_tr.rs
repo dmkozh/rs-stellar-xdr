@@ -404,3 +404,97 @@ impl WriteXdr for OperationResultTr {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for OperationResultTr {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: OperationType = <OperationType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                OperationType::CreateAccount => {
+                    Self::CreateAccount(CreateAccountResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::Payment => Self::Payment(PaymentResult::read_xdr_with_buffer(r)?),
+                OperationType::PathPaymentStrictReceive => Self::PathPaymentStrictReceive(
+                    PathPaymentStrictReceiveResult::read_xdr_with_buffer(r)?,
+                ),
+                OperationType::ManageSellOffer => {
+                    Self::ManageSellOffer(ManageSellOfferResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::CreatePassiveSellOffer => {
+                    Self::CreatePassiveSellOffer(ManageSellOfferResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::SetOptions => {
+                    Self::SetOptions(SetOptionsResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::ChangeTrust => {
+                    Self::ChangeTrust(ChangeTrustResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::AllowTrust => {
+                    Self::AllowTrust(AllowTrustResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::AccountMerge => {
+                    Self::AccountMerge(AccountMergeResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::Inflation => {
+                    Self::Inflation(InflationResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::ManageData => {
+                    Self::ManageData(ManageDataResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::BumpSequence => {
+                    Self::BumpSequence(BumpSequenceResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::ManageBuyOffer => {
+                    Self::ManageBuyOffer(ManageBuyOfferResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::PathPaymentStrictSend => Self::PathPaymentStrictSend(
+                    PathPaymentStrictSendResult::read_xdr_with_buffer(r)?,
+                ),
+                OperationType::CreateClaimableBalance => Self::CreateClaimableBalance(
+                    CreateClaimableBalanceResult::read_xdr_with_buffer(r)?,
+                ),
+                OperationType::ClaimClaimableBalance => Self::ClaimClaimableBalance(
+                    ClaimClaimableBalanceResult::read_xdr_with_buffer(r)?,
+                ),
+                OperationType::BeginSponsoringFutureReserves => {
+                    Self::BeginSponsoringFutureReserves(
+                        BeginSponsoringFutureReservesResult::read_xdr_with_buffer(r)?,
+                    )
+                }
+                OperationType::EndSponsoringFutureReserves => Self::EndSponsoringFutureReserves(
+                    EndSponsoringFutureReservesResult::read_xdr_with_buffer(r)?,
+                ),
+                OperationType::RevokeSponsorship => {
+                    Self::RevokeSponsorship(RevokeSponsorshipResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::Clawback => Self::Clawback(ClawbackResult::read_xdr_with_buffer(r)?),
+                OperationType::ClawbackClaimableBalance => Self::ClawbackClaimableBalance(
+                    ClawbackClaimableBalanceResult::read_xdr_with_buffer(r)?,
+                ),
+                OperationType::SetTrustLineFlags => {
+                    Self::SetTrustLineFlags(SetTrustLineFlagsResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::LiquidityPoolDeposit => {
+                    Self::LiquidityPoolDeposit(LiquidityPoolDepositResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::LiquidityPoolWithdraw => Self::LiquidityPoolWithdraw(
+                    LiquidityPoolWithdrawResult::read_xdr_with_buffer(r)?,
+                ),
+                OperationType::InvokeHostFunction => {
+                    Self::InvokeHostFunction(InvokeHostFunctionResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::ExtendFootprintTtl => {
+                    Self::ExtendFootprintTtl(ExtendFootprintTtlResult::read_xdr_with_buffer(r)?)
+                }
+                OperationType::RestoreFootprint => {
+                    Self::RestoreFootprint(RestoreFootprintResult::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

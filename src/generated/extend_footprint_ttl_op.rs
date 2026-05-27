@@ -49,3 +49,15 @@ impl WriteXdr for ExtendFootprintTtlOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ExtendFootprintTtlOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+                extend_to: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

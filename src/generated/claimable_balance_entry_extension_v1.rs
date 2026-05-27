@@ -55,3 +55,15 @@ impl WriteXdr for ClaimableBalanceEntryExtensionV1 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClaimableBalanceEntryExtensionV1 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ClaimableBalanceEntryExtensionV1Ext::read_xdr_with_buffer(r)?,
+                flags: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

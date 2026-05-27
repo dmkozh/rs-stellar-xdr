@@ -96,3 +96,19 @@ impl WriteXdr for TrustLineEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TrustLineEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                account_id: AccountId::read_xdr_with_buffer(r)?,
+                asset: TrustLineAsset::read_xdr_with_buffer(r)?,
+                balance: i64::read_xdr_with_buffer(r)?,
+                limit: i64::read_xdr_with_buffer(r)?,
+                flags: u32::read_xdr_with_buffer(r)?,
+                ext: TrustLineEntryExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

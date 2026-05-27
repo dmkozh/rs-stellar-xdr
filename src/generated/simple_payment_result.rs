@@ -57,3 +57,16 @@ impl WriteXdr for SimplePaymentResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SimplePaymentResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                destination: AccountId::read_xdr_with_buffer(r)?,
+                asset: Asset::read_xdr_with_buffer(r)?,
+                amount: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

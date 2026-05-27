@@ -165,3 +165,24 @@ impl WriteXdr for ManageDataResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ManageDataResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ManageDataResultCode =
+                <ManageDataResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ManageDataResultCode::Success => Self::Success,
+                ManageDataResultCode::NotSupportedYet => Self::NotSupportedYet,
+                ManageDataResultCode::NameNotFound => Self::NameNotFound,
+                ManageDataResultCode::LowReserve => Self::LowReserve,
+                ManageDataResultCode::InvalidName => Self::InvalidName,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

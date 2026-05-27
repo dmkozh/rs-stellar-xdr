@@ -46,3 +46,14 @@ impl WriteXdr for ConfigSettingContractExecutionLanesV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingContractExecutionLanesV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_max_tx_count: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -61,3 +61,18 @@ impl WriteXdr for ContractDataEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ContractDataEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+                contract: ScAddress::read_xdr_with_buffer(r)?,
+                key: ScVal::read_xdr_with_buffer(r)?,
+                durability: ContractDataDurability::read_xdr_with_buffer(r)?,
+                val: ScVal::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

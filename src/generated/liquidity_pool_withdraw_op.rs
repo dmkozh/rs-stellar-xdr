@@ -69,3 +69,17 @@ impl WriteXdr for LiquidityPoolWithdrawOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LiquidityPoolWithdrawOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                liquidity_pool_id: PoolId::read_xdr_with_buffer(r)?,
+                amount: i64::read_xdr_with_buffer(r)?,
+                min_amount_a: i64::read_xdr_with_buffer(r)?,
+                min_amount_b: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

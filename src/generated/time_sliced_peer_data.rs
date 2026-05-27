@@ -49,3 +49,15 @@ impl WriteXdr for TimeSlicedPeerData {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TimeSlicedPeerData {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                peer_stats: PeerStats::read_xdr_with_buffer(r)?,
+                average_latency_ms: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

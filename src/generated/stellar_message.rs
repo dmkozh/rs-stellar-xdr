@@ -341,3 +341,67 @@ impl WriteXdr for StellarMessage {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for StellarMessage {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: MessageType = <MessageType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                MessageType::ErrorMsg => Self::ErrorMsg(SError::read_xdr_with_buffer(r)?),
+                MessageType::Hello => Self::Hello(Hello::read_xdr_with_buffer(r)?),
+                MessageType::Auth => Self::Auth(Auth::read_xdr_with_buffer(r)?),
+                MessageType::DontHave => Self::DontHave(DontHave::read_xdr_with_buffer(r)?),
+                MessageType::Peers => {
+                    Self::Peers(VecM::<PeerAddress, 100>::read_xdr_with_buffer(r)?)
+                }
+                MessageType::GetTxSet => Self::GetTxSet(Uint256::read_xdr_with_buffer(r)?),
+                MessageType::TxSet => Self::TxSet(TransactionSet::read_xdr_with_buffer(r)?),
+                MessageType::GeneralizedTxSet => {
+                    Self::GeneralizedTxSet(GeneralizedTransactionSet::read_xdr_with_buffer(r)?)
+                }
+                MessageType::Transaction => {
+                    Self::Transaction(TransactionEnvelope::read_xdr_with_buffer(r)?)
+                }
+                MessageType::TimeSlicedSurveyRequest => Self::TimeSlicedSurveyRequest(
+                    SignedTimeSlicedSurveyRequestMessage::read_xdr_with_buffer(r)?,
+                ),
+                MessageType::TimeSlicedSurveyResponse => Self::TimeSlicedSurveyResponse(
+                    SignedTimeSlicedSurveyResponseMessage::read_xdr_with_buffer(r)?,
+                ),
+                MessageType::TimeSlicedSurveyStartCollecting => {
+                    Self::TimeSlicedSurveyStartCollecting(
+                        SignedTimeSlicedSurveyStartCollectingMessage::read_xdr_with_buffer(r)?,
+                    )
+                }
+                MessageType::TimeSlicedSurveyStopCollecting => {
+                    Self::TimeSlicedSurveyStopCollecting(
+                        SignedTimeSlicedSurveyStopCollectingMessage::read_xdr_with_buffer(r)?,
+                    )
+                }
+                MessageType::GetScpQuorumset => {
+                    Self::GetScpQuorumset(Uint256::read_xdr_with_buffer(r)?)
+                }
+                MessageType::ScpQuorumset => {
+                    Self::ScpQuorumset(ScpQuorumSet::read_xdr_with_buffer(r)?)
+                }
+                MessageType::ScpMessage => Self::ScpMessage(ScpEnvelope::read_xdr_with_buffer(r)?),
+                MessageType::GetScpState => Self::GetScpState(u32::read_xdr_with_buffer(r)?),
+                MessageType::SendMore => Self::SendMore(SendMore::read_xdr_with_buffer(r)?),
+                MessageType::SendMoreExtended => {
+                    Self::SendMoreExtended(SendMoreExtended::read_xdr_with_buffer(r)?)
+                }
+                MessageType::FloodAdvert => {
+                    Self::FloodAdvert(FloodAdvert::read_xdr_with_buffer(r)?)
+                }
+                MessageType::FloodDemand => {
+                    Self::FloodDemand(FloodDemand::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

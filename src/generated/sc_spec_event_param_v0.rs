@@ -57,3 +57,17 @@ impl WriteXdr for ScSpecEventParamV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecEventParamV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                doc: StringM::<1024>::read_xdr_with_buffer(r)?,
+                name: StringM::<30>::read_xdr_with_buffer(r)?,
+                type_: ScSpecTypeDef::read_xdr_with_buffer(r)?,
+                location: ScSpecEventParamLocationV0::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

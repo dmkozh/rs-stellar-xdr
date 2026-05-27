@@ -150,3 +150,26 @@ impl WriteXdr for HotArchiveBucketEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for HotArchiveBucketEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: HotArchiveBucketEntryType =
+                <HotArchiveBucketEntryType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                HotArchiveBucketEntryType::Archived => {
+                    Self::Archived(LedgerEntry::read_xdr_with_buffer(r)?)
+                }
+                HotArchiveBucketEntryType::Live => Self::Live(LedgerKey::read_xdr_with_buffer(r)?),
+                HotArchiveBucketEntryType::Metaentry => {
+                    Self::Metaentry(BucketMetadata::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

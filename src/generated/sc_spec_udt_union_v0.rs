@@ -57,3 +57,17 @@ impl WriteXdr for ScSpecUdtUnionV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecUdtUnionV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                doc: StringM::<1024>::read_xdr_with_buffer(r)?,
+                lib: StringM::<80>::read_xdr_with_buffer(r)?,
+                name: StringM::<60>::read_xdr_with_buffer(r)?,
+                cases: VecM::<ScSpecUdtUnionCaseV0>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -174,3 +174,25 @@ impl WriteXdr for RevokeSponsorshipResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for RevokeSponsorshipResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: RevokeSponsorshipResultCode =
+                <RevokeSponsorshipResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                RevokeSponsorshipResultCode::Success => Self::Success,
+                RevokeSponsorshipResultCode::DoesNotExist => Self::DoesNotExist,
+                RevokeSponsorshipResultCode::NotSponsor => Self::NotSponsor,
+                RevokeSponsorshipResultCode::LowReserve => Self::LowReserve,
+                RevokeSponsorshipResultCode::OnlyTransferable => Self::OnlyTransferable,
+                RevokeSponsorshipResultCode::Malformed => Self::Malformed,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -218,3 +218,36 @@ impl WriteXdr for HashIdPreimage {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for HashIdPreimage {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: EnvelopeType = <EnvelopeType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                EnvelopeType::OpId => {
+                    Self::OpId(HashIdPreimageOperationId::read_xdr_with_buffer(r)?)
+                }
+                EnvelopeType::PoolRevokeOpId => {
+                    Self::PoolRevokeOpId(HashIdPreimageRevokeId::read_xdr_with_buffer(r)?)
+                }
+                EnvelopeType::ContractId => {
+                    Self::ContractId(HashIdPreimageContractId::read_xdr_with_buffer(r)?)
+                }
+                EnvelopeType::SorobanAuthorization => Self::SorobanAuthorization(
+                    HashIdPreimageSorobanAuthorization::read_xdr_with_buffer(r)?,
+                ),
+                #[cfg(feature = "cap_0071")]
+                EnvelopeType::SorobanAuthorizationWithAddress => {
+                    Self::SorobanAuthorizationWithAddress(
+                        HashIdPreimageSorobanAuthorizationWithAddress::read_xdr_with_buffer(r)?,
+                    )
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

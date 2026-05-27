@@ -59,3 +59,15 @@ impl WriteXdr for ManageOfferSuccessResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ManageOfferSuccessResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                offers_claimed: VecM::<ClaimAtom>::read_xdr_with_buffer(r)?,
+                offer: ManageOfferSuccessResultOffer::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

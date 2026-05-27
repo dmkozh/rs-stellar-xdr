@@ -179,3 +179,34 @@ impl WriteXdr for ScSpecEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ScSpecEntryKind = <ScSpecEntryKind as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ScSpecEntryKind::FunctionV0 => {
+                    Self::FunctionV0(ScSpecFunctionV0::read_xdr_with_buffer(r)?)
+                }
+                ScSpecEntryKind::UdtStructV0 => {
+                    Self::UdtStructV0(ScSpecUdtStructV0::read_xdr_with_buffer(r)?)
+                }
+                ScSpecEntryKind::UdtUnionV0 => {
+                    Self::UdtUnionV0(ScSpecUdtUnionV0::read_xdr_with_buffer(r)?)
+                }
+                ScSpecEntryKind::UdtEnumV0 => {
+                    Self::UdtEnumV0(ScSpecUdtEnumV0::read_xdr_with_buffer(r)?)
+                }
+                ScSpecEntryKind::UdtErrorEnumV0 => {
+                    Self::UdtErrorEnumV0(ScSpecUdtErrorEnumV0::read_xdr_with_buffer(r)?)
+                }
+                ScSpecEntryKind::EventV0 => Self::EventV0(ScSpecEventV0::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

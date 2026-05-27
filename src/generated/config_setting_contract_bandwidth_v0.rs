@@ -61,3 +61,16 @@ impl WriteXdr for ConfigSettingContractBandwidthV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingContractBandwidthV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_max_txs_size_bytes: u32::read_xdr_with_buffer(r)?,
+                tx_max_size_bytes: u32::read_xdr_with_buffer(r)?,
+                fee_tx_size1_kb: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

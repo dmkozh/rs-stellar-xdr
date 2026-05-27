@@ -96,3 +96,17 @@ impl WriteXdr for SorobanTransactionMetaExtV1 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanTransactionMetaExtV1 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+                total_non_refundable_resource_fee_charged: i64::read_xdr_with_buffer(r)?,
+                total_refundable_resource_fee_charged: i64::read_xdr_with_buffer(r)?,
+                rent_fee_charged: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

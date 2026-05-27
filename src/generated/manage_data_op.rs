@@ -49,3 +49,15 @@ impl WriteXdr for ManageDataOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ManageDataOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                data_name: String64::read_xdr_with_buffer(r)?,
+                data_value: Option::<DataValue>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

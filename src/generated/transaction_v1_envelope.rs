@@ -51,3 +51,15 @@ impl WriteXdr for TransactionV1Envelope {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TransactionV1Envelope {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                tx: Transaction::read_xdr_with_buffer(r)?,
+                signatures: VecM::<DecoratedSignature, 20>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

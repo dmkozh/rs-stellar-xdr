@@ -49,3 +49,15 @@ impl WriteXdr for ContractEventV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ContractEventV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                topics: VecM::<ScVal>::read_xdr_with_buffer(r)?,
+                data: ScVal::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

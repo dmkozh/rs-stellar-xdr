@@ -154,3 +154,23 @@ impl WriteXdr for BeginSponsoringFutureReservesResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for BeginSponsoringFutureReservesResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: BeginSponsoringFutureReservesResultCode =
+                <BeginSponsoringFutureReservesResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                BeginSponsoringFutureReservesResultCode::Success => Self::Success,
+                BeginSponsoringFutureReservesResultCode::Malformed => Self::Malformed,
+                BeginSponsoringFutureReservesResultCode::AlreadySponsored => Self::AlreadySponsored,
+                BeginSponsoringFutureReservesResultCode::Recursive => Self::Recursive,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

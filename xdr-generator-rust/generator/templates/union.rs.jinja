@@ -227,3 +227,31 @@ impl WriteXdr for {{ u.name }} {
     }
 }
 
+{% if let Some(cfg) = u.cfg -%}
+#[cfg({{ cfg }})]
+{% endif -%}
+#[cfg(feature = "std")]
+impl ReadXdrRc for {{ u.name }} {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: {{ u.discriminant_type }} = <{{ u.discriminant_type }} as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+{%- for arm in u.arms %}
+{%- if let Some(cfg) = arm.cfg %}
+                #[cfg({{ cfg }})]
+{%- endif %}
+{%- if arm.is_void %}
+                {{ arm.case_value }} => Self::{{ arm.case_name }},
+{%- else %}
+                {{ arm.case_value }} => Self::{{ arm.case_name }}({{ arm.turbofish_type.as_ref().unwrap() }}::read_xdr_with_buffer(r)?),
+{%- endif %}
+{%- endfor %}
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}
+

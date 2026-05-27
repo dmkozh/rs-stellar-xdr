@@ -155,12 +155,13 @@ impl AsRef<{{ t.type_ref }}> for {{ t.name }} {
 {% endif -%}
 impl ReadXdr for {{ t.name }} {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            let i = {{ t.turbofish_type }}::read_xdr(r)?;
-            let v = {{ t.name }}(i);
-            Ok(v)
-        })
+        // A newtype is a transparent wrapper; the inner type performs its own
+        // depth/length accounting, so no extra depth is charged here.
+        let i = {{ t.turbofish_type }}::read_xdr(r)?;
+        let v = {{ t.name }}(i);
+        Ok(v)
     }
 }
 
@@ -169,8 +170,20 @@ impl ReadXdr for {{ t.name }} {
 {% endif -%}
 impl WriteXdr for {{ t.name }} {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| { self.0.write_xdr(w) })
+        self.0.write_xdr(w)
+    }
+}
+
+{% if let Some(cfg) = t.cfg -%}
+#[cfg({{ cfg }})]
+{% endif -%}
+#[cfg(feature = "std")]
+impl ReadXdrRc for {{ t.name }} {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        Ok({{ t.name }}({{ t.turbofish_type }}::read_xdr_with_buffer(r)?))
     }
 }
 {%- if t.is_fixed_array %}
@@ -245,7 +258,11 @@ impl Deref for {{ t.name }} {
 impl From<{{ t.name }}> for Vec<{{ t.element_type }}> {
     #[must_use]
     fn from(x: {{ t.name }}) -> Self {
+{%- if t.inner_is_shared_bytes %}
+        x.0.into()
+{%- else %}
         x.0.0
+{%- endif %}
     }
 }
 
@@ -270,6 +287,7 @@ impl TryFrom<&Vec<{{ t.element_type }}>> for {{ t.name }} {
     }
 }
 
+{%- if !t.inner_is_shared_bytes %}
 {% if let Some(cfg) = t.cfg -%}
 #[cfg({{ cfg }})]
 {% endif -%}
@@ -279,11 +297,18 @@ impl AsRef<Vec<{{ t.element_type }}>> for {{ t.name }} {
         &self.0.0
     }
 }
+{%- endif %}
 
 {% if let Some(cfg) = t.cfg -%}
 #[cfg({{ cfg }})]
 {% endif -%}
 impl AsRef<[{{ t.element_type }}]> for {{ t.name }} {
+{%- if t.inner_is_shared_bytes %}
+    #[must_use]
+    fn as_ref(&self) -> &[{{ t.element_type }}] {
+        self.0.as_ref()
+    }
+{%- else %}
     #[cfg(feature = "alloc")]
     #[must_use]
     fn as_ref(&self) -> &[{{ t.element_type }}] {
@@ -294,6 +319,7 @@ impl AsRef<[{{ t.element_type }}]> for {{ t.name }} {
     fn as_ref(&self) -> &[{{ t.element_type }}] {
         self.0.0
     }
+{%- endif %}
 }
 {%- endif %}
 

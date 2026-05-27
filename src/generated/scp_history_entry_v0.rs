@@ -49,3 +49,15 @@ impl WriteXdr for ScpHistoryEntryV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScpHistoryEntryV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                quorum_sets: VecM::<ScpQuorumSet>::read_xdr_with_buffer(r)?,
+                ledger_messages: LedgerScpMessages::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

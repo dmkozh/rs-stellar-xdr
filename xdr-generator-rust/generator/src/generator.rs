@@ -382,6 +382,8 @@ impl RustGenerator {
             source_comment: source_comment(&t.source, "Typedef"),
             has_default: !custom_default,
             is_var_array: is_var_array_type,
+            inner_is_shared_bytes: resolved.type_ref.starts_with("BytesM")
+                || resolved.type_ref.starts_with("StringM"),
             is_fixed_opaque: is_fixed_opaque_type,
             is_fixed_array: is_fixed_array_type,
             is_custom_str: custom_str,

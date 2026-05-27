@@ -145,3 +145,21 @@ impl WriteXdr for ManageOfferSuccessResultOffer {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ManageOfferSuccessResultOffer {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ManageOfferEffect = <ManageOfferEffect as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ManageOfferEffect::Created => Self::Created(OfferEntry::read_xdr_with_buffer(r)?),
+                ManageOfferEffect::Updated => Self::Updated(OfferEntry::read_xdr_with_buffer(r)?),
+                ManageOfferEffect::Deleted => Self::Deleted,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

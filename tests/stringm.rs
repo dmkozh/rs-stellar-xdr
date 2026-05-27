@@ -9,7 +9,7 @@ fn stringm_from_str_at_max() {
     // Exactly at the limit should succeed.
     let result = StringM::<3>::from_str("abc");
     assert!(result.is_ok());
-    assert_eq!(result.unwrap().as_vec(), b"abc");
+    assert_eq!(&result.unwrap()[..], b"abc");
 }
 
 #[test]
@@ -17,7 +17,7 @@ fn stringm_from_str_within_max() {
     // Within the limit should succeed.
     let result = StringM::<3>::from_str("ab");
     assert!(result.is_ok());
-    assert_eq!(result.unwrap().as_vec(), b"ab");
+    assert_eq!(&result.unwrap()[..], b"ab");
 }
 
 #[test]
@@ -30,5 +30,5 @@ fn stringm_from_str_exceeding_max() {
 fn stringm_from_str_empty() {
     let result = StringM::<3>::from_str("");
     assert!(result.is_ok());
-    assert_eq!(result.unwrap().as_vec(), b"");
+    assert_eq!(&result.unwrap()[..], b"");
 }

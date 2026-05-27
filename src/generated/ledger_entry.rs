@@ -86,3 +86,16 @@ impl WriteXdr for LedgerEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                last_modified_ledger_seq: u32::read_xdr_with_buffer(r)?,
+                data: LedgerEntryData::read_xdr_with_buffer(r)?,
+                ext: LedgerEntryExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

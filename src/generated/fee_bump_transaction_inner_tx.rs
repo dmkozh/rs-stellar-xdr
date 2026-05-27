@@ -128,3 +128,19 @@ impl WriteXdr for FeeBumpTransactionInnerTx {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for FeeBumpTransactionInnerTx {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: EnvelopeType = <EnvelopeType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                EnvelopeType::Tx => Self::Tx(TransactionV1Envelope::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

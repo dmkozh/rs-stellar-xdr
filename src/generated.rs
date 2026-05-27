@@ -115,6 +115,15 @@ use alloc::borrow::Cow;
 #[cfg(all(feature = "schemars", feature = "alloc", feature = "std"))]
 use std::borrow::Cow;
 
+// Shared, immutable backing store for large variable-length byte fields
+// (`BytesM`/`StringM`). Enables O(1) clones and zero-copy decode.
+#[cfg(feature = "alloc")]
+use crate::RcBytes;
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::rc::Rc;
+#[cfg(all(feature = "alloc", feature = "std"))]
+use std::rc::Rc;
+
 // TODO: Add support for read/write xdr fns when std not available.
 
 #[cfg(feature = "std")]
@@ -752,95 +761,90 @@ fn pad_len(len: usize) -> usize {
     (4 - (len % 4)) % 4
 }
 
+// Fixed-width scalars are XDR leaves: they never recurse, so they do not
+// participate in the depth limit (which exists to bound recursion / stack
+// usage). They still consume from the byte-length budget via `consume_len`.
 impl ReadXdr for i32 {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
         let mut b = [0u8; 4];
-        r.with_limited_depth(|r| {
-            r.consume_len(b.len())?;
-            r.read_exact(&mut b)?;
-            Ok(i32::from_be_bytes(b))
-        })
+        r.consume_len(b.len())?;
+        r.read_exact(&mut b)?;
+        Ok(i32::from_be_bytes(b))
     }
 }
 
 impl WriteXdr for i32 {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
         let b: [u8; 4] = self.to_be_bytes();
-        w.with_limited_depth(|w| {
-            w.consume_len(b.len())?;
-            Ok(w.write_all(&b)?)
-        })
+        w.consume_len(b.len())?;
+        Ok(w.write_all(&b)?)
     }
 }
 
 impl ReadXdr for u32 {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
         let mut b = [0u8; 4];
-        r.with_limited_depth(|r| {
-            r.consume_len(b.len())?;
-            r.read_exact(&mut b)?;
-            Ok(u32::from_be_bytes(b))
-        })
+        r.consume_len(b.len())?;
+        r.read_exact(&mut b)?;
+        Ok(u32::from_be_bytes(b))
     }
 }
 
 impl WriteXdr for u32 {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
         let b: [u8; 4] = self.to_be_bytes();
-        w.with_limited_depth(|w| {
-            w.consume_len(b.len())?;
-            Ok(w.write_all(&b)?)
-        })
+        w.consume_len(b.len())?;
+        Ok(w.write_all(&b)?)
     }
 }
 
 impl ReadXdr for i64 {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
         let mut b = [0u8; 8];
-        r.with_limited_depth(|r| {
-            r.consume_len(b.len())?;
-            r.read_exact(&mut b)?;
-            Ok(i64::from_be_bytes(b))
-        })
+        r.consume_len(b.len())?;
+        r.read_exact(&mut b)?;
+        Ok(i64::from_be_bytes(b))
     }
 }
 
 impl WriteXdr for i64 {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
         let b: [u8; 8] = self.to_be_bytes();
-        w.with_limited_depth(|w| {
-            w.consume_len(b.len())?;
-            Ok(w.write_all(&b)?)
-        })
+        w.consume_len(b.len())?;
+        Ok(w.write_all(&b)?)
     }
 }
 
 impl ReadXdr for u64 {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
         let mut b = [0u8; 8];
-        r.with_limited_depth(|r| {
-            r.consume_len(b.len())?;
-            r.read_exact(&mut b)?;
-            Ok(u64::from_be_bytes(b))
-        })
+        r.consume_len(b.len())?;
+        r.read_exact(&mut b)?;
+        Ok(u64::from_be_bytes(b))
     }
 }
 
 impl WriteXdr for u64 {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
         let b: [u8; 8] = self.to_be_bytes();
-        w.with_limited_depth(|w| {
-            w.consume_len(b.len())?;
-            Ok(w.write_all(&b)?)
-        })
+        w.consume_len(b.len())?;
+        Ok(w.write_all(&b)?)
     }
 }
 
@@ -874,22 +878,20 @@ impl WriteXdr for f64 {
 
 impl ReadXdr for bool {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            let i = u32::read_xdr(r)?;
-            let b = i == 1;
-            Ok(b)
-        })
+        let i = u32::read_xdr(r)?;
+        let b = i == 1;
+        Ok(b)
     }
 }
 
 impl WriteXdr for bool {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| {
-            let i = u32::from(*self); // true = 1, false = 0
-            i.write_xdr(w)
-        })
+        let i = u32::from(*self); // true = 1, false = 0
+        i.write_xdr(w)
     }
 }
 
@@ -953,36 +955,36 @@ impl WriteXdr for () {
     }
 }
 
+// A fixed-size opaque array is an XDR leaf (no recursion); it consumes from the
+// byte-length budget but not the depth limit.
 impl<const N: usize> ReadXdr for [u8; N] {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            r.consume_len(N)?;
-            let padding = pad_len(N);
-            r.consume_len(padding)?;
-            let mut arr = [0u8; N];
-            r.read_exact(&mut arr)?;
-            let pad = &mut [0u8; 3][..padding];
-            r.read_exact(pad)?;
-            if pad.iter().any(|b| *b != 0) {
-                return Err(Error::NonZeroPadding);
-            }
-            Ok(arr)
-        })
+        r.consume_len(N)?;
+        let padding = pad_len(N);
+        r.consume_len(padding)?;
+        let mut arr = [0u8; N];
+        r.read_exact(&mut arr)?;
+        let pad = &mut [0u8; 3][..padding];
+        r.read_exact(pad)?;
+        if pad.iter().any(|b| *b != 0) {
+            return Err(Error::NonZeroPadding);
+        }
+        Ok(arr)
     }
 }
 
 impl<const N: usize> WriteXdr for [u8; N] {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| {
-            w.consume_len(N)?;
-            let padding = pad_len(N);
-            w.consume_len(padding)?;
-            w.write_all(self)?;
-            w.write_all(&[0u8; 3][..padding])?;
-            Ok(())
-        })
+        w.consume_len(N)?;
+        let padding = pad_len(N);
+        w.consume_len(padding)?;
+        w.write_all(self)?;
+        w.write_all(&[0u8; 3][..padding])?;
+        Ok(())
     }
 }
 
@@ -1506,7 +1508,11 @@ impl<T: ReadXdr, const MAX: u32> ReadXdr for VecM<T, MAX> {
                 return Err(Error::LengthExceedsMax);
             }
 
-            let mut vec = Vec::new();
+            // Preallocate, but bound the up-front allocation so an untrusted
+            // large `len` can't trigger a huge reservation (the elements still
+            // have to be read one by one regardless).
+            let cap = (len as usize).min(65_536 / core::mem::size_of::<T>().max(1));
+            let mut vec = Vec::with_capacity(cap);
             for _ in 0..len {
                 let t = T::read_xdr(r)?;
                 vec.push(t);
@@ -1542,7 +1548,7 @@ impl<T: WriteXdr, const MAX: u32> WriteXdr for VecM<T, MAX> {
     derive(serde_with::SerializeDisplay, serde_with::DeserializeFromStr)
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-pub struct BytesM<const MAX: u32 = { u32::MAX }>(Vec<u8>);
+pub struct BytesM<const MAX: u32 = { u32::MAX }>(RcBytes);
 
 #[cfg(not(feature = "alloc"))]
 #[derive(Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -1551,10 +1557,7 @@ pub struct BytesM<const MAX: u32 = { u32::MAX }>(Vec<u8>);
 
 impl<const MAX: u32> core::fmt::Display for BytesM<MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        #[cfg(feature = "alloc")]
-        let v = &self.0;
-        #[cfg(not(feature = "alloc"))]
-        let v = self.0;
+        let v: &[u8] = self.as_ref();
         for b in v {
             write!(f, "{b:02x}")?;
         }
@@ -1564,10 +1567,7 @@ impl<const MAX: u32> core::fmt::Display for BytesM<MAX> {
 
 impl<const MAX: u32> core::fmt::Debug for BytesM<MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        #[cfg(feature = "alloc")]
-        let v = &self.0;
-        #[cfg(not(feature = "alloc"))]
-        let v = self.0;
+        let v: &[u8] = self.as_ref();
         write!(f, "BytesM(")?;
         for b in v {
             write!(f, "{b:02x}")?;
@@ -1586,10 +1586,10 @@ impl<const MAX: u32> core::str::FromStr for BytesM<MAX> {
 }
 
 impl<const MAX: u32> Deref for BytesM<MAX> {
-    type Target = Vec<u8>;
+    type Target = [u8];
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        self.as_ref()
     }
 }
 
@@ -1627,6 +1627,14 @@ impl<const MAX: u32> schemars::JsonSchema for BytesM<MAX> {
     }
 }
 
+#[cfg(feature = "alloc")]
+impl<const MAX: u32> Default for BytesM<MAX> {
+    fn default() -> Self {
+        Self(RcBytes::from_slice(&[]))
+    }
+}
+
+#[cfg(not(feature = "alloc"))]
 impl<const MAX: u32> Default for BytesM<MAX> {
     fn default() -> Self {
         Self(Vec::default())
@@ -1640,11 +1648,6 @@ impl<const MAX: u32> BytesM<MAX> {
     #[allow(clippy::unused_self)]
     pub fn max_len(&self) -> usize {
         Self::MAX_LEN
-    }
-
-    #[must_use]
-    pub fn as_vec(&self) -> &Vec<u8> {
-        self.as_ref()
     }
 }
 
@@ -1685,6 +1688,21 @@ impl<const MAX: u32> BytesM<MAX> {
     }
 }
 
+#[cfg(feature = "alloc")]
+impl<const MAX: u32> TryFrom<Vec<u8>> for BytesM<MAX> {
+    type Error = Error;
+
+    fn try_from(v: Vec<u8>) -> Result<Self, Error> {
+        let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
+        if len <= MAX {
+            Ok(BytesM(RcBytes::from_slice(&v)))
+        } else {
+            Err(Error::LengthExceedsMax)
+        }
+    }
+}
+
+#[cfg(not(feature = "alloc"))]
 impl<const MAX: u32> TryFrom<Vec<u8>> for BytesM<MAX> {
     type Error = Error;
 
@@ -1698,6 +1716,15 @@ impl<const MAX: u32> TryFrom<Vec<u8>> for BytesM<MAX> {
     }
 }
 
+#[cfg(feature = "alloc")]
+impl<const MAX: u32> From<BytesM<MAX>> for Vec<u8> {
+    #[must_use]
+    fn from(v: BytesM<MAX>) -> Self {
+        v.0.as_bytes().to_vec()
+    }
+}
+
+#[cfg(not(feature = "alloc"))]
 impl<const MAX: u32> From<BytesM<MAX>> for Vec<u8> {
     #[must_use]
     fn from(v: BytesM<MAX>) -> Self {
@@ -1709,14 +1736,7 @@ impl<const MAX: u32> From<BytesM<MAX>> for Vec<u8> {
 impl<const MAX: u32> From<&BytesM<MAX>> for Vec<u8> {
     #[must_use]
     fn from(v: &BytesM<MAX>) -> Self {
-        v.0.clone()
-    }
-}
-
-impl<const MAX: u32> AsRef<Vec<u8>> for BytesM<MAX> {
-    #[must_use]
-    fn as_ref(&self) -> &Vec<u8> {
-        &self.0
+        v.0.as_bytes().to_vec()
     }
 }
 
@@ -1736,7 +1756,7 @@ impl<const MAX: u32> TryFrom<&[u8]> for BytesM<MAX> {
     fn try_from(v: &[u8]) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(BytesM(v.to_vec()))
+            Ok(BytesM(RcBytes::from_slice(v)))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -1747,7 +1767,7 @@ impl<const MAX: u32> AsRef<[u8]> for BytesM<MAX> {
     #[cfg(feature = "alloc")]
     #[must_use]
     fn as_ref(&self) -> &[u8] {
-        self.0.as_ref()
+        self.0.as_bytes()
     }
     #[cfg(not(feature = "alloc"))]
     #[must_use]
@@ -1763,7 +1783,7 @@ impl<const N: usize, const MAX: u32> TryFrom<[u8; N]> for BytesM<MAX> {
     fn try_from(v: [u8; N]) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(BytesM(v.to_vec()))
+            Ok(BytesM(RcBytes::from_slice(&v)))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -1775,8 +1795,10 @@ impl<const N: usize, const MAX: u32> TryFrom<BytesM<MAX>> for [u8; N] {
     type Error = BytesM<MAX>;
 
     fn try_from(v: BytesM<MAX>) -> core::result::Result<Self, Self::Error> {
-        let s: [u8; N] = v.0.try_into().map_err(BytesM::<MAX>)?;
-        Ok(s)
+        match <[u8; N]>::try_from(v.0.as_bytes()) {
+            Ok(s) => Ok(s),
+            Err(_) => Err(v),
+        }
     }
 }
 
@@ -1787,7 +1809,7 @@ impl<const N: usize, const MAX: u32> TryFrom<&[u8; N]> for BytesM<MAX> {
     fn try_from(v: &[u8; N]) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(BytesM(v.to_vec()))
+            Ok(BytesM(RcBytes::from_slice(v)))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -1815,7 +1837,7 @@ impl<const MAX: u32> TryFrom<&String> for BytesM<MAX> {
     fn try_from(v: &String) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(BytesM(v.as_bytes().to_vec()))
+            Ok(BytesM(RcBytes::from_slice(v.as_bytes())))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -1829,7 +1851,7 @@ impl<const MAX: u32> TryFrom<String> for BytesM<MAX> {
     fn try_from(v: String) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(BytesM(v.into()))
+            Ok(BytesM(RcBytes::from_slice(v.as_bytes())))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -1841,7 +1863,7 @@ impl<const MAX: u32> TryFrom<BytesM<MAX>> for String {
     type Error = Error;
 
     fn try_from(v: BytesM<MAX>) -> Result<Self, Error> {
-        Ok(String::from_utf8(v.0)?)
+        Ok(String::from_utf8(v.0.as_bytes().to_vec())?)
     }
 }
 
@@ -1861,7 +1883,7 @@ impl<const MAX: u32> TryFrom<&str> for BytesM<MAX> {
     fn try_from(v: &str) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(BytesM(v.into()))
+            Ok(BytesM(RcBytes::from_slice(v.as_bytes())))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -1912,7 +1934,7 @@ impl<const MAX: u32> ReadXdr for BytesM<MAX> {
                 return Err(Error::NonZeroPadding);
             }
 
-            Ok(BytesM(vec))
+            Ok(BytesM(RcBytes::from_slice(&vec)))
         })
     }
 }
@@ -1928,7 +1950,7 @@ impl<const MAX: u32> WriteXdr for BytesM<MAX> {
             let padding = pad_len(self.len());
             w.consume_len(padding)?;
 
-            w.write_all(&self.0)?;
+            w.write_all(self.as_ref())?;
 
             w.write_all(&[0u8; 3][..pad_len(len as usize)])?;
 
@@ -1957,7 +1979,7 @@ impl<const MAX: u32> WriteXdr for BytesM<MAX> {
     derive(serde_with::SerializeDisplay, serde_with::DeserializeFromStr)
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-pub struct StringM<const MAX: u32 = { u32::MAX }>(Vec<u8>);
+pub struct StringM<const MAX: u32 = { u32::MAX }>(RcBytes);
 
 #[cfg(not(feature = "alloc"))]
 #[derive(Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -1966,10 +1988,7 @@ pub struct StringM<const MAX: u32 = { u32::MAX }>(Vec<u8>);
 
 impl<const MAX: u32> core::fmt::Display for StringM<MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        #[cfg(feature = "alloc")]
-        let v = &self.0;
-        #[cfg(not(feature = "alloc"))]
-        let v = self.0;
+        let v: &[u8] = self.as_ref();
         for b in escape_bytes::Escape::new(v) {
             write!(f, "{}", b as char)?;
         }
@@ -1979,10 +1998,7 @@ impl<const MAX: u32> core::fmt::Display for StringM<MAX> {
 
 impl<const MAX: u32> core::fmt::Debug for StringM<MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        #[cfg(feature = "alloc")]
-        let v = &self.0;
-        #[cfg(not(feature = "alloc"))]
-        let v = self.0;
+        let v: &[u8] = self.as_ref();
         write!(f, "StringM(")?;
         for b in escape_bytes::Escape::new(v) {
             write!(f, "{}", b as char)?;
@@ -2002,13 +2018,21 @@ impl<const MAX: u32> core::str::FromStr for StringM<MAX> {
 }
 
 impl<const MAX: u32> Deref for StringM<MAX> {
-    type Target = Vec<u8>;
+    type Target = [u8];
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        self.as_ref()
     }
 }
 
+#[cfg(feature = "alloc")]
+impl<const MAX: u32> Default for StringM<MAX> {
+    fn default() -> Self {
+        Self(RcBytes::from_slice(&[]))
+    }
+}
+
+#[cfg(not(feature = "alloc"))]
 impl<const MAX: u32> Default for StringM<MAX> {
     fn default() -> Self {
         Self(Vec::default())
@@ -2043,11 +2067,6 @@ impl<const MAX: u32> StringM<MAX> {
     #[allow(clippy::unused_self)]
     pub fn max_len(&self) -> usize {
         Self::MAX_LEN
-    }
-
-    #[must_use]
-    pub fn as_vec(&self) -> &Vec<u8> {
-        self.as_ref()
     }
 }
 
@@ -2088,6 +2107,21 @@ impl<const MAX: u32> StringM<MAX> {
     }
 }
 
+#[cfg(feature = "alloc")]
+impl<const MAX: u32> TryFrom<Vec<u8>> for StringM<MAX> {
+    type Error = Error;
+
+    fn try_from(v: Vec<u8>) -> Result<Self, Error> {
+        let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
+        if len <= MAX {
+            Ok(StringM(RcBytes::from_slice(&v)))
+        } else {
+            Err(Error::LengthExceedsMax)
+        }
+    }
+}
+
+#[cfg(not(feature = "alloc"))]
 impl<const MAX: u32> TryFrom<Vec<u8>> for StringM<MAX> {
     type Error = Error;
 
@@ -2101,6 +2135,15 @@ impl<const MAX: u32> TryFrom<Vec<u8>> for StringM<MAX> {
     }
 }
 
+#[cfg(feature = "alloc")]
+impl<const MAX: u32> From<StringM<MAX>> for Vec<u8> {
+    #[must_use]
+    fn from(v: StringM<MAX>) -> Self {
+        v.0.as_bytes().to_vec()
+    }
+}
+
+#[cfg(not(feature = "alloc"))]
 impl<const MAX: u32> From<StringM<MAX>> for Vec<u8> {
     #[must_use]
     fn from(v: StringM<MAX>) -> Self {
@@ -2112,14 +2155,7 @@ impl<const MAX: u32> From<StringM<MAX>> for Vec<u8> {
 impl<const MAX: u32> From<&StringM<MAX>> for Vec<u8> {
     #[must_use]
     fn from(v: &StringM<MAX>) -> Self {
-        v.0.clone()
-    }
-}
-
-impl<const MAX: u32> AsRef<Vec<u8>> for StringM<MAX> {
-    #[must_use]
-    fn as_ref(&self) -> &Vec<u8> {
-        &self.0
+        v.0.as_bytes().to_vec()
     }
 }
 
@@ -2139,7 +2175,7 @@ impl<const MAX: u32> TryFrom<&[u8]> for StringM<MAX> {
     fn try_from(v: &[u8]) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(StringM(v.to_vec()))
+            Ok(StringM(RcBytes::from_slice(v)))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -2150,7 +2186,7 @@ impl<const MAX: u32> AsRef<[u8]> for StringM<MAX> {
     #[cfg(feature = "alloc")]
     #[must_use]
     fn as_ref(&self) -> &[u8] {
-        self.0.as_ref()
+        self.0.as_bytes()
     }
     #[cfg(not(feature = "alloc"))]
     #[must_use]
@@ -2166,7 +2202,7 @@ impl<const N: usize, const MAX: u32> TryFrom<[u8; N]> for StringM<MAX> {
     fn try_from(v: [u8; N]) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(StringM(v.to_vec()))
+            Ok(StringM(RcBytes::from_slice(&v)))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -2178,8 +2214,10 @@ impl<const N: usize, const MAX: u32> TryFrom<StringM<MAX>> for [u8; N] {
     type Error = StringM<MAX>;
 
     fn try_from(v: StringM<MAX>) -> core::result::Result<Self, Self::Error> {
-        let s: [u8; N] = v.0.try_into().map_err(StringM::<MAX>)?;
-        Ok(s)
+        match <[u8; N]>::try_from(v.0.as_bytes()) {
+            Ok(s) => Ok(s),
+            Err(_) => Err(v),
+        }
     }
 }
 
@@ -2190,7 +2228,7 @@ impl<const N: usize, const MAX: u32> TryFrom<&[u8; N]> for StringM<MAX> {
     fn try_from(v: &[u8; N]) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(StringM(v.to_vec()))
+            Ok(StringM(RcBytes::from_slice(v)))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -2218,7 +2256,7 @@ impl<const MAX: u32> TryFrom<&String> for StringM<MAX> {
     fn try_from(v: &String) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(StringM(v.as_bytes().to_vec()))
+            Ok(StringM(RcBytes::from_slice(v.as_bytes())))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -2232,7 +2270,7 @@ impl<const MAX: u32> TryFrom<String> for StringM<MAX> {
     fn try_from(v: String) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(StringM(v.into()))
+            Ok(StringM(RcBytes::from_slice(v.as_bytes())))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -2244,7 +2282,7 @@ impl<const MAX: u32> TryFrom<StringM<MAX>> for String {
     type Error = Error;
 
     fn try_from(v: StringM<MAX>) -> Result<Self, Error> {
-        Ok(String::from_utf8(v.0)?)
+        Ok(String::from_utf8(v.0.as_bytes().to_vec())?)
     }
 }
 
@@ -2264,7 +2302,7 @@ impl<const MAX: u32> TryFrom<&str> for StringM<MAX> {
     fn try_from(v: &str) -> Result<Self, Error> {
         let len: u32 = v.len().try_into().map_err(|_| Error::LengthExceedsMax)?;
         if len <= MAX {
-            Ok(StringM(v.into()))
+            Ok(StringM(RcBytes::from_slice(v.as_bytes())))
         } else {
             Err(Error::LengthExceedsMax)
         }
@@ -2315,7 +2353,7 @@ impl<const MAX: u32> ReadXdr for StringM<MAX> {
                 return Err(Error::NonZeroPadding);
             }
 
-            Ok(StringM(vec))
+            Ok(StringM(RcBytes::from_slice(&vec)))
         })
     }
 }
@@ -2331,7 +2369,7 @@ impl<const MAX: u32> WriteXdr for StringM<MAX> {
             let padding = pad_len(self.len());
             w.consume_len(padding)?;
 
-            w.write_all(&self.0)?;
+            w.write_all(self.as_ref())?;
 
             w.write_all(&[0u8; 3][..padding])?;
 
@@ -2714,13 +2752,17 @@ mod test {
         assert_eq!(v.to_option(), Some(1));
     }
 
+    // Note on the depth accounting used by these tests: only recursive
+    // constructs (here, each `Option`) consume from the depth limit. Leaf
+    // scalars such as the innermost `u32` are not recursive and do not consume
+    // depth. So `Option<Option<Option<u32>>>` reaches a maximum depth of 3.
     #[test]
     fn depth_limited_read_write_under_the_limit_success() {
         let a: Option<Option<Option<u32>>> = Some(Some(Some(5)));
-        let mut buf = Limited::new(Vec::new(), Limits::depth(4));
+        let mut buf = Limited::new(Vec::new(), Limits::depth(3));
         a.write_xdr(&mut buf).unwrap();
 
-        let mut dlr = Limited::new(Cursor::new(buf.inner.as_slice()), Limits::depth(4));
+        let mut dlr = Limited::new(Cursor::new(buf.inner.as_slice()), Limits::depth(3));
         let a_back: Option<Option<Option<u32>>> = ReadXdr::read_xdr(&mut dlr).unwrap();
         assert_eq!(a, a_back);
     }
@@ -2728,7 +2770,7 @@ mod test {
     #[test]
     fn write_over_depth_limit_fail() {
         let a: Option<Option<Option<u32>>> = Some(Some(Some(5)));
-        let mut buf = Limited::new(Vec::new(), Limits::depth(3));
+        let mut buf = Limited::new(Vec::new(), Limits::depth(2));
         let res = a.write_xdr(&mut buf);
         match res {
             Err(Error::DepthLimitExceeded) => (),
@@ -2738,7 +2780,7 @@ mod test {
 
     #[test]
     fn read_over_depth_limit_fail() {
-        let read_limits = Limits::depth(3);
+        let read_limits = Limits::depth(2);
         let write_limits = Limits::depth(5);
         let a: Option<Option<Option<u32>>> = Some(Some(Some(5)));
         let mut buf = Limited::new(Vec::new(), write_limits);
@@ -4114,6 +4156,319 @@ mod tests_for_number_or_string {
         let data = TestEnum::VariantB { count: 7890 };
         let expected_json = r#"{"variantB":{"count":"7890"}}"#;
         assert_eq!(serde_json::to_string(&data).unwrap(), expected_json);
+    }
+}
+
+// Zero-copy buffer decode -----------------------------------------------------
+//
+// `RcReader` + `ReadXdrRc` are a decode path parallel to `ReadXdr`. Where
+// `ReadXdr` reads from any `std::io::Read` and must allocate+copy opaque data,
+// `RcReader` owns the whole message as an `Rc<[u8]>` and hands out `RcBytes`
+// views into that same allocation, so large `opaque<>`/`string<>` fields are
+// decoded without copying. Composite types are still parsed eagerly into the
+// normal owned tree; only the byte leaves are shared.
+
+/// A reader over a shared, owned byte buffer for zero-copy XDR decode.
+#[cfg(feature = "std")]
+pub struct RcReader {
+    buf: Rc<[u8]>,
+    pos: usize,
+    limits: Limits,
+}
+
+#[cfg(feature = "std")]
+impl RcReader {
+    /// Constructs a reader over `buf`, enforcing `limits`.
+    #[must_use]
+    pub fn new(buf: Rc<[u8]>, limits: Limits) -> Self {
+        Self {
+            buf,
+            pos: 0,
+            limits,
+        }
+    }
+
+    /// Byte offset the cursor is currently at.
+    #[must_use]
+    pub fn position(&self) -> usize {
+        self.pos
+    }
+
+    fn eof() -> Error {
+        Error::Io(io::ErrorKind::UnexpectedEof.into())
+    }
+
+    pub(crate) fn consume_len(&mut self, len: usize) -> Result<(), Error> {
+        if let Some(l) = self.limits.len.checked_sub(len) {
+            self.limits.len = l;
+            Ok(())
+        } else {
+            Err(Error::LengthLimitExceeded)
+        }
+    }
+
+    pub(crate) fn with_limited_depth<T, F>(&mut self, f: F) -> Result<T, Error>
+    where
+        F: FnOnce(&mut Self) -> Result<T, Error>,
+    {
+        if let Some(depth) = self.limits.depth.checked_sub(1) {
+            self.limits.depth = depth;
+            let res = f(self);
+            self.limits.depth = self.limits.depth.saturating_add(1);
+            res
+        } else {
+            Err(Error::DepthLimitExceeded)
+        }
+    }
+
+    /// Reads a fixed `N`-byte array from the buffer, advancing the cursor.
+    /// Callers are responsible for consuming the length budget.
+    fn read_array<const N: usize>(&mut self) -> Result<[u8; N], Error> {
+        let end = self.pos.checked_add(N).ok_or_else(Self::eof)?;
+        let slice = self.buf.get(self.pos..end).ok_or_else(Self::eof)?;
+        let arr: [u8; N] = slice.try_into().map_err(|_| Self::eof())?;
+        self.pos = end;
+        Ok(arr)
+    }
+
+    /// Validates and skips `padding` trailing zero bytes.
+    fn read_padding(&mut self, padding: usize) -> Result<(), Error> {
+        let end = self.pos.checked_add(padding).ok_or_else(Self::eof)?;
+        let pad = self.buf.get(self.pos..end).ok_or_else(Self::eof)?;
+        if pad.iter().any(|b| *b != 0) {
+            return Err(Error::NonZeroPadding);
+        }
+        self.pos = end;
+        Ok(())
+    }
+
+    /// Reads `len` opaque data bytes plus XDR padding as a zero-copy `RcBytes`
+    /// view into the shared buffer.
+    fn read_opaque_rc(&mut self, len: usize) -> Result<RcBytes, Error> {
+        self.consume_len(len)?;
+        let padding = pad_len(len);
+        self.consume_len(padding)?;
+        let data_start = self.pos;
+        let data_end = data_start.checked_add(len).ok_or_else(Self::eof)?;
+        let pad_end = data_end.checked_add(padding).ok_or_else(Self::eof)?;
+        if pad_end > self.buf.len() {
+            return Err(Self::eof());
+        }
+        if self.buf[data_end..pad_end].iter().any(|b| *b != 0) {
+            return Err(Error::NonZeroPadding);
+        }
+        let view = RcBytes::subslice(&self.buf, data_start, len);
+        self.pos = pad_end;
+        Ok(view)
+    }
+
+    /// Reads `len` opaque data bytes plus padding, copying into a `Vec`.
+    fn read_opaque_vec(&mut self, len: usize) -> Result<Vec<u8>, Error> {
+        self.consume_len(len)?;
+        let padding = pad_len(len);
+        self.consume_len(padding)?;
+        let data_end = self.pos.checked_add(len).ok_or_else(Self::eof)?;
+        if data_end > self.buf.len() {
+            return Err(Self::eof());
+        }
+        let data = self.buf[self.pos..data_end].to_vec();
+        self.pos = data_end;
+        self.read_padding(padding)?;
+        Ok(data)
+    }
+}
+
+/// Construct a type from XDR held in a shared `Rc<[u8]>` buffer, decoding large
+/// `opaque<>`/`string<>` leaves as zero-copy [`RcBytes`] views into that buffer.
+///
+/// This is parallel to [`ReadXdr`]; see [`RcReader`].
+#[cfg(feature = "std")]
+pub trait ReadXdrRc
+where
+    Self: Sized,
+{
+    /// Decode `Self` from the reader, advancing its cursor.
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error>;
+
+    /// Decode `Self` from a shared buffer, requiring it to be fully consumed.
+    fn from_xdr_with_buffer(buf: impl Into<Rc<[u8]>>, limits: Limits) -> Result<Self, Error> {
+        let mut r = RcReader::new(buf.into(), limits);
+        let v = Self::read_xdr_with_buffer(&mut r)?;
+        if r.pos == r.buf.len() {
+            Ok(v)
+        } else {
+            Err(Error::Invalid)
+        }
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for i32 {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.consume_len(4)?;
+        Ok(i32::from_be_bytes(r.read_array::<4>()?))
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for u32 {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.consume_len(4)?;
+        Ok(u32::from_be_bytes(r.read_array::<4>()?))
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for i64 {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.consume_len(8)?;
+        Ok(i64::from_be_bytes(r.read_array::<8>()?))
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for u64 {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.consume_len(8)?;
+        Ok(u64::from_be_bytes(r.read_array::<8>()?))
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for f32 {
+    fn read_xdr_with_buffer(_r: &mut RcReader) -> Result<Self, Error> {
+        todo!()
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for f64 {
+    fn read_xdr_with_buffer(_r: &mut RcReader) -> Result<Self, Error> {
+        todo!()
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for bool {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        Ok(u32::read_xdr_with_buffer(r)? == 1)
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for () {
+    #[inline]
+    fn read_xdr_with_buffer(_r: &mut RcReader) -> Result<Self, Error> {
+        Ok(())
+    }
+}
+
+#[cfg(feature = "std")]
+impl<T: ReadXdrRc> ReadXdrRc for Option<T> {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let i = u32::read_xdr_with_buffer(r)?;
+            match i {
+                0 => Ok(None),
+                1 => Ok(Some(T::read_xdr_with_buffer(r)?)),
+                _ => Err(Error::Invalid),
+            }
+        })
+    }
+}
+
+#[cfg(feature = "std")]
+impl<T: ReadXdrRc> ReadXdrRc for Box<T> {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| Ok(Box::new(T::read_xdr_with_buffer(r)?)))
+    }
+}
+
+// A fixed-size opaque array: leaf, consumes the length budget but not depth.
+#[cfg(feature = "std")]
+impl<const N: usize> ReadXdrRc for [u8; N] {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.consume_len(N)?;
+        let padding = pad_len(N);
+        r.consume_len(padding)?;
+        let arr = r.read_array::<N>()?;
+        r.read_padding(padding)?;
+        Ok(arr)
+    }
+}
+
+#[cfg(feature = "std")]
+impl<T: ReadXdrRc, const N: usize> ReadXdrRc for [T; N] {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let mut vec = Vec::with_capacity(N);
+            for _ in 0..N {
+                vec.push(T::read_xdr_with_buffer(r)?);
+            }
+            let arr: [T; N] = vec.try_into().unwrap_or_else(|_: Vec<T>| unreachable!());
+            Ok(arr)
+        })
+    }
+}
+
+#[cfg(feature = "std")]
+impl<const MAX: u32> ReadXdrRc for VecM<u8, MAX> {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let len: u32 = u32::read_xdr_with_buffer(r)?;
+            if len > MAX {
+                return Err(Error::LengthExceedsMax);
+            }
+            Ok(VecM(r.read_opaque_vec(len as usize)?))
+        })
+    }
+}
+
+#[cfg(feature = "std")]
+impl<T: ReadXdrRc, const MAX: u32> ReadXdrRc for VecM<T, MAX> {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let len = u32::read_xdr_with_buffer(r)?;
+            if len > MAX {
+                return Err(Error::LengthExceedsMax);
+            }
+            // Bounded preallocation (see the streaming `VecM` impl).
+            let cap = (len as usize).min(65_536 / core::mem::size_of::<T>().max(1));
+            let mut vec = Vec::with_capacity(cap);
+            for _ in 0..len {
+                vec.push(T::read_xdr_with_buffer(r)?);
+            }
+            Ok(VecM(vec))
+        })
+    }
+}
+
+// Zero-copy: the opaque bytes become an `RcBytes` view into the input buffer.
+#[cfg(feature = "std")]
+impl<const MAX: u32> ReadXdrRc for BytesM<MAX> {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        let len: u32 = u32::read_xdr_with_buffer(r)?;
+        if len > MAX {
+            return Err(Error::LengthExceedsMax);
+        }
+        Ok(BytesM(r.read_opaque_rc(len as usize)?))
+    }
+}
+
+// Zero-copy: the string bytes become an `RcBytes` view into the input buffer.
+#[cfg(feature = "std")]
+impl<const MAX: u32> ReadXdrRc for StringM<MAX> {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        let len: u32 = u32::read_xdr_with_buffer(r)?;
+        if len > MAX {
+            return Err(Error::LengthExceedsMax);
+        }
+        Ok(StringM(r.read_opaque_rc(len as usize)?))
     }
 }
 

@@ -91,3 +91,16 @@ impl WriteXdr for InnerTransactionResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for InnerTransactionResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                fee_charged: i64::read_xdr_with_buffer(r)?,
+                result: InnerTransactionResultResult::read_xdr_with_buffer(r)?,
+                ext: InnerTransactionResultExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

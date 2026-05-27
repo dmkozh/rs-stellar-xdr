@@ -178,3 +178,29 @@ impl WriteXdr for InvokeHostFunctionResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for InvokeHostFunctionResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: InvokeHostFunctionResultCode =
+                <InvokeHostFunctionResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                InvokeHostFunctionResultCode::Success => {
+                    Self::Success(Hash::read_xdr_with_buffer(r)?)
+                }
+                InvokeHostFunctionResultCode::Malformed => Self::Malformed,
+                InvokeHostFunctionResultCode::Trapped => Self::Trapped,
+                InvokeHostFunctionResultCode::ResourceLimitExceeded => Self::ResourceLimitExceeded,
+                InvokeHostFunctionResultCode::EntryArchived => Self::EntryArchived,
+                InvokeHostFunctionResultCode::InsufficientRefundableFee => {
+                    Self::InsufficientRefundableFee
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

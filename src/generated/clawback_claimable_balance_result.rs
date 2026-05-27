@@ -154,3 +154,23 @@ impl WriteXdr for ClawbackClaimableBalanceResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClawbackClaimableBalanceResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ClawbackClaimableBalanceResultCode =
+                <ClawbackClaimableBalanceResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ClawbackClaimableBalanceResultCode::Success => Self::Success,
+                ClawbackClaimableBalanceResultCode::DoesNotExist => Self::DoesNotExist,
+                ClawbackClaimableBalanceResultCode::NotIssuer => Self::NotIssuer,
+                ClawbackClaimableBalanceResultCode::NotClawbackEnabled => Self::NotClawbackEnabled,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

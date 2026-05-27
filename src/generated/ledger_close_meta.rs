@@ -142,3 +142,21 @@ impl WriteXdr for LedgerCloseMeta {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerCloseMeta {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: i32 = <i32 as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                0 => Self::V0(LedgerCloseMetaV0::read_xdr_with_buffer(r)?),
+                1 => Self::V1(LedgerCloseMetaV1::read_xdr_with_buffer(r)?),
+                2 => Self::V2(LedgerCloseMetaV2::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -59,3 +59,15 @@ impl WriteXdr for BucketMetadata {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for BucketMetadata {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_version: u32::read_xdr_with_buffer(r)?,
+                ext: BucketMetadataExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

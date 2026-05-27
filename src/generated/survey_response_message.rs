@@ -61,3 +61,18 @@ impl WriteXdr for SurveyResponseMessage {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SurveyResponseMessage {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                surveyor_peer_id: NodeId::read_xdr_with_buffer(r)?,
+                surveyed_peer_id: NodeId::read_xdr_with_buffer(r)?,
+                ledger_num: u32::read_xdr_with_buffer(r)?,
+                command_type: SurveyMessageCommandType::read_xdr_with_buffer(r)?,
+                encrypted_body: EncryptedBody::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

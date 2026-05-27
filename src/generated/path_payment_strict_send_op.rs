@@ -77,3 +77,19 @@ impl WriteXdr for PathPaymentStrictSendOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PathPaymentStrictSendOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                send_asset: Asset::read_xdr_with_buffer(r)?,
+                send_amount: i64::read_xdr_with_buffer(r)?,
+                destination: MuxedAccount::read_xdr_with_buffer(r)?,
+                dest_asset: Asset::read_xdr_with_buffer(r)?,
+                dest_min: i64::read_xdr_with_buffer(r)?,
+                path: VecM::<Asset, 5>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

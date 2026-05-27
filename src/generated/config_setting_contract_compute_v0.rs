@@ -75,3 +75,17 @@ impl WriteXdr for ConfigSettingContractComputeV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingContractComputeV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_max_instructions: i64::read_xdr_with_buffer(r)?,
+                tx_max_instructions: i64::read_xdr_with_buffer(r)?,
+                fee_rate_per_instructions_increment: i64::read_xdr_with_buffer(r)?,
+                tx_memory_limit: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -52,3 +52,16 @@ impl WriteXdr for InvokeContractArgs {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for InvokeContractArgs {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                contract_address: ScAddress::read_xdr_with_buffer(r)?,
+                function_name: ScSymbol::read_xdr_with_buffer(r)?,
+                args: VecM::<ScVal>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

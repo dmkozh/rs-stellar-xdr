@@ -135,3 +135,20 @@ impl WriteXdr for TrustLineEntryV1Ext {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TrustLineEntryV1Ext {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: i32 = <i32 as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                0 => Self::V0,
+                2 => Self::V2(TrustLineEntryExtensionV2::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

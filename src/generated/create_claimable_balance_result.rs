@@ -177,3 +177,27 @@ impl WriteXdr for CreateClaimableBalanceResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for CreateClaimableBalanceResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: CreateClaimableBalanceResultCode =
+                <CreateClaimableBalanceResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                CreateClaimableBalanceResultCode::Success => {
+                    Self::Success(ClaimableBalanceId::read_xdr_with_buffer(r)?)
+                }
+                CreateClaimableBalanceResultCode::Malformed => Self::Malformed,
+                CreateClaimableBalanceResultCode::LowReserve => Self::LowReserve,
+                CreateClaimableBalanceResultCode::NoTrust => Self::NoTrust,
+                CreateClaimableBalanceResultCode::NotAuthorized => Self::NotAuthorized,
+                CreateClaimableBalanceResultCode::Underfunded => Self::Underfunded,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

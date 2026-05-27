@@ -53,3 +53,16 @@ impl WriteXdr for ScpNomination {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScpNomination {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                quorum_set_hash: Hash::read_xdr_with_buffer(r)?,
+                votes: VecM::<Value>::read_xdr_with_buffer(r)?,
+                accepted: VecM::<Value>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

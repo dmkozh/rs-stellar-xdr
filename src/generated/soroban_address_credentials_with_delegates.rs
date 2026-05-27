@@ -52,3 +52,16 @@ impl WriteXdr for SorobanAddressCredentialsWithDelegates {
         })
     }
 }
+
+#[cfg(feature = "cap_0071")]
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanAddressCredentialsWithDelegates {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                address_credentials: SorobanAddressCredentials::read_xdr_with_buffer(r)?,
+                delegates: VecM::<SorobanDelegateSignature>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

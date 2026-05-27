@@ -58,3 +58,16 @@ impl WriteXdr for LedgerCloseMetaBatch {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerCloseMetaBatch {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                start_sequence: u32::read_xdr_with_buffer(r)?,
+                end_sequence: u32::read_xdr_with_buffer(r)?,
+                ledger_close_metas: VecM::<LedgerCloseMeta>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

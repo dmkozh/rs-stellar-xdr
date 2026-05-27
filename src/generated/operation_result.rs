@@ -238,3 +238,28 @@ impl WriteXdr for OperationResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for OperationResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: OperationResultCode =
+                <OperationResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                OperationResultCode::OpInner => {
+                    Self::OpInner(OperationResultTr::read_xdr_with_buffer(r)?)
+                }
+                OperationResultCode::OpBadAuth => Self::OpBadAuth,
+                OperationResultCode::OpNoAccount => Self::OpNoAccount,
+                OperationResultCode::OpNotSupported => Self::OpNotSupported,
+                OperationResultCode::OpTooManySubentries => Self::OpTooManySubentries,
+                OperationResultCode::OpExceededWorkLimit => Self::OpExceededWorkLimit,
+                OperationResultCode::OpTooManySponsoring => Self::OpTooManySponsoring,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

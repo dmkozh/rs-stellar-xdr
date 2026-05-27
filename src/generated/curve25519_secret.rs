@@ -45,3 +45,14 @@ impl WriteXdr for Curve25519Secret {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Curve25519Secret {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                key: <[u8; 32]>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -49,3 +49,14 @@ impl WriteXdr for ConfigSettingContractParallelComputeV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingContractParallelComputeV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_max_dependent_tx_clusters: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

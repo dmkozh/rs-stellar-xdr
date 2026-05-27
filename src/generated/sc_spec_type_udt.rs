@@ -45,3 +45,14 @@ impl WriteXdr for ScSpecTypeUdt {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecTypeUdt {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                name: StringM::<60>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

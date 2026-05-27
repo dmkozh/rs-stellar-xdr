@@ -61,3 +61,17 @@ impl WriteXdr for SorobanAddressCredentials {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanAddressCredentials {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                address: ScAddress::read_xdr_with_buffer(r)?,
+                nonce: i64::read_xdr_with_buffer(r)?,
+                signature_expiration_ledger: u32::read_xdr_with_buffer(r)?,
+                signature: ScVal::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

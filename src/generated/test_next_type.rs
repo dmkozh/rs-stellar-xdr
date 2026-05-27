@@ -48,3 +48,15 @@ impl WriteXdr for TestNextType {
         })
     }
 }
+
+#[cfg(feature = "test_feature")]
+#[cfg(feature = "std")]
+impl ReadXdrRc for TestNextType {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                value: i32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

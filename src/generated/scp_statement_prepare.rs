@@ -65,3 +65,19 @@ impl WriteXdr for ScpStatementPrepare {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScpStatementPrepare {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                quorum_set_hash: Hash::read_xdr_with_buffer(r)?,
+                ballot: ScpBallot::read_xdr_with_buffer(r)?,
+                prepared: Option::<ScpBallot>::read_xdr_with_buffer(r)?,
+                prepared_prime: Option::<ScpBallot>::read_xdr_with_buffer(r)?,
+                n_c: u32::read_xdr_with_buffer(r)?,
+                n_h: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

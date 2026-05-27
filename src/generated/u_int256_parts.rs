@@ -53,6 +53,20 @@ impl WriteXdr for UInt256Parts {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for UInt256Parts {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                hi_hi: u64::read_xdr_with_buffer(r)?,
+                hi_lo: u64::read_xdr_with_buffer(r)?,
+                lo_hi: u64::read_xdr_with_buffer(r)?,
+                lo_lo: u64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}
 #[cfg(all(feature = "serde", feature = "alloc"))]
 impl<'de> serde::Deserialize<'de> for UInt256Parts {
     fn deserialize<D>(deserializer: D) -> core::result::Result<Self, D::Error>

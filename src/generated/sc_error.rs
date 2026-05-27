@@ -197,3 +197,28 @@ impl WriteXdr for ScError {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScError {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ScErrorType = <ScErrorType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ScErrorType::Contract => Self::Contract(u32::read_xdr_with_buffer(r)?),
+                ScErrorType::WasmVm => Self::WasmVm(ScErrorCode::read_xdr_with_buffer(r)?),
+                ScErrorType::Context => Self::Context(ScErrorCode::read_xdr_with_buffer(r)?),
+                ScErrorType::Storage => Self::Storage(ScErrorCode::read_xdr_with_buffer(r)?),
+                ScErrorType::Object => Self::Object(ScErrorCode::read_xdr_with_buffer(r)?),
+                ScErrorType::Crypto => Self::Crypto(ScErrorCode::read_xdr_with_buffer(r)?),
+                ScErrorType::Events => Self::Events(ScErrorCode::read_xdr_with_buffer(r)?),
+                ScErrorType::Budget => Self::Budget(ScErrorCode::read_xdr_with_buffer(r)?),
+                ScErrorType::Value => Self::Value(ScErrorCode::read_xdr_with_buffer(r)?),
+                ScErrorType::Auth => Self::Auth(ScErrorCode::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

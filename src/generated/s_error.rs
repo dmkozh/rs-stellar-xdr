@@ -49,3 +49,15 @@ impl WriteXdr for SError {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SError {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                code: ErrorCode::read_xdr_with_buffer(r)?,
+                msg: StringM::<100>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

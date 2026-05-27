@@ -45,3 +45,14 @@ impl WriteXdr for FloodAdvert {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for FloodAdvert {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                tx_hashes: TxAdvertVector::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

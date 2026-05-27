@@ -168,3 +168,23 @@ impl WriteXdr for Memo {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Memo {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: MemoType = <MemoType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                MemoType::None => Self::None,
+                MemoType::Text => Self::Text(StringM::<28>::read_xdr_with_buffer(r)?),
+                MemoType::Id => Self::Id(u64::read_xdr_with_buffer(r)?),
+                MemoType::Hash => Self::Hash(Hash::read_xdr_with_buffer(r)?),
+                MemoType::Return => Self::Return(Hash::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -77,3 +77,22 @@ impl WriteXdr for Hello {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Hello {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_version: u32::read_xdr_with_buffer(r)?,
+                overlay_version: u32::read_xdr_with_buffer(r)?,
+                overlay_min_version: u32::read_xdr_with_buffer(r)?,
+                network_id: Hash::read_xdr_with_buffer(r)?,
+                version_str: StringM::<100>::read_xdr_with_buffer(r)?,
+                listening_port: i32::read_xdr_with_buffer(r)?,
+                peer_id: NodeId::read_xdr_with_buffer(r)?,
+                cert: AuthCert::read_xdr_with_buffer(r)?,
+                nonce: Uint256::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

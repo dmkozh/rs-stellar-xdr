@@ -53,3 +53,16 @@ impl WriteXdr for ScpStatementExternalize {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScpStatementExternalize {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                commit: ScpBallot::read_xdr_with_buffer(r)?,
+                n_h: u32::read_xdr_with_buffer(r)?,
+                commit_quorum_set_hash: Hash::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

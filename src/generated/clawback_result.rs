@@ -165,3 +165,24 @@ impl WriteXdr for ClawbackResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClawbackResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ClawbackResultCode =
+                <ClawbackResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ClawbackResultCode::Success => Self::Success,
+                ClawbackResultCode::Malformed => Self::Malformed,
+                ClawbackResultCode::NotClawbackEnabled => Self::NotClawbackEnabled,
+                ClawbackResultCode::NoTrust => Self::NoTrust,
+                ClawbackResultCode::Underfunded => Self::Underfunded,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

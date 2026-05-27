@@ -146,3 +146,21 @@ impl WriteXdr for Preconditions {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Preconditions {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: PreconditionType = <PreconditionType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                PreconditionType::None => Self::None,
+                PreconditionType::Time => Self::Time(TimeBounds::read_xdr_with_buffer(r)?),
+                PreconditionType::V2 => Self::V2(PreconditionsV2::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

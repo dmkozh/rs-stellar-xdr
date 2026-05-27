@@ -174,3 +174,25 @@ impl WriteXdr for SetTrustLineFlagsResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SetTrustLineFlagsResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: SetTrustLineFlagsResultCode =
+                <SetTrustLineFlagsResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                SetTrustLineFlagsResultCode::Success => Self::Success,
+                SetTrustLineFlagsResultCode::Malformed => Self::Malformed,
+                SetTrustLineFlagsResultCode::NoTrustLine => Self::NoTrustLine,
+                SetTrustLineFlagsResultCode::CantRevoke => Self::CantRevoke,
+                SetTrustLineFlagsResultCode::InvalidState => Self::InvalidState,
+                SetTrustLineFlagsResultCode::LowReserve => Self::LowReserve,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

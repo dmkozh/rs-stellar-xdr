@@ -61,3 +61,18 @@ impl WriteXdr for HashIdPreimageRevokeId {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for HashIdPreimageRevokeId {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                source_account: AccountId::read_xdr_with_buffer(r)?,
+                seq_num: SequenceNumber::read_xdr_with_buffer(r)?,
+                op_num: u32::read_xdr_with_buffer(r)?,
+                liquidity_pool_id: PoolId::read_xdr_with_buffer(r)?,
+                asset: Asset::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

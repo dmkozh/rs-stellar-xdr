@@ -49,3 +49,15 @@ impl WriteXdr for TtlEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TtlEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                key_hash: Hash::read_xdr_with_buffer(r)?,
+                live_until_ledger_seq: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

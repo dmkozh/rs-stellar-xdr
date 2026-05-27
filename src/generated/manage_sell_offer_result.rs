@@ -232,3 +232,34 @@ impl WriteXdr for ManageSellOfferResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ManageSellOfferResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ManageSellOfferResultCode =
+                <ManageSellOfferResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ManageSellOfferResultCode::Success => {
+                    Self::Success(ManageOfferSuccessResult::read_xdr_with_buffer(r)?)
+                }
+                ManageSellOfferResultCode::Malformed => Self::Malformed,
+                ManageSellOfferResultCode::SellNoTrust => Self::SellNoTrust,
+                ManageSellOfferResultCode::BuyNoTrust => Self::BuyNoTrust,
+                ManageSellOfferResultCode::SellNotAuthorized => Self::SellNotAuthorized,
+                ManageSellOfferResultCode::BuyNotAuthorized => Self::BuyNotAuthorized,
+                ManageSellOfferResultCode::LineFull => Self::LineFull,
+                ManageSellOfferResultCode::Underfunded => Self::Underfunded,
+                ManageSellOfferResultCode::CrossSelf => Self::CrossSelf,
+                ManageSellOfferResultCode::SellNoIssuer => Self::SellNoIssuer,
+                ManageSellOfferResultCode::BuyNoIssuer => Self::BuyNoIssuer,
+                ManageSellOfferResultCode::NotFound => Self::NotFound,
+                ManageSellOfferResultCode::LowReserve => Self::LowReserve,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

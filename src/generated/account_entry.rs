@@ -100,3 +100,23 @@ impl WriteXdr for AccountEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AccountEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                account_id: AccountId::read_xdr_with_buffer(r)?,
+                balance: i64::read_xdr_with_buffer(r)?,
+                seq_num: SequenceNumber::read_xdr_with_buffer(r)?,
+                num_sub_entries: u32::read_xdr_with_buffer(r)?,
+                inflation_dest: Option::<AccountId>::read_xdr_with_buffer(r)?,
+                flags: u32::read_xdr_with_buffer(r)?,
+                home_domain: String32::read_xdr_with_buffer(r)?,
+                thresholds: Thresholds::read_xdr_with_buffer(r)?,
+                signers: VecM::<Signer, 20>::read_xdr_with_buffer(r)?,
+                ext: AccountEntryExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

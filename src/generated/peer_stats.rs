@@ -155,3 +155,28 @@ impl WriteXdr for PeerStats {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PeerStats {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                id: NodeId::read_xdr_with_buffer(r)?,
+                version_str: StringM::<100>::read_xdr_with_buffer(r)?,
+                messages_read: u64::read_xdr_with_buffer(r)?,
+                messages_written: u64::read_xdr_with_buffer(r)?,
+                bytes_read: u64::read_xdr_with_buffer(r)?,
+                bytes_written: u64::read_xdr_with_buffer(r)?,
+                seconds_connected: u64::read_xdr_with_buffer(r)?,
+                unique_flood_bytes_recv: u64::read_xdr_with_buffer(r)?,
+                duplicate_flood_bytes_recv: u64::read_xdr_with_buffer(r)?,
+                unique_fetch_bytes_recv: u64::read_xdr_with_buffer(r)?,
+                duplicate_fetch_bytes_recv: u64::read_xdr_with_buffer(r)?,
+                unique_flood_message_recv: u64::read_xdr_with_buffer(r)?,
+                duplicate_flood_message_recv: u64::read_xdr_with_buffer(r)?,
+                unique_fetch_message_recv: u64::read_xdr_with_buffer(r)?,
+                duplicate_fetch_message_recv: u64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

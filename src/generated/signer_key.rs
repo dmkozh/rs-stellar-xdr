@@ -161,3 +161,24 @@ impl WriteXdr for SignerKey {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SignerKey {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: SignerKeyType = <SignerKeyType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                SignerKeyType::Ed25519 => Self::Ed25519(Uint256::read_xdr_with_buffer(r)?),
+                SignerKeyType::PreAuthTx => Self::PreAuthTx(Uint256::read_xdr_with_buffer(r)?),
+                SignerKeyType::HashX => Self::HashX(Uint256::read_xdr_with_buffer(r)?),
+                SignerKeyType::Ed25519SignedPayload => Self::Ed25519SignedPayload(
+                    SignerKeyEd25519SignedPayload::read_xdr_with_buffer(r)?,
+                ),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

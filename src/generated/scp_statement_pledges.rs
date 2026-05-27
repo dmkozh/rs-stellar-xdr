@@ -176,3 +176,30 @@ impl WriteXdr for ScpStatementPledges {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScpStatementPledges {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ScpStatementType = <ScpStatementType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ScpStatementType::Prepare => {
+                    Self::Prepare(ScpStatementPrepare::read_xdr_with_buffer(r)?)
+                }
+                ScpStatementType::Confirm => {
+                    Self::Confirm(ScpStatementConfirm::read_xdr_with_buffer(r)?)
+                }
+                ScpStatementType::Externalize => {
+                    Self::Externalize(ScpStatementExternalize::read_xdr_with_buffer(r)?)
+                }
+                ScpStatementType::Nominate => {
+                    Self::Nominate(ScpNomination::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

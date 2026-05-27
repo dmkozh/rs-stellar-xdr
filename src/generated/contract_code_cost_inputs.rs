@@ -84,3 +84,24 @@ impl WriteXdr for ContractCodeCostInputs {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ContractCodeCostInputs {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+                n_instructions: u32::read_xdr_with_buffer(r)?,
+                n_functions: u32::read_xdr_with_buffer(r)?,
+                n_globals: u32::read_xdr_with_buffer(r)?,
+                n_table_entries: u32::read_xdr_with_buffer(r)?,
+                n_types: u32::read_xdr_with_buffer(r)?,
+                n_data_segments: u32::read_xdr_with_buffer(r)?,
+                n_elem_segments: u32::read_xdr_with_buffer(r)?,
+                n_imports: u32::read_xdr_with_buffer(r)?,
+                n_exports: u32::read_xdr_with_buffer(r)?,
+                n_data_segment_bytes: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

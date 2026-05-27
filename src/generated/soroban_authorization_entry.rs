@@ -49,3 +49,15 @@ impl WriteXdr for SorobanAuthorizationEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanAuthorizationEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                credentials: SorobanCredentials::read_xdr_with_buffer(r)?,
+                root_invocation: SorobanAuthorizedInvocation::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

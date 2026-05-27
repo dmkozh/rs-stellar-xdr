@@ -49,3 +49,15 @@ impl WriteXdr for DontHave {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for DontHave {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                type_: MessageType::read_xdr_with_buffer(r)?,
+                req_hash: Uint256::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

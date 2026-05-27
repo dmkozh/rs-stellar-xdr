@@ -162,3 +162,32 @@ impl WriteXdr for LedgerEntryChange {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerEntryChange {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: LedgerEntryChangeType =
+                <LedgerEntryChangeType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                LedgerEntryChangeType::Created => {
+                    Self::Created(LedgerEntry::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryChangeType::Updated => {
+                    Self::Updated(LedgerEntry::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryChangeType::Removed => {
+                    Self::Removed(LedgerKey::read_xdr_with_buffer(r)?)
+                }
+                LedgerEntryChangeType::State => Self::State(LedgerEntry::read_xdr_with_buffer(r)?),
+                LedgerEntryChangeType::Restored => {
+                    Self::Restored(LedgerEntry::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

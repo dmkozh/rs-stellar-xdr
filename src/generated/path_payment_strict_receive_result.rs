@@ -239,3 +239,36 @@ impl WriteXdr for PathPaymentStrictReceiveResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PathPaymentStrictReceiveResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: PathPaymentStrictReceiveResultCode =
+                <PathPaymentStrictReceiveResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                PathPaymentStrictReceiveResultCode::Success => Self::Success(
+                    PathPaymentStrictReceiveResultSuccess::read_xdr_with_buffer(r)?,
+                ),
+                PathPaymentStrictReceiveResultCode::Malformed => Self::Malformed,
+                PathPaymentStrictReceiveResultCode::Underfunded => Self::Underfunded,
+                PathPaymentStrictReceiveResultCode::SrcNoTrust => Self::SrcNoTrust,
+                PathPaymentStrictReceiveResultCode::SrcNotAuthorized => Self::SrcNotAuthorized,
+                PathPaymentStrictReceiveResultCode::NoDestination => Self::NoDestination,
+                PathPaymentStrictReceiveResultCode::NoTrust => Self::NoTrust,
+                PathPaymentStrictReceiveResultCode::NotAuthorized => Self::NotAuthorized,
+                PathPaymentStrictReceiveResultCode::LineFull => Self::LineFull,
+                PathPaymentStrictReceiveResultCode::NoIssuer => {
+                    Self::NoIssuer(Asset::read_xdr_with_buffer(r)?)
+                }
+                PathPaymentStrictReceiveResultCode::TooFewOffers => Self::TooFewOffers,
+                PathPaymentStrictReceiveResultCode::OfferCrossSelf => Self::OfferCrossSelf,
+                PathPaymentStrictReceiveResultCode::OverSendmax => Self::OverSendmax,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

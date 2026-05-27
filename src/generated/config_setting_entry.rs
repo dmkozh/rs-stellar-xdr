@@ -362,3 +362,85 @@ impl WriteXdr for ConfigSettingEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ConfigSettingId = <ConfigSettingId as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ConfigSettingId::ContractMaxSizeBytes => {
+                    Self::ContractMaxSizeBytes(u32::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::ContractComputeV0 => Self::ContractComputeV0(
+                    ConfigSettingContractComputeV0::read_xdr_with_buffer(r)?,
+                ),
+                ConfigSettingId::ContractLedgerCostV0 => Self::ContractLedgerCostV0(
+                    ConfigSettingContractLedgerCostV0::read_xdr_with_buffer(r)?,
+                ),
+                ConfigSettingId::ContractHistoricalDataV0 => Self::ContractHistoricalDataV0(
+                    ConfigSettingContractHistoricalDataV0::read_xdr_with_buffer(r)?,
+                ),
+                ConfigSettingId::ContractEventsV0 => {
+                    Self::ContractEventsV0(ConfigSettingContractEventsV0::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::ContractBandwidthV0 => Self::ContractBandwidthV0(
+                    ConfigSettingContractBandwidthV0::read_xdr_with_buffer(r)?,
+                ),
+                ConfigSettingId::ContractCostParamsCpuInstructions => {
+                    Self::ContractCostParamsCpuInstructions(
+                        ContractCostParams::read_xdr_with_buffer(r)?,
+                    )
+                }
+                ConfigSettingId::ContractCostParamsMemoryBytes => {
+                    Self::ContractCostParamsMemoryBytes(ContractCostParams::read_xdr_with_buffer(
+                        r,
+                    )?)
+                }
+                ConfigSettingId::ContractDataKeySizeBytes => {
+                    Self::ContractDataKeySizeBytes(u32::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::ContractDataEntrySizeBytes => {
+                    Self::ContractDataEntrySizeBytes(u32::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::StateArchival => {
+                    Self::StateArchival(StateArchivalSettings::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::ContractExecutionLanes => Self::ContractExecutionLanes(
+                    ConfigSettingContractExecutionLanesV0::read_xdr_with_buffer(r)?,
+                ),
+                ConfigSettingId::LiveSorobanStateSizeWindow => {
+                    Self::LiveSorobanStateSizeWindow(VecM::<u64>::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::EvictionIterator => {
+                    Self::EvictionIterator(EvictionIterator::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::ContractParallelComputeV0 => Self::ContractParallelComputeV0(
+                    ConfigSettingContractParallelComputeV0::read_xdr_with_buffer(r)?,
+                ),
+                ConfigSettingId::ContractLedgerCostExtV0 => Self::ContractLedgerCostExtV0(
+                    ConfigSettingContractLedgerCostExtV0::read_xdr_with_buffer(r)?,
+                ),
+                ConfigSettingId::ScpTiming => {
+                    Self::ScpTiming(ConfigSettingScpTiming::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::FrozenLedgerKeys => {
+                    Self::FrozenLedgerKeys(FrozenLedgerKeys::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::FrozenLedgerKeysDelta => {
+                    Self::FrozenLedgerKeysDelta(FrozenLedgerKeysDelta::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::FreezeBypassTxs => {
+                    Self::FreezeBypassTxs(FreezeBypassTxs::read_xdr_with_buffer(r)?)
+                }
+                ConfigSettingId::FreezeBypassTxsDelta => {
+                    Self::FreezeBypassTxsDelta(FreezeBypassTxsDelta::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

@@ -57,3 +57,16 @@ impl WriteXdr for PaymentOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PaymentOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                destination: MuxedAccount::read_xdr_with_buffer(r)?,
+                asset: Asset::read_xdr_with_buffer(r)?,
+                amount: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

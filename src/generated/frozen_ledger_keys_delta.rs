@@ -48,3 +48,15 @@ impl WriteXdr for FrozenLedgerKeysDelta {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for FrozenLedgerKeysDelta {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                keys_to_freeze: VecM::<EncodedLedgerKey>::read_xdr_with_buffer(r)?,
+                keys_to_unfreeze: VecM::<EncodedLedgerKey>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

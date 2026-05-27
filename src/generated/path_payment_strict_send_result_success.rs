@@ -49,3 +49,15 @@ impl WriteXdr for PathPaymentStrictSendResultSuccess {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PathPaymentStrictSendResultSuccess {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                offers: VecM::<ClaimAtom>::read_xdr_with_buffer(r)?,
+                last: SimplePaymentResult::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

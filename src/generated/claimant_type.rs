@@ -122,3 +122,14 @@ impl WriteXdr for ClaimantType {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClaimantType {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let e = i32::read_xdr_with_buffer(r)?;
+            let v: Self = e.try_into()?;
+            Ok(v)
+        })
+    }
+}

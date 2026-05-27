@@ -194,3 +194,35 @@ impl WriteXdr for ClaimPredicate {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ClaimPredicate {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: ClaimPredicateType =
+                <ClaimPredicateType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                ClaimPredicateType::Unconditional => Self::Unconditional,
+                ClaimPredicateType::And => {
+                    Self::And(VecM::<ClaimPredicate, 2>::read_xdr_with_buffer(r)?)
+                }
+                ClaimPredicateType::Or => {
+                    Self::Or(VecM::<ClaimPredicate, 2>::read_xdr_with_buffer(r)?)
+                }
+                ClaimPredicateType::Not => {
+                    Self::Not(Option::<Box<ClaimPredicate>>::read_xdr_with_buffer(r)?)
+                }
+                ClaimPredicateType::BeforeAbsoluteTime => {
+                    Self::BeforeAbsoluteTime(i64::read_xdr_with_buffer(r)?)
+                }
+                ClaimPredicateType::BeforeRelativeTime => {
+                    Self::BeforeRelativeTime(i64::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

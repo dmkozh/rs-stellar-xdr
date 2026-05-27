@@ -72,3 +72,16 @@ impl WriteXdr for SorobanTransactionData {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanTransactionData {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: SorobanTransactionDataExt::read_xdr_with_buffer(r)?,
+                resources: SorobanResources::read_xdr_with_buffer(r)?,
+                resource_fee: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

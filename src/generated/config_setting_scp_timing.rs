@@ -61,3 +61,18 @@ impl WriteXdr for ConfigSettingScpTiming {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingScpTiming {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_target_close_time_milliseconds: u32::read_xdr_with_buffer(r)?,
+                nomination_timeout_initial_milliseconds: u32::read_xdr_with_buffer(r)?,
+                nomination_timeout_increment_milliseconds: u32::read_xdr_with_buffer(r)?,
+                ballot_timeout_initial_milliseconds: u32::read_xdr_with_buffer(r)?,
+                ballot_timeout_increment_milliseconds: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

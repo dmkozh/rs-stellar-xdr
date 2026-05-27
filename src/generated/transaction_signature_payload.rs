@@ -57,3 +57,16 @@ impl WriteXdr for TransactionSignaturePayload {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TransactionSignaturePayload {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                network_id: Hash::read_xdr_with_buffer(r)?,
+                tagged_transaction:
+                    TransactionSignaturePayloadTaggedTransaction::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

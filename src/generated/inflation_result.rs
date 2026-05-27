@@ -138,3 +138,23 @@ impl WriteXdr for InflationResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for InflationResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: InflationResultCode =
+                <InflationResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                InflationResultCode::Success => {
+                    Self::Success(VecM::<InflationPayout>::read_xdr_with_buffer(r)?)
+                }
+                InflationResultCode::NotTime => Self::NotTime,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

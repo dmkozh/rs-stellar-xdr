@@ -135,3 +135,20 @@ impl WriteXdr for PeerAddressIp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for PeerAddressIp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: IpAddrType = <IpAddrType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                IpAddrType::IPv4 => Self::IPv4(<[u8; 4]>::read_xdr_with_buffer(r)?),
+                IpAddrType::IPv6 => Self::IPv6(<[u8; 16]>::read_xdr_with_buffer(r)?),
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

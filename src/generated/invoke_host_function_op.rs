@@ -51,3 +51,15 @@ impl WriteXdr for InvokeHostFunctionOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for InvokeHostFunctionOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                host_function: HostFunction::read_xdr_with_buffer(r)?,
+                auth: VecM::<SorobanAuthorizationEntry>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

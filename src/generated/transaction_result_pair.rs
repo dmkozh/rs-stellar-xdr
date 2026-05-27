@@ -49,3 +49,15 @@ impl WriteXdr for TransactionResultPair {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TransactionResultPair {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                transaction_hash: Hash::read_xdr_with_buffer(r)?,
+                result: TransactionResult::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

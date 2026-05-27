@@ -55,3 +55,16 @@ impl WriteXdr for OperationMetaV2 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for OperationMetaV2 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+                changes: LedgerEntryChanges::read_xdr_with_buffer(r)?,
+                events: VecM::<ContractEvent>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -46,3 +46,14 @@ impl WriteXdr for LedgerKeyTtl {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LedgerKeyTtl {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                key_hash: Hash::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

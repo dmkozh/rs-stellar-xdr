@@ -44,3 +44,14 @@ impl WriteXdr for FreezeBypassTxs {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for FreezeBypassTxs {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                tx_hashes: VecM::<Hash>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

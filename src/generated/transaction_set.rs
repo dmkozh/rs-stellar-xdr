@@ -49,3 +49,15 @@ impl WriteXdr for TransactionSet {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TransactionSet {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                previous_ledger_hash: Hash::read_xdr_with_buffer(r)?,
+                txs: VecM::<TransactionEnvelope>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

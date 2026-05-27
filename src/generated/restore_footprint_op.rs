@@ -45,3 +45,14 @@ impl WriteXdr for RestoreFootprintOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for RestoreFootprintOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -62,3 +62,16 @@ impl WriteXdr for TransactionHistoryEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TransactionHistoryEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_seq: u32::read_xdr_with_buffer(r)?,
+                tx_set: TransactionSet::read_xdr_with_buffer(r)?,
+                ext: TransactionHistoryEntryExt::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

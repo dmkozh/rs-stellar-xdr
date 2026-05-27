@@ -57,3 +57,16 @@ impl WriteXdr for AuthenticatedMessageV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AuthenticatedMessageV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                sequence: u64::read_xdr_with_buffer(r)?,
+                message: StellarMessage::read_xdr_with_buffer(r)?,
+                mac: HmacSha256Mac::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

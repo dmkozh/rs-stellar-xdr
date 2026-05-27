@@ -89,3 +89,16 @@ impl WriteXdr for ScpStatement {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScpStatement {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                node_id: NodeId::read_xdr_with_buffer(r)?,
+                slot_index: u64::read_xdr_with_buffer(r)?,
+                pledges: ScpStatementPledges::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

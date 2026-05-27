@@ -49,3 +49,15 @@ impl WriteXdr for ScpBallot {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScpBallot {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                counter: u32::read_xdr_with_buffer(r)?,
+                value: Value::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

@@ -63,3 +63,17 @@ impl WriteXdr for SorobanTransactionMeta {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanTransactionMeta {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: SorobanTransactionMetaExt::read_xdr_with_buffer(r)?,
+                events: VecM::<ContractEvent>::read_xdr_with_buffer(r)?,
+                return_value: ScVal::read_xdr_with_buffer(r)?,
+                diagnostic_events: VecM::<DiagnosticEvent>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

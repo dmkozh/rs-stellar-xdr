@@ -198,3 +198,28 @@ impl WriteXdr for LiquidityPoolDepositResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for LiquidityPoolDepositResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: LiquidityPoolDepositResultCode =
+                <LiquidityPoolDepositResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                LiquidityPoolDepositResultCode::Success => Self::Success,
+                LiquidityPoolDepositResultCode::Malformed => Self::Malformed,
+                LiquidityPoolDepositResultCode::NoTrust => Self::NoTrust,
+                LiquidityPoolDepositResultCode::NotAuthorized => Self::NotAuthorized,
+                LiquidityPoolDepositResultCode::Underfunded => Self::Underfunded,
+                LiquidityPoolDepositResultCode::LineFull => Self::LineFull,
+                LiquidityPoolDepositResultCode::BadPrice => Self::BadPrice,
+                LiquidityPoolDepositResultCode::PoolFull => Self::PoolFull,
+                LiquidityPoolDepositResultCode::TrustlineFrozen => Self::TrustlineFrozen,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

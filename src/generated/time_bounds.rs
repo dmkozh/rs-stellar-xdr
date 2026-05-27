@@ -49,3 +49,15 @@ impl WriteXdr for TimeBounds {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TimeBounds {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                min_time: TimePoint::read_xdr_with_buffer(r)?,
+                max_time: TimePoint::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

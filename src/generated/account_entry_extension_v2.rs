@@ -65,3 +65,17 @@ impl WriteXdr for AccountEntryExtensionV2 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for AccountEntryExtensionV2 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                num_sponsored: u32::read_xdr_with_buffer(r)?,
+                num_sponsoring: u32::read_xdr_with_buffer(r)?,
+                signer_sponsoring_i_ds: VecM::<SponsorshipDescriptor, 20>::read_xdr_with_buffer(r)?,
+                ext: AccountEntryExtensionV2Ext::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

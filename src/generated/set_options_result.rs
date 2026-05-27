@@ -213,3 +213,30 @@ impl WriteXdr for SetOptionsResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SetOptionsResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: SetOptionsResultCode =
+                <SetOptionsResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                SetOptionsResultCode::Success => Self::Success,
+                SetOptionsResultCode::LowReserve => Self::LowReserve,
+                SetOptionsResultCode::TooManySigners => Self::TooManySigners,
+                SetOptionsResultCode::BadFlags => Self::BadFlags,
+                SetOptionsResultCode::InvalidInflation => Self::InvalidInflation,
+                SetOptionsResultCode::CantChange => Self::CantChange,
+                SetOptionsResultCode::UnknownFlag => Self::UnknownFlag,
+                SetOptionsResultCode::ThresholdOutOfRange => Self::ThresholdOutOfRange,
+                SetOptionsResultCode::BadSigner => Self::BadSigner,
+                SetOptionsResultCode::InvalidHomeDomain => Self::InvalidHomeDomain,
+                SetOptionsResultCode::AuthRevocableRequired => Self::AuthRevocableRequired,
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

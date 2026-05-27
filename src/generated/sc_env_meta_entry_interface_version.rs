@@ -48,3 +48,15 @@ impl WriteXdr for ScEnvMetaEntryInterfaceVersion {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScEnvMetaEntryInterfaceVersion {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                protocol: u32::read_xdr_with_buffer(r)?,
+                pre_release: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

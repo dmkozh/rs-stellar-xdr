@@ -43,19 +43,29 @@ impl AsRef<VecM<Hash, 1000>> for TxDemandVector {
 
 impl ReadXdr for TxDemandVector {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            let i = VecM::<Hash, 1000>::read_xdr(r)?;
-            let v = TxDemandVector(i);
-            Ok(v)
-        })
+        // A newtype is a transparent wrapper; the inner type performs its own
+        // depth/length accounting, so no extra depth is charged here.
+        let i = VecM::<Hash, 1000>::read_xdr(r)?;
+        let v = TxDemandVector(i);
+        Ok(v)
     }
 }
 
 impl WriteXdr for TxDemandVector {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| self.0.write_xdr(w))
+        self.0.write_xdr(w)
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TxDemandVector {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        Ok(TxDemandVector(VecM::<Hash, 1000>::read_xdr_with_buffer(r)?))
     }
 }
 
@@ -87,7 +97,6 @@ impl TryFrom<&Vec<Hash>> for TxDemandVector {
         Ok(TxDemandVector(x.try_into()?))
     }
 }
-
 impl AsRef<Vec<Hash>> for TxDemandVector {
     #[must_use]
     fn as_ref(&self) -> &Vec<Hash> {

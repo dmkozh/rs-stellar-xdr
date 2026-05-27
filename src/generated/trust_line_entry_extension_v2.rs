@@ -55,3 +55,15 @@ impl WriteXdr for TrustLineEntryExtensionV2 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TrustLineEntryExtensionV2 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                liquidity_pool_use_count: i32::read_xdr_with_buffer(r)?,
+                ext: TrustLineEntryExtensionV2Ext::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

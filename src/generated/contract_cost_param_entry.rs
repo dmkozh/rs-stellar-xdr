@@ -62,3 +62,16 @@ impl WriteXdr for ContractCostParamEntry {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ContractCostParamEntry {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ext: ExtensionPoint::read_xdr_with_buffer(r)?,
+                const_term: i64::read_xdr_with_buffer(r)?,
+                linear_term: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

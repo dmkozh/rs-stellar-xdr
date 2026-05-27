@@ -49,3 +49,14 @@ impl WriteXdr for ConfigSettingContractHistoricalDataV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingContractHistoricalDataV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                fee_historical1_kb: i64::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

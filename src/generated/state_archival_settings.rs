@@ -102,3 +102,23 @@ impl WriteXdr for StateArchivalSettings {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for StateArchivalSettings {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                max_entry_ttl: u32::read_xdr_with_buffer(r)?,
+                min_temporary_ttl: u32::read_xdr_with_buffer(r)?,
+                min_persistent_ttl: u32::read_xdr_with_buffer(r)?,
+                persistent_rent_rate_denominator: i64::read_xdr_with_buffer(r)?,
+                temp_rent_rate_denominator: i64::read_xdr_with_buffer(r)?,
+                max_entries_to_archive: u32::read_xdr_with_buffer(r)?,
+                live_soroban_state_size_window_sample_size: u32::read_xdr_with_buffer(r)?,
+                live_soroban_state_size_window_sample_period: u32::read_xdr_with_buffer(r)?,
+                eviction_scan_size: u32::read_xdr_with_buffer(r)?,
+                starting_eviction_scan_level: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

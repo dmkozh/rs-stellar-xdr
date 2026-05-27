@@ -84,3 +84,22 @@ impl WriteXdr for SetOptionsOp {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SetOptionsOp {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                inflation_dest: Option::<AccountId>::read_xdr_with_buffer(r)?,
+                clear_flags: Option::<u32>::read_xdr_with_buffer(r)?,
+                set_flags: Option::<u32>::read_xdr_with_buffer(r)?,
+                master_weight: Option::<u32>::read_xdr_with_buffer(r)?,
+                low_threshold: Option::<u32>::read_xdr_with_buffer(r)?,
+                med_threshold: Option::<u32>::read_xdr_with_buffer(r)?,
+                high_threshold: Option::<u32>::read_xdr_with_buffer(r)?,
+                home_domain: Option::<String32>::read_xdr_with_buffer(r)?,
+                signer: Option::<Signer>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

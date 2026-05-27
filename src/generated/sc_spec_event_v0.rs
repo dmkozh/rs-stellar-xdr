@@ -65,3 +65,19 @@ impl WriteXdr for ScSpecEventV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ScSpecEventV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                doc: StringM::<1024>::read_xdr_with_buffer(r)?,
+                lib: StringM::<80>::read_xdr_with_buffer(r)?,
+                name: ScSymbol::read_xdr_with_buffer(r)?,
+                prefix_topics: VecM::<ScSymbol, 2>::read_xdr_with_buffer(r)?,
+                params: VecM::<ScSpecEventParamV0>::read_xdr_with_buffer(r)?,
+                data_format: ScSpecEventDataFormat::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

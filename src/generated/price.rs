@@ -49,3 +49,15 @@ impl WriteXdr for Price {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Price {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                n: i32::read_xdr_with_buffer(r)?,
+                d: i32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

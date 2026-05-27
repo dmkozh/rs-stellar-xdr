@@ -49,3 +49,15 @@ impl WriteXdr for HashIdPreimageContractId {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for HashIdPreimageContractId {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                network_id: Hash::read_xdr_with_buffer(r)?,
+                contract_id_preimage: ContractIdPreimage::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

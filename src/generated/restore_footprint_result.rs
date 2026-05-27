@@ -162,3 +162,25 @@ impl WriteXdr for RestoreFootprintResult {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for RestoreFootprintResult {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: RestoreFootprintResultCode =
+                <RestoreFootprintResultCode as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                RestoreFootprintResultCode::Success => Self::Success,
+                RestoreFootprintResultCode::Malformed => Self::Malformed,
+                RestoreFootprintResultCode::ResourceLimitExceeded => Self::ResourceLimitExceeded,
+                RestoreFootprintResultCode::InsufficientRefundableFee => {
+                    Self::InsufficientRefundableFee
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}

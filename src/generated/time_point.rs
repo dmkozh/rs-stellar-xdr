@@ -50,18 +50,28 @@ impl AsRef<u64> for TimePoint {
 
 impl ReadXdr for TimePoint {
     #[cfg(feature = "std")]
+    #[inline]
     fn read_xdr<R: Read>(r: &mut Limited<R>) -> Result<Self, Error> {
-        r.with_limited_depth(|r| {
-            let i = u64::read_xdr(r)?;
-            let v = TimePoint(i);
-            Ok(v)
-        })
+        // A newtype is a transparent wrapper; the inner type performs its own
+        // depth/length accounting, so no extra depth is charged here.
+        let i = u64::read_xdr(r)?;
+        let v = TimePoint(i);
+        Ok(v)
     }
 }
 
 impl WriteXdr for TimePoint {
     #[cfg(feature = "std")]
+    #[inline]
     fn write_xdr<W: Write>(&self, w: &mut Limited<W>) -> Result<(), Error> {
-        w.with_limited_depth(|w| self.0.write_xdr(w))
+        self.0.write_xdr(w)
+    }
+}
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TimePoint {
+    #[inline]
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        Ok(TimePoint(u64::read_xdr_with_buffer(r)?))
     }
 }

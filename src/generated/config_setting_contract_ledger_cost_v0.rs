@@ -142,3 +142,28 @@ impl WriteXdr for ConfigSettingContractLedgerCostV0 {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for ConfigSettingContractLedgerCostV0 {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                ledger_max_disk_read_entries: u32::read_xdr_with_buffer(r)?,
+                ledger_max_disk_read_bytes: u32::read_xdr_with_buffer(r)?,
+                ledger_max_write_ledger_entries: u32::read_xdr_with_buffer(r)?,
+                ledger_max_write_bytes: u32::read_xdr_with_buffer(r)?,
+                tx_max_disk_read_entries: u32::read_xdr_with_buffer(r)?,
+                tx_max_disk_read_bytes: u32::read_xdr_with_buffer(r)?,
+                tx_max_write_ledger_entries: u32::read_xdr_with_buffer(r)?,
+                tx_max_write_bytes: u32::read_xdr_with_buffer(r)?,
+                fee_disk_read_ledger_entry: i64::read_xdr_with_buffer(r)?,
+                fee_write_ledger_entry: i64::read_xdr_with_buffer(r)?,
+                fee_disk_read1_kb: i64::read_xdr_with_buffer(r)?,
+                soroban_state_target_size_bytes: i64::read_xdr_with_buffer(r)?,
+                rent_fee1_kb_soroban_state_size_low: i64::read_xdr_with_buffer(r)?,
+                rent_fee1_kb_soroban_state_size_high: i64::read_xdr_with_buffer(r)?,
+                soroban_state_rent_fee_growth_factor: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

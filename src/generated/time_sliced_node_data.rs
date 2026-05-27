@@ -87,3 +87,23 @@ impl WriteXdr for TimeSlicedNodeData {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for TimeSlicedNodeData {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                added_authenticated_peers: u32::read_xdr_with_buffer(r)?,
+                dropped_authenticated_peers: u32::read_xdr_with_buffer(r)?,
+                total_inbound_peer_count: u32::read_xdr_with_buffer(r)?,
+                total_outbound_peer_count: u32::read_xdr_with_buffer(r)?,
+                p75_scp_first_to_self_latency_ms: u32::read_xdr_with_buffer(r)?,
+                p75_scp_self_to_other_latency_ms: u32::read_xdr_with_buffer(r)?,
+                lost_sync_count: u32::read_xdr_with_buffer(r)?,
+                is_validator: bool::read_xdr_with_buffer(r)?,
+                max_inbound_peer_count: u32::read_xdr_with_buffer(r)?,
+                max_outbound_peer_count: u32::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

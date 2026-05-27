@@ -49,3 +49,15 @@ impl WriteXdr for SorobanAuthorizedInvocation {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for SorobanAuthorizedInvocation {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            Ok(Self {
+                function: SorobanAuthorizedFunction::read_xdr_with_buffer(r)?,
+                sub_invocations: VecM::<SorobanAuthorizedInvocation>::read_xdr_with_buffer(r)?,
+            })
+        })
+    }
+}

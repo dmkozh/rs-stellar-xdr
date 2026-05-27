@@ -150,3 +150,25 @@ impl WriteXdr for Asset {
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl ReadXdrRc for Asset {
+    fn read_xdr_with_buffer(r: &mut RcReader) -> Result<Self, Error> {
+        r.with_limited_depth(|r| {
+            let dv: AssetType = <AssetType as ReadXdrRc>::read_xdr_with_buffer(r)?;
+            #[allow(clippy::match_same_arms, clippy::match_wildcard_for_single_variants)]
+            let v = match dv {
+                AssetType::Native => Self::Native,
+                AssetType::CreditAlphanum4 => {
+                    Self::CreditAlphanum4(AlphaNum4::read_xdr_with_buffer(r)?)
+                }
+                AssetType::CreditAlphanum12 => {
+                    Self::CreditAlphanum12(AlphaNum12::read_xdr_with_buffer(r)?)
+                }
+                #[allow(unreachable_patterns)]
+                _ => return Err(Error::Invalid),
+            };
+            Ok(v)
+        })
+    }
+}
